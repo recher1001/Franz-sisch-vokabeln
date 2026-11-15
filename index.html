@@ -276,6 +276,8 @@ main.blatt{animation:blatt .26s ease-out}
 .ki-eingabe .btn{min-height:52px;width:52px;padding:0;border-radius:50%;flex:none}
 .ki-leiste{display:flex;gap:8px;align-items:center;justify-content:space-between;flex-wrap:wrap}
 .ki-chip.vorlesen{display:inline-flex;align-items:center;gap:6px}
+.ki-schalter{display:flex;gap:8px;flex-wrap:wrap}
+.denkt{display:inline-flex;align-items:center;gap:8px;color:var(--ink2);font-size:.92rem}
 .ki-chip.vorlesen[aria-pressed="true"]{background:var(--accent-soft);border-color:rgba(242,199,92,.5);color:var(--accent)}
 .ki-eingabe .btn.mik{background:var(--paper2);color:var(--accent)}
 .ki-eingabe .btn.mik.an{background:var(--bad);color:#fff;border-color:transparent;animation:puls 1.2s ease-in-out infinite}
@@ -1572,8 +1574,11 @@ var KIURL = 'https://cdn.jsdelivr.net/npm/@mlc-ai/web-llm@0.2.87/+esm';
 var KIMODELLE = [
   { id:'Qwen3.5-0.8B-q4f16_1-MLC', name:'Klein', info:'Für ältere Handys. Einmaliger Download von etwa 0,6 GB. Einfache Antworten.' },
   { id:'Qwen3.5-2B-q4f16_1-MLC', name:'Mittel', info:'Für neuere Handys und Laptops. Einmaliger Download von etwa 1,3 GB.' },
-  { id:'Qwen3.5-4B-q4f16_1-MLC', name:'Stark', info:'Für PC und Laptop mit guter Grafik. Einmaliger Download von etwa 2,5 GB. Die klügsten Antworten.' }
+  { id:'Qwen3.5-4B-q4f16_1-MLC', name:'Stark', info:'Für PC und Laptop mit guter Grafik. Einmaliger Download von etwa 2,5 GB.' },
+  { id:'Qwen3.5-9B-q4f16_1-MLC', name:'Sehr stark', info:'Nur für Gaming-PCs mit starker Grafikkarte (ab 8 GB Grafikspeicher). Einmaliger Download von etwa 5 GB. Die klügsten Antworten.' }
 ];
+function kiStufe(){ var id = KI.modellAktiv || kiModellId(); for (var i=0;i<KIMODELLE.length;i++) if (KIMODELLE[i].id === id) return i; return 1; }
+function kiDenken(){ if (KI.quelle !== 'lokal' || KI.modus !== 'tutor') return false; return S.set.kiDenken == null ? kiStufe() >= 2 : !!S.set.kiDenken; }
 var KI = { quelle:null, engine:null, sample:null, lib:null, laedt:false, fortschritt:0, status:'', fehler:'', modus:'tutor', verlauf:{ tutor:[], emma:[] }, antwortet:false, abbruch:null, zurueck:null, vorlage:'', geprueft:false };
 function imClaude(){ return !!(window.claude && typeof window.claude.use === 'function'); }
 function kiMoeglich(){ return imClaude() || !!navigator.gpu; }
@@ -1585,6 +1590,47 @@ function kiWorte(n){
   return shuffle(schwach).concat(shuffle(rest)).slice(0, n);
 }
 function kurzDe(de){ return de.replace(/\([^)]*\)/g, '').replace(/\s+/g, ' ').trim(); }
+var GRAMMATIK = [
+  { k:/\b(y|en)\b.*\b(y|en)\b|pronom.*\b(y|en)\b|\b(y|en)\b.*pronom|«\s*(y|en)\s*»|j'y|j'en/, t:'Pronomen «y» und «en»:\n«y» ersetzt eine Ortsangabe mit à/en/dans/chez/sur (Tu vas à Genève ? – Oui, j\'y vais.) oder eine Ergänzung mit à + Sache (Je pense à l\'examen. → J\'y pense.).\n«en» ersetzt eine Ergänzung mit de (Il revient de Paris. → Il en revient. / Elle parle de son voyage. → Elle en parle.) und Mengen mit Teilungsartikel (Tu veux du pain ? – Oui, j\'en veux. / J\'en ai deux. / J\'en ai beaucoup.).\nStellung: vor dem konjugierten Verb, im passé composé vor dem Hilfsverb (J\'y suis allé. J\'en ai mangé.). Beim bejahten Imperativ dahinter: Vas-y ! Prends-en ! Beide zusammen: «y» vor «en» (Il y en a.).' },
+  { k:/futur|zukunft|werde|wird .*(machen|sein)|ser(ai|as|a|ons|ez|ont)\b|aur(ai|as|a)\b|fer(ai|as|a)\b|ir(ai|as|a)\b/, t:'futur simple (Zukunft):\nInfinitiv + Endungen -ai, -as, -a, -ons, -ez, -ont (je parlerai, tu finiras). Bei Verben auf -re fällt das e weg: prendre → je prendrai.\nUnregelmäßige Stämme: être → ser-, avoir → aur-, aller → ir-, faire → fer-, venir → viendr-, voir → verr-, pouvoir → pourr-, vouloir → voudr-, devoir → devr-, savoir → saur-, envoyer → enverr-, il faut → il faudra, il pleut → il pleuvra.' },
+  { k:/\bsi\b|bedingung|wenn.*dann|realer/, t:'Realer Bedingungssatz:\nSi + présent, Hauptsatz im futur simple (oder présent / Imperativ): S\'il fait beau demain, je me baignerai. Si tu veux, on ira au cinéma.\nWichtig: Nach «si» steht nie das futur. «si» + il → «s\'il», aber «si elle» bleibt.' },
+  { k:/imperati|befehl|aufforderung|-moi|-toi|-le\b|-la\b/, t:'Imperativ mit Pronomen:\nBejaht: Pronomen hinter das Verb mit Bindestrich, me/te werden zu moi/toi: Donne-moi le livre ! Lève-toi ! Prends-le !\nVerneint: Pronomen bleibt vor dem Verb: Ne me le donne pas ! Ne te lève pas !\nBei -er-Verben fällt in der du-Form das s weg (Regarde !), außer vor y/en (Vas-y ! Manges-en !).' },
+  { k:/quelqu|quelque chose|personne|rien|chacun|chaque|plusieurs|certain|tous|toutes|unbestimmt/, t:'Unbestimmte Pronomen und Begleiter:\nquelqu\'un (jemand), quelque chose (etwas), personne (niemand: Je ne vois personne.), rien (nichts: Je ne fais rien.), chacun/chacune (jeder Einzelne, allein stehend), chaque (jeder, vor Nomen: chaque jour), plusieurs (mehrere), certains/certaines (manche), quelques (einige), tout/toute/tous/toutes (alle, ganz).\nMit Adjektiv: quelque chose de bon, rien de grave, quelqu\'un d\'intéressant.' },
+  { k:/s'en aller|en aller|m'en vais|t'en vas|va-t'en/, t:'s\'en aller (weggehen):\nje m\'en vais, tu t\'en vas, il/elle s\'en va, nous nous en allons, vous vous en allez, ils/elles s\'en vont.\npassé composé: je m\'en suis allé(e). Imperativ: Va-t\'en ! Allons-nous-en ! Allez-vous-en !' },
+  { k:/passé composé|perfekt|être oder avoir|avoir oder être|hilfsverb|\b(suis|es|est|sommes|êtes|sont)\s+(\w+-)?\w+(é|ée|és|ées|i|ie|is|ies|u|ue|us|ues|t|te|ts|tes)\b/, t:'passé composé mit être oder avoir:\nMit être: die Verben der Bewegung und des Bleibens (aller, venir, revenir, arriver, partir, entrer, rentrer, sortir, monter, descendre, rester, tomber, naître, mourir, retourner) und alle reflexiven Verben. Das Partizip richtet sich dann nach dem Subjekt: Elle est allée. Ils sont revenus. Nous nous sommes levé(e)s.\nAlle anderen Verben mit avoir: J\'ai mangé.' },
+  { k:/adjektiv|angleich|weiblich|feminin|plural|-euse|-ive|-elle\b/, t:'Angleichung der Adjektive:\nweiblich meist + e (grand → grande), Plural + s. Besondere Formen: -eux → -euse (curieux → curieuse), -if → -ive (créatif → créative), -el → -elle (traditionnel → traditionnelle), -en → -enne, -er → -ère (premier → première), -on → -onne. Endet es schon auf e, bleibt es gleich (populaire).' },
+  { k:/teilungsartikel|\bdu\b.*\bde la\b|des\b.*\bde\b|mengen|beaucoup de|pas de/, t:'Teilungsartikel:\ndu (m), de la (f), de l\' (vor Vokal), des (Plural): Je mange du pain, de la soupe.\nNach Verneinung und Mengenangaben steht nur de/d\': Je ne mange pas de pain. Beaucoup de gens. Un kilo de pommes.' },
+  { k:/lequel|laquelle|lesquel/, t:'Fragepronomen lequel:\nlequel (m), laquelle (f), lesquels (m Pl.), lesquelles (f Pl.) = welcher/welche/welches (von mehreren Möglichkeiten). Es richtet sich nach dem Nomen, das gemeint ist: Je voudrais un gâteau. – Lequel ?' },
+  { k:/\bqui\b.*\bque\b|\bque\b.*\bqui\b|relativ|\boù\b.*relativ/, t:'Relativpronomen:\nqui = Subjekt des Nebensatzes (la fille qui habite à Genève), que/qu\' = Objekt (le film que j\'ai vu), où = Ort oder Zeit (la ville où j\'habite, le jour où il est arrivé).' },
+  { k:/venir de|en train de|aller \+|futur composé|gerade (getan|gemacht)/, t:'Zeitformen mit Hilfsverben:\nvenir de + Infinitiv = gerade etwas getan haben (Je viens de manger.).\nêtre en train de + Infinitiv = gerade dabei sein (Je suis en train de lire.).\naller + Infinitiv = gleich etwas tun / futur composé (Je vais manger.).' }
+];
+var VOKINDEX = null;
+function kiIndex(){
+  if (VOKINDEX) return VOKINDEX;
+  VOKINDEX = [];
+  CARDS.forEach(function(c){
+    var keys = [];
+    c.acc.forEach(function(a){ var n = noAcc(noArt(norm(a))); if (n.length >= 3) keys.push(n); });
+    deTeile(c.de).forEach(function(d){ if (d.length >= 4 && !/^(etw|jdn|jdm)$/.test(d)) keys.push(noAcc(d)); });
+    keys.filter(function(k, i){ return keys.indexOf(k) === i; }).forEach(function(k){ VOKINDEX.push({ k:k, c:c }); });
+  });
+  VOKINDEX.sort(function(a, b){ return b.k.length - a.k.length; });
+  return VOKINDEX;
+}
+function kiWissen(text){
+  var t = ' ' + noAcc(norm(text)).replace(/ae/g, 'a').replace(/[«»"„“.,!?;:()]/g, ' ') + ' ', roh = text.toLowerCase(), treffer = [], teile = [];
+  var t2 = ' ' + normDe(text) + ' ';
+  kiIndex().forEach(function(e){
+    if (treffer.length >= 5 || treffer.indexOf(e.c) >= 0) return;
+    var muster = ' ' + e.k + ' ';
+    if (t.indexOf(muster) >= 0 || t2.indexOf(muster) >= 0) treffer.push(e.c);
+  });
+  if (treffer.length) teile.push('WORDS FROM THE PUPIL\'S TEXTBOOK that may be relevant (correct translations; if a word fits the question, use exactly this meaning, otherwise ignore it):\n' + treffer.map(function(c){
+    return '- «' + c.fr + '» = ' + c.de + (c.satz && c.loes ? '. Example from the book: «' + satzVoll(c, false) + '»' : ''); }).join('\n'));
+  var g = GRAMMATIK.filter(function(x){ return x.k.test(roh) || x.k.test(noAcc(roh)); }).slice(0, 2);
+  if (g.length) teile.push('GRAMMAR NOTES (reliable, base your explanation on this):\n' + g.map(function(x){ return x.t; }).join('\n\n'));
+  return teile.join('\n\n');
+}
 function kiSystem(){
   var w = kiWorte(30).map(function(c){ return c.fr.replace(/\s*\([^)]*\)/g, '') + ' = ' + kurzDe(c.de); }).join('; ');
   if (KI.modus === 'emma') return 'You are Emma, a friendly 14-year-old girl from Geneva, Switzerland. You love skiing in Nendaz, swimming, football (you are a fan of the Swiss team "la Nati"), fondue and raclette. Your little brother Gabriel is 9. In December Geneva celebrates the "fête de l\'Escalade". ' +
@@ -1614,12 +1660,26 @@ function kiBeispiele(){
     { role:'assistant', content:'**«la marmite»** heißt **der Kochtopf**.\nBeispiel: «Je verse du fromage dans la marmite.» = Ich gieße Käse in den Topf.\nTipp: Denk an eine **Mar**melade, die im Topf kocht.' }
   ];
 }
-function kiSauber(t){ return String(t || '').replace(/<think>[\s\S]*?(<\/think>|$)/g, '').replace(/^\s+/, ''); }
+function kiSauber(t){
+  t = String(t || '');
+  var e = t.lastIndexOf('</think>'); if (e >= 0) t = t.slice(e + 8);
+  return t.replace(/<think>[\s\S]*$/, '').replace(/^\s+/, '');
+}
 function kiChips(){
-  var w = kiWorte(3), a = w[0], b = w[1] || w[0], c = w[2] || w[0], g = function(x){ return x.fr.replace(/\s*\([^)]*\)/g, ''); };
-  if (!a) return [];
-  if (KI.modus === 'emma') return ['Salut Emma ! Ça va ?', 'Parle-moi de la fête de l\'Escalade !', 'Qu\'est-ce que tu aimes manger ?', 'Tu fais quoi le week-end ?'];
-  return ['Gib mir eine Eselsbrücke für «' + g(a) + '»', 'Bilde 3 einfache Sätze mit «' + g(b) + '» und «' + g(c) + '»', 'Frag mich 5 meiner Wörter ab', 'Wann sagt man «y» und wann «en»?', 'Wie bildet man das futur simple?'];
+  var w = kiWorte(6), g = function(x){ return x.fr.replace(/\s*\([^)]*\)/g, ''); };
+  if (!w.length) return [];
+  if (KI.modus === 'emma') return ['Salut Emma ! Ça va ?', 'Parle-moi de la fête de l\'Escalade !', 'Qu\'est-ce que tu aimes manger ?', 'Tu fais quoi le week-end ?'].map(function(x){ return { l:x, t:x }; });
+  var a = w[0], b = w[1] || w[0], c = w[2] || w[0], ab = w.slice(0, 5);
+  return [
+    { l:'Eselsbrücke für «' + g(a) + '»', t:'Gib mir eine Eselsbrücke für «' + g(a) + '» (= ' + kurzDe(a.de) + ').' },
+    { l:'Sätze mit «' + g(b) + '» und «' + g(c) + '»', t:'Bilde 3 einfache französische Sätze mit «' + g(b) + '» (= ' + kurzDe(b.de) + ') und «' + g(c) + '» (= ' + kurzDe(c.de) + '). Schreib unter jeden Satz die deutsche Übersetzung.' },
+    { l:'Frag mich ' + ab.length + ' Wörter ab', a:'Frag mich ' + ab.length + ' Wörter ab.',
+      t:'Frag mich diese ' + ab.length + ' Wörter ab, immer nur EIN Wort pro Nachricht. Du nennst das deutsche Wort, ich antworte auf Französisch, dann sagst du mir, ob es stimmt, und nennst das nächste. Verrate die Lösung erst nach meiner Antwort. Am Ende sagst du, wie viele richtig waren.\nLösungen (geheim):\n' +
+        ab.map(function(x, i){ return (i + 1) + '. ' + kurzDe(x.de) + ' → ' + x.fr; }).join('\n') },
+    { l:'«y» oder «en»?', t:'Wann sagt man «y» und wann «en»? Erklär es mir mit Beispielen.' },
+    { l:'So geht das futur simple', t:'Wie bildet man das futur simple? Mit Beispielen.' },
+    { l:'Realer Bedingungssatz', t:'Wie funktioniert der Satz mit «si» (realer Bedingungssatz)?' }
+  ];
 }
 function kiFormat(t, emma){
   var h = esc(t).replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>').replace(/«([^»]+)»/g, '<span class="fr" lang="fr">«$1»</span>').replace(/\n/g, '<br>');
@@ -1628,7 +1688,7 @@ function kiFormat(t, emma){
 }
 function blaseHTML(m, i){
   var emma = KI.modus === 'emma';
-  if (m.role === 'user') return '<div class="blase ich"' + (emma ? ' lang="fr"' : '') + '>' + (m.stimme ? '<span class="stimm-icon" aria-label="Sprachnachricht">' + svg(P.mik, 14) + '</span>' : '') + esc(m.content).replace(/\n/g, '<br>') + '</div>';
+  if (m.role === 'user') return '<div class="blase ich"' + (emma ? ' lang="fr"' : '') + '>' + (m.stimme ? '<span class="stimm-icon" aria-label="Sprachnachricht">' + svg(P.mik, 14) + '</span>' : '') + esc(m.anzeige || m.content).replace(/\n/g, '<br>') + '</div>';
   return '<div class="blase ki-b"' + (emma ? ' lang="fr"' : '') + '><div class="blase-wer" lang="de">' + (emma ? 'Emma' : 'KI-Helfer') + '</div>' + kiFormat(m.content, emma) +
     (m.de ? '<span class="uebersetzung" lang="de">' + esc(m.de) + '</span>' : '') +
     (emma && i != null && !m.de && !KI.antwortet ? '<div class="blase-aktion" lang="de"><button type="button" data-act="ki-uebersetzen" data-w="' + i + '">Auf Deutsch?</button>' + (stimme ? '<button type="button" data-act="sprich" data-t="' + esc(m.content.replace(/^\s*\[[^\]]*\]\s*/, '')) + '">Vorlesen</button>' : '') + '</div>' : '') + '</div>';
@@ -1639,9 +1699,10 @@ function rKi(){
   var v = KI.verlauf[KI.modus];
   if (KI.modus === 'emma' && !v.length) v.push({ role:'assistant', content:'Salut ! Moi, c\'est Emma, j\'habite à Genève. Et toi, comment tu t\'appelles ?' });
   main.innerHTML = '<div class="ki"><div class="ki-leiste">' + seg('ki-modus', KI.modus, [['tutor','Tutor'],['emma','Emma']]) +
-    (kiKannVorlesen() ? '<button type="button" class="ki-chip vorlesen" data-act="ki-vorlesen" aria-pressed="' + !!S.set.kiVorlesen + '">' + svg(P.spk, 16) + 'Vorlesen ' + (S.set.kiVorlesen ? 'an' : 'aus') + '</button>' : '') + '</div>' +
-    '<p class="hinweis">' + (KI.modus === 'emma' ? 'Emma aus Genf schreibt dir auf Französisch. Antworte auch auf Französisch, gern per Sprachnachricht. Machst du einen Fehler, zeigt sie dir die bessere Version.' : 'Frag alles zu deinen Vokabeln und zur Grammatik, auf Deutsch. Der Tutor kennt die Wörter, die du gerade lernst.') + '</p>' +
-    '<div class="ki-chips">' + kiChips().map(function(c){ return '<button type="button" class="ki-chip" data-act="ki-chip" data-t="' + esc(c) + '"' + (KI.antwortet ? ' disabled' : '') + (KI.modus === 'emma' ? ' lang="fr"' : '') + '>' + esc(c) + '</button>'; }).join('') + '</div>' +
+    '<span class="ki-schalter">' + (KI.quelle === 'lokal' && KI.modus === 'tutor' ? '<button type="button" class="ki-chip vorlesen" data-act="ki-denken" aria-pressed="' + kiDenken() + '" title="Die KI denkt vor der Antwort nach. Dauert länger, ist aber klüger.">' + svg(P.ki, 16) + 'Gründlich ' + (kiDenken() ? 'an' : 'aus') + '</button>' : '') +
+      (kiKannVorlesen() ? '<button type="button" class="ki-chip vorlesen" data-act="ki-vorlesen" aria-pressed="' + !!S.set.kiVorlesen + '">' + svg(P.spk, 16) + 'Vorlesen ' + (S.set.kiVorlesen ? 'an' : 'aus') + '</button>' : '') + '</span></div>' +
+    '<p class="hinweis">' + (KI.modus === 'emma' ? 'Emma aus Genf schreibt dir auf Französisch. Antworte auch auf Französisch, gern per Sprachnachricht. Machst du einen Fehler, zeigt sie dir die bessere Version.' : 'Frag alles zu deinen Vokabeln und zur Grammatik, auf Deutsch. Der Tutor schlägt die Wörter und Beispiele aus deinem Buch nach.' + (kiDenken() ? ' „Gründlich“ ist an: Er denkt erst nach, das dauert etwas länger.' : '')) + '</p>' +
+    '<div class="ki-chips">' + kiChips().map(function(c){ return '<button type="button" class="ki-chip" data-act="ki-chip" data-t="' + esc(c.t) + '" data-a="' + esc(c.a || '') + '"' + (KI.antwortet ? ' disabled' : '') + (KI.modus === 'emma' ? ' lang="fr"' : '') + '>' + esc(c.l) + '</button>'; }).join('') + '</div>' +
     '<div class="ki-verlauf" id="ki-verlauf">' + v.map(function(m, i){ return blaseHTML(m, i); }).join('') + (KI.antwortet ? '<div class="blase ki-b" id="ki-live"><div class="tippt"><i></i><i></i><i></i></div></div>' : '') + '</div>' +
     '<div class="fuss"><form class="ki-eingabe" id="f-ki" autocomplete="off">' +
       (kiKannSprechen() && !KI.antwortet ? '<button type="button" class="btn mik' + (MIK.an ? ' an' : '') + '" id="ki-mik" data-act="ki-mik" aria-pressed="' + MIK.an + '" aria-label="' + (MIK.an ? 'Aufnahme beenden und senden' : 'Sprachnachricht aufnehmen') + '">' + svg(P.mik, 22) + '</button>' : '') + '<textarea id="ki-text" rows="1" placeholder="' + (KI.modus === 'emma' ? 'Écris en français …' : 'Deine Frage …') + '" aria-label="Nachricht an die KI"' + (KI.modus === 'emma' ? ' lang="fr"' : '') + '>' + esc(KI.vorlage) + '</textarea>' +
@@ -1699,7 +1760,7 @@ function kiLaden(){
       if (b) b.style.width = Math.round(KI.fortschritt * 100) + '%'; if (t) t.textContent = KI.status;
     } });
   }).then(function(engine){
-    KI.engine = engine; KI.laedt = false; S.set.kiModell = id; speichern();
+    KI.engine = engine; KI.modellAktiv = id; KI.laedt = false; S.set.kiModell = id; speichern();
     if (view === 'ki'){ render(); if (KI.wartet){ var t = KI.wartet; KI.wartet = null; kiSenden(t); } }
   }).catch(function(e){
     KI.laedt = false;
@@ -1718,21 +1779,28 @@ function kiStatusText(r){
 function kiRunter(){ var v = document.getElementById('ki-verlauf'); if (v) requestAnimationFrame(function(){ window.scrollTo(0, document.body.scrollHeight); }); }
 function kiLive(text){
   var el = document.getElementById('ki-live'); if (!el) return;
+  if (text === null){ if (!el.querySelector('.denkt')) el.innerHTML = '<div class="blase-wer" lang="de">KI-Helfer</div><span class="denkt">Denkt gründlich nach <span class="tippt"><i></i><i></i><i></i></span></span>'; return; }
   el.innerHTML = '<div class="blase-wer" lang="de">' + (KI.modus === 'emma' ? 'Emma' : 'KI-Helfer') + '</div>' + kiFormat(text, KI.modus === 'emma');
   kiRunter();
 }
 function kiAntwort(nachrichten, live, modus){
   var alt = KI.modus; if (modus) KI.modus = modus;
-  var sys = kiSystem(), beispiele = kiBeispiele(), emma = KI.modus === 'emma';
+  var sys = kiSystem(), beispiele = kiBeispiele(), emma = KI.modus === 'emma', denken = !modus && kiDenken();
   KI.modus = alt;
-  var letzte = nachrichten.slice(-8).map(function(m){ return { role:m.role, content:m.content }; });
+  var letzte = nachrichten.slice(denken ? -6 : -8).map(function(m){ return { role:m.role, content:m.content }; });
+  var frage = letzte.length ? letzte[letzte.length - 1].content : '', wissen = kiWissen(frage);
+  if (wissen) sys += '\n\n' + wissen;
   var zuletzt = letzte[letzte.length - 1];
   if (zuletzt && zuletzt.role === 'user') zuletzt.content += emma ? '\n\n(Réponds en français simple. Corrige ma phrase entre crochets s\'il y a une faute.)' : '\n\n(Antworte auf Deutsch.)';
   if (KI.engine){
     var msgs = [{ role:'system', content:sys }].concat(beispiele, letzte);
-    return KI.engine.chat.completions.create({ messages:msgs, stream:true, temperature:emma ? .7 : .4, top_p:.9, frequency_penalty:.3, presence_penalty:.1, max_tokens:420, extra_body:{ enable_thinking:false } }).then(function(stream){
+    return KI.engine.chat.completions.create({ messages:msgs, stream:true, temperature:emma ? .7 : (denken ? .6 : .3), top_p:denken ? .95 : .9, frequency_penalty:.3, presence_penalty:.1, max_tokens:denken ? 1600 : 450, extra_body:{ enable_thinking:denken } }).then(function(stream){
       var text = '', it = stream[Symbol.asyncIterator]();
-      function weiter(){ return it.next().then(function(x){ if (x.done) return kiSauber(text); var d = x.value.choices && x.value.choices[0] && x.value.choices[0].delta; if (d && d.content){ text += d.content; if (live) live(kiSauber(text)); } return weiter(); }); }
+      function weiter(){ return it.next().then(function(x){
+        if (x.done) return kiSauber(text);
+        var d = x.value.choices && x.value.choices[0] && x.value.choices[0].delta;
+        if (d && d.content){ text += d.content; if (live) live(denken && text.indexOf('</think>') < 0 ? null : kiSauber(text)); }
+        return weiter(); }); }
       return weiter();
     });
   }
@@ -1742,11 +1810,11 @@ function kiAntwort(nachrichten, live, modus){
   verlauf[0] = { role:'user', content:'Instructions:\n' + sys + '\n\n---\n' + verlauf[0].content };
   return KI.sample(verlauf, { signal:ab.signal, cache:false, modelTier:'quick', onText:function(u){ if (live) live(u.text); } }).then(function(r){ return r.text; });
 }
-function kiSenden(text, gesprochen){
+function kiSenden(text, gesprochen, anzeige){
   text = String(text || '').trim(); if (!text || KI.antwortet) return;
   if (!kiBereit()){ KI.wartet = text; if (!imClaude()) kiLaden(); return; }
   var v = KI.verlauf[KI.modus], modus = KI.modus;
-  v.push({ role:'user', content:text, stimme:!!gesprochen }); KI.antwortet = true; render();
+  v.push({ role:'user', content:text, stimme:!!gesprochen, anzeige:anzeige || '' }); KI.antwortet = true; render();
   kiAntwort(v.filter(function(m){ return m.role === 'user' || m.role === 'assistant'; }).map(function(m){ return { role:m.role, content:m.content }; }), kiLive).then(function(antwort){
     var fertig = String(antwort || '').trim() || '…';
     KI.verlauf[modus].push({ role:'assistant', content:fertig });
@@ -1833,8 +1901,9 @@ function kiKlick(act, w, b){
     case 'ki-modell': S.set.kiModell = w; speichern(); render(); return true;
     case 'ki-laden': kiLaden(); return true;
     case 'ki-modus': if (KI.antwortet || MIK.an) return true; KI.modus = w; render(); return true;
-    case 'ki-chip': kiSenden(b.getAttribute('data-t')); return true;
+    case 'ki-chip': kiSenden(b.getAttribute('data-t'), false, b.getAttribute('data-a')); return true;
     case 'ki-mik': if (MIK.an) mikStopp(); else mikStart(); return true;
+    case 'ki-denken': S.set.kiDenken = !kiDenken(); speichern(); render(); return true;
     case 'ki-vorlesen': S.set.kiVorlesen = !S.set.kiVorlesen; speichern(); if (!S.set.kiVorlesen) try { window.speechSynthesis.cancel(); } catch(e){} render(); return true;
     case 'ki-stopp': if (KI.engine) try { KI.engine.interruptGenerate(); } catch(e){} if (KI.abbruch) KI.abbruch.abort(); return true;
     case 'ki-uebersetzen': kiUebersetzen(w); return true;
