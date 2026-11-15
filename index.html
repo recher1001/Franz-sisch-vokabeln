@@ -20,7 +20,7 @@ img{max-width:100%}
 <body>
 <title>Vokabeltrainer À plus!</title>
 <meta name="claude:viewport-fit-sides" content="cover">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Figtree:wght@400..800&family=Playwrite+FR+Moderne:wght@100..400&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Figtree:wght@400..800&family=Playwrite+FR+Moderne:wght@100..400&display=swap">
 <style>
 /* Layout: ein französisches Schulheft. Die Startseite ist der Heftdeckel (königsblau, mit Etikett),
    dahinter kommen Seite für Seite: Vokabeln wählen, Lernart wählen, Einstellungen, Lernen.
@@ -41,7 +41,8 @@ img{max-width:100%}
   --k1:#8fd1b2; --k2:#f09a8e; --k3:#86cbbb; --k4:#f2cf6e; --k5:#b9aaf0; --k6:#8fbde6; --k7:#f0a66e; --k8:#e3a3c8; --on-k:#12201c;
   --edge:inset 0 1px 0 rgba(255,255,255,.05);
   --shadow:0 1px 0 rgba(0,0,0,.25),0 18px 40px -22px rgba(0,0,0,.85);
-  --f-display:"Bricolage Grotesque","Avenir Next","Segoe UI",system-ui,sans-serif;
+  --f-display:"Fraunces","Iowan Old Style","Palatino Linotype",Georgia,serif;
+  --f-ui:"Figtree","Segoe UI",system-ui,-apple-system,sans-serif;
   --f-body:"Figtree","Segoe UI",system-ui,-apple-system,"Helvetica Neue",sans-serif;
   --f-hand:"Playwrite FR Moderne","Segoe Script","Bradley Hand","Snell Roundhand",cursive;
   --r:20px;
@@ -136,7 +137,15 @@ main.blatt{animation:blatt .26s ease-out}
 .etikett .eyebrow{line-height:2.25rem}
 .etikett .hand{font-size:clamp(1.7rem,8vw,2.3rem);line-height:2.25rem;color:var(--accent);white-space:nowrap}
 .etikett .zeile{font-family:var(--f-display);font-weight:750;font-size:1.02rem;line-height:2.25rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.gruss{display:flex;flex-direction:column;gap:8px}
+.gruss{display:flex;flex-direction:column;gap:8px;min-width:0}
+.held{display:grid;grid-template-columns:auto minmax(0,1fr);gap:18px;align-items:center}
+.ring{position:relative;width:104px;height:104px;flex:none}
+.ring svg{display:block;width:100%;height:100%;transform:rotate(-90deg)}
+.ring .spur{stroke:rgba(255,255,255,.08)}
+.ring .wert{stroke:url(#goldverlauf);stroke-linecap:round;transition:stroke-dashoffset 1s cubic-bezier(.2,.8,.2,1)}
+.ring-text{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1}
+.ring-text b{font-family:var(--f-display);font-weight:600;font-size:1.65rem;color:var(--on-cover);font-variant-numeric:lining-nums tabular-nums}
+.ring-text span{font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;color:var(--on-cover2);margin-top:4px}
 .gruss .hand{font-size:1.35rem;color:var(--cta)}
 .gruss h1{font-size:clamp(1.7rem,7vw,2.4rem);font-weight:750}
 .gruss h1 em{font-style:normal;color:var(--cta)}
@@ -442,6 +451,31 @@ body::after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opa
 .opt:not(:disabled):hover,.art:not(:disabled):hover,.tx-karte:hover,.volet:hover{border-color:rgba(242,199,92,.45)}
 .tut-punkte button[aria-current="step"] i{background:var(--gold)}
 .toast{background:#eef3ea;color:#0c1613}
+
+/* ---------- Schrift und Feinheiten ---------- */
+h1,h2,h3{font-family:var(--f-display);font-weight:600;letter-spacing:-.015em;font-variation-settings:"opsz" 72}
+.kopf h1,.gruss h1,.tut-blatt h1,.ende h1{font-weight:600;letter-spacing:-.02em}
+.gruss h1{font-size:clamp(1.55rem,6.4vw,2.1rem);line-height:1.15}
+.gruss h1 em{font-style:italic;color:var(--accent)}
+.k-wort{font-family:var(--f-display);font-weight:600;letter-spacing:-.01em;font-variation-settings:"opsz" 60}
+.k-wort.lang{font-weight:500}
+.titel b,.fach-n,.zahl b,.ord .nr,.bz-kopf b,.anleitung-karte b,.vf-knoepfe .opt,.paar.fr,.volet-name,.btn,.nav,.seg button,.badge{font-family:var(--f-ui)}
+.art b,.tx-text b,.etikett .zeile,.buchkopf h2{font-family:var(--f-display);font-weight:600;letter-spacing:-.01em}
+.zahl b{font-weight:700}
+.etikett .zeile{font-weight:500;font-style:italic}
+.cover .eyebrow::before,.block>.eyebrow::before,.kasten-wrap>.eyebrow::before,.buecher>.eyebrow::before{content:"";display:inline-block;width:18px;height:1px;background:var(--accent);vertical-align:middle;margin-right:10px;opacity:.8}
+.etikett .eyebrow::before,.motjour .eyebrow::before{display:none}
+.stapel.ziel i{background:var(--accent);opacity:1}
+.legende i.z{background:var(--accent)!important}
+.karte,.tut-blatt,.wie,.motjour{border-radius:22px}
+.art,.volet,.opt,.tx-karte,.ord{transition:transform .18s cubic-bezier(.2,.8,.2,1),border-color .18s,box-shadow .18s}
+@media (hover:hover){ .art:not(:disabled):hover,.tx-karte:hover,.opt:not(:disabled):hover{transform:translateY(-2px)} }
+.btn:not(:disabled):active,.art:not(:disabled):active,.opt:not(:disabled):active,.volet:active,.ord:not(:disabled):active{transform:scale(.985)}
+.cover .btn.cta{position:relative;overflow:hidden;letter-spacing:.01em}
+.cover .btn.cta::after{content:"";position:absolute;top:0;bottom:0;left:-40%;width:30%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.55),transparent);transform:skewX(-18deg);animation:glanz 1.4s .8s cubic-bezier(.4,0,.2,1) both}
+@keyframes glanz{to{left:130%}}
+.zahl{border-radius:16px;padding:14px 12px}
+.ende .hand,.tut-blatt .hand{color:var(--accent)}
 
 @media (prefers-reduced-motion: reduce){ *,*::before,*::after{animation:none!important;transition:none!important} }
 </style>
@@ -825,8 +859,10 @@ function rStart(){
   var u = uebersicht(CARDS.filter(zaehlt)), h = new Date().getHours();
   var salut = h < 5 ? 'Bonne nuit !' : h < 11 ? 'Bonjour !' : h < 18 ? 'Salut !' : 'Bonsoir !';
   var gelernt = u.n - u.neu, serie = S.tage.last >= today() - 1 ? S.tage.serie : 0, satz;
+  var punkte = 0; u.fach.forEach(function(n, p){ punkte += n * p; }); var prozent = u.n ? Math.round(punkte / (u.n * 6) * 100) : 0;
+  if (punkte > 0 && prozent === 0) prozent = 1;
   if (u.faellig) satz = 'Heute ' + (u.faellig === 1 ? 'wartet' : 'warten') + ' <em>' + wort(u.faellig, 'Wiederholung', 'Wiederholungen') + '</em> auf dich.';
-  else if (!gelernt) satz = '<em>' + u.n + ' Wörter</em> warten darauf, gelernt zu werden.';
+  else if (!gelernt) satz = '<em>' + u.n + ' Wörter</em> warten auf dich.';
   else if (u.naechste) satz = 'Für heute ist <em>alles wiederholt</em>. Lust auf neue Wörter?';
   else satz = 'Alle gelernten Wörter <em>sitzen</em>. Lust auf neue?';
   var m = motDuJour(), mot = m ? '<section class="motjour seyes" id="motjour" data-act="motjour" role="button" tabindex="0" aria-label="Wort des Tages, tippen zum Aufdecken">' +
@@ -842,7 +878,10 @@ function rStart(){
   main.innerHTML = '<div class="cover">' +
     '<div class="cover-nav"><button type="button" class="nav hilfe" data-act="tut" data-w="0">' + svg(P.hilfe, 18) + 'Anleitung</button><button type="button" class="nav" data-act="go" data-w="liste">Alle Wörter</button><button type="button" class="nav" data-act="go" data-w="mehr">Mehr</button></div>' +
     '<div class="etikett"><div class="etikett-in"><span class="eyebrow">Cahier de</span><span class="hand" lang="fr">vocabulaire</span><span class="zeile">À plus! · Französisch</span></div></div>' +
-    '<div class="gruss"><p class="hand" lang="fr">' + salut + '</p><h1>' + satz + '</h1></div>' +
+    '<div class="held"><div class="ring" role="img" aria-label="' + prozent + ' Prozent deines Lernwegs geschafft"><svg viewBox="0 0 104 104" aria-hidden="true"><defs><linearGradient id="goldverlauf" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f8d77f"/><stop offset="1" stop-color="#d9a434"/></linearGradient></defs>' +
+      '<circle class="spur" cx="52" cy="52" r="45" fill="none" stroke-width="7"/><circle class="wert" cx="52" cy="52" r="45" fill="none" stroke-width="7" stroke-dasharray="282.7" stroke-dashoffset="' + (282.7 * (1 - prozent / 100)).toFixed(1) + '"/></svg>' +
+      '<div class="ring-text"><b>' + prozent + '<small style="font-size:.55em">%</small></b><span>geschafft</span></div></div>' +
+      '<div class="gruss"><p class="hand" lang="fr">' + salut + '</p><h1>' + satz + '</h1></div></div>' +
     '<div class="cover-knopf"><button type="button" class="btn cta" id="los" data-act="go" data-w="wahl">Lernen starten</button>' +
       (u.faellig ? '<button type="button" class="btn zweit" data-act="faellig">Nur die ' + wort(u.faellig, 'fällige Wiederholung', 'fälligen Wiederholungen') + '</button>' : '') +
       (texte().length ? '<button type="button" class="btn zweit" data-act="go" data-w="texte">' + svg(P.buch, 20) + 'Texte aus dem Buch verstehen</button>' : '') + '</div>' +
