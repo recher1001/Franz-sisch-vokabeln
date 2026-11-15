@@ -20,7 +20,7 @@ img{max-width:100%}
 <body>
 <title>Vokabeltrainer À plus!</title>
 <meta name="claude:viewport-fit-sides" content="cover">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Figtree:wght@400..800&family=Playwrite+FR+Moderne:wght@100..400&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400..800&family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Figtree:wght@400..800&family=Playwrite+FR+Moderne:wght@100..400&display=swap">
 <style>
 /* Layout: ein französisches Schulheft. Die Startseite ist der Heftdeckel (königsblau, mit Etikett),
    dahinter kommen Seite für Seite: Vokabeln wählen, Lernart wählen, Einstellungen, Lernen.
@@ -41,8 +41,9 @@ img{max-width:100%}
   --k1:#8fd1b2; --k2:#f09a8e; --k3:#86cbbb; --k4:#f2cf6e; --k5:#b9aaf0; --k6:#8fbde6; --k7:#f0a66e; --k8:#e3a3c8; --on-k:#12201c;
   --edge:inset 0 1px 0 rgba(255,255,255,.05);
   --shadow:0 1px 0 rgba(0,0,0,.25),0 18px 40px -22px rgba(0,0,0,.85);
-  --f-display:"Fraunces","Iowan Old Style","Palatino Linotype",Georgia,serif;
-  --f-ui:"Figtree","Segoe UI",system-ui,-apple-system,sans-serif;
+  --f-display:"Plus Jakarta Sans","Avenir Next","Segoe UI",system-ui,sans-serif;
+  --f-serif:"Fraunces","Iowan Old Style","Palatino Linotype",Georgia,serif;
+  --f-ui:"Plus Jakarta Sans","Segoe UI",system-ui,-apple-system,sans-serif;
   --f-body:"Figtree","Segoe UI",system-ui,-apple-system,"Helvetica Neue",sans-serif;
   --f-hand:"Playwrite FR Moderne","Segoe Script","Bradley Hand","Snell Roundhand",cursive;
   --r:20px;
@@ -476,6 +477,37 @@ h1,h2,h3{font-family:var(--f-display);font-weight:600;letter-spacing:-.015em;fon
 @keyframes glanz{to{left:130%}}
 .zahl{border-radius:16px;padding:14px 12px}
 .ende .hand,.tut-blatt .hand{color:var(--accent)}
+
+/* ---------- Modern: klare Grotesk, Serife nur für französische Wörter ---------- */
+h1,h2,h3{font-family:var(--f-display);font-weight:700;letter-spacing:-.018em;font-variation-settings:normal;word-spacing:.04em}
+.kopf h1,.gruss h1,.tut-blatt h1,.ende h1{font-weight:700;letter-spacing:-.022em}
+.gruss h1 em{font-family:var(--f-serif);font-style:italic;font-weight:500;letter-spacing:0;padding-right:.08em}
+.art b,.buchkopf h2,.titel b{font-family:var(--f-display);font-weight:700;letter-spacing:-.02em}
+.k-wort,.tx-text b,[lang="fr"].k-wort,h1[lang="fr"],.etikett .zeile,.ring-text b{font-family:var(--f-serif)}
+.k-wort{font-weight:600;letter-spacing:-.01em;font-variation-settings:"opsz" 60}
+h1[lang="fr"]{font-weight:600;letter-spacing:-.02em}
+.zahl b,.fach-n{font-family:var(--f-display);font-weight:800;letter-spacing:-.03em}
+.btn,.nav,.seg button{font-weight:650;letter-spacing:-.005em}
+.nav{border-radius:999px}
+.btn{border-radius:16px}
+.btn.klein,.chip{border-radius:999px}
+.art,.volet,.opt,.tx-karte,.kasten,.zeilen,.ord,.zahl,.buchzeile,.anleitung-karte{border:1px solid transparent;
+  background:linear-gradient(var(--paper),var(--paper)) padding-box,linear-gradient(180deg,rgba(255,255,255,.13),rgba(255,255,255,.03)) border-box}
+.zahl,.buchzeile,.anleitung-karte{background:linear-gradient(#11201c,#11201c) padding-box,linear-gradient(180deg,rgba(255,255,255,.12),rgba(255,255,255,.02)) border-box}
+.art,.tx-karte{border-radius:22px}
+.art .bild{border-radius:14px}
+.fortschritt .spur{height:6px;background:rgba(255,255,255,.07)}
+.fortschritt .spur i{box-shadow:0 0 12px rgba(242,199,92,.55)}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+body.deckel::before{background:var(--cover)}
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:8;padding-block:10px;
+  margin-inline:calc(-1 * max(16px,env(safe-area-inset-left,0px))) calc(-1 * max(16px,env(safe-area-inset-right,0px)));
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  background:rgba(12,22,19,.72);-webkit-backdrop-filter:blur(16px) saturate(140%);backdrop-filter:blur(16px) saturate(140%);border-bottom:1px solid var(--rule)}
+.app{padding-block:0 28px}
+main{padding-top:4px}
+body.deckel main{padding-top:14px}
+.schritte i{font-family:var(--f-display)}
 
 @media (prefers-reduced-motion: reduce){ *,*::before,*::after{animation:none!important;transition:none!important} }
 </style>
