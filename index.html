@@ -673,7 +673,7 @@ function satzVoll(c, html){
 }
 
 /* ---------- Zustand ---------- */
-function leer(){ return { v:2, cards:{}, sel:[], art:'kasten', set:{neu:10, modus:'tippen', richtung:'de-fr', folge:'buch', anzahl:20, extra:true, auto:false}, own:[], texte:{}, tage:{last:0, serie:0}, tut:0, reset:0, t:0 }; }
+function leer(){ return { v:2, cards:{}, sel:[], art:'kasten', set:{neu:10, modus:'tippen', richtung:'de-fr', folge:'buch', anzahl:20, extra:true, auto:false, kiModell:'', kiGeladen:'', kiVorbereiten:true, kiDenken:null, kiVorlesen:false}, own:[], texte:{}, tage:{last:0, serie:0}, tut:0, reset:0, t:0 }; }
 var S = leer();
 function uebernehmen(o){
   var n = leer(); if (!o || typeof o !== 'object') return n;
@@ -929,7 +929,7 @@ function kopf(){
       '<button type="button" class="nav" data-act="tut-zu" aria-label="Anleitung schließen">' + svg(P.x, 18) + 'Schließen</button>';
   else if (view === 'ki'){
     topEl.innerHTML = '<button type="button" class="nav" data-act="ki-zurueck">' + svg(P.back, 18) + (KI.zurueck ? 'Weiterlernen' : 'Start') + '</button>' +
-      '<div class="titel" style="text-align:right"><b>KI-Lernhelfer<span class="beta">Beta</span></b><span>' + (KI.quelle === 'claude' ? 'mit Claude' : KI.engine ? 'läuft auf deinem Gerät' : '') + '</span></div>';
+      '<div class="titel" style="text-align:right"><b>KI-Lernhelfer<span class="beta">Beta</span></b><span>' + (KI.quelle === 'claude' ? 'mit Claude' : KI.engine ? '„' + kiName(KI.modellAktiv) + '“ auf deinem Gerät' : '') + '</span></div>';
   }
   else if (view === 'tq' || view === 'ord'){
     var ta = txArt(view === 'ord' ? 'ord' : TQ.act);
@@ -981,7 +981,7 @@ function rStart(){
     '<div class="cover-knopf"><button type="button" class="btn cta" id="los" data-act="go" data-w="wahl">Lernen starten</button>' +
       (u.faellig ? '<button type="button" class="btn zweit" data-act="faellig">Nur die ' + wort(u.faellig, 'fällige Wiederholung', 'fälligen Wiederholungen') + '</button>' : '') +
       (texte().length ? '<button type="button" class="btn zweit" data-act="go" data-w="texte">' + svg(P.buch, 20) + 'Texte aus dem Buch verstehen</button>' : '') +
-      '<button type="button" class="btn zweit" data-act="ki-oeffnen">' + svg(P.ki, 20) + 'KI-Lernhelfer<span class="beta">Beta</span></button></div>' +
+      '<button type="button" class="btn zweit" data-act="ki-oeffnen">' + svg(P.ki, 20) + 'KI-Lernhelfer<span class="beta">Beta</span><span class="beta" id="ki-knopf-status"' + (KI.engine || KI.laedt ? '' : ' hidden') + '>' + (KI.engine ? 'bereit' : Math.round(KI.fortschritt * 100) + ' %') + '</span></button></div>' +
     (S.tut ? '' : '<button type="button" class="anleitung-karte" data-act="tut" data-w="0"><span class="bild">' + svg(P.hilfe, 26) + '</span><span><b>Neu hier?</b><span>Schau dir die Anleitung an. Sie dauert nur eine Minute.</span></span></button>') +
     mot +
     '<div class="zahlen"><div class="zahl"><b>' + u.fach[6] + '</b><span>Wörter sitzen</span></div><div class="zahl"><b>' + u.faellig + '</b><span>heute fällig</span></div><div class="zahl"><b>' + serie + '</b><span>' + (serie === 1 ? 'Tag' : 'Tage') + ' in Folge</span></div></div>' +
@@ -1570,14 +1570,17 @@ function txKlick(act, w, b){
 }
 
 /* ----- KI-Lernhelfer ----- */
-var KIURL = 'https://cdn.jsdelivr.net/npm/@mlc-ai/web-llm@0.2.87/+esm';
+var KIURL = 'https://cdn.jsdelivr.net/npm/@mlc-ai/web-llm@0.2.86/+esm';
 var KIMODELLE = [
-  { id:'Qwen3.5-0.8B-q4f16_1-MLC', name:'Klein', info:'Für ältere Handys. Einmaliger Download von etwa 0,6 GB. Einfache Antworten.' },
-  { id:'Qwen3.5-2B-q4f16_1-MLC', name:'Mittel', info:'Für neuere Handys und Laptops. Einmaliger Download von etwa 1,3 GB.' },
-  { id:'Qwen3.5-4B-q4f16_1-MLC', name:'Stark', info:'Für PC und Laptop mit guter Grafik. Einmaliger Download von etwa 2,5 GB.' },
-  { id:'Qwen3.5-9B-q4f16_1-MLC', name:'Sehr stark', info:'Nur für Gaming-PCs mit starker Grafikkarte (ab 8 GB Grafikspeicher). Einmaliger Download von etwa 5 GB. Die klügsten Antworten.' }
+  { id:'Qwen3-0.6B-q4f16_1-MLC', f32:'Qwen3-0.6B-q4f32_1-MLC', name:'Klein', info:'Startet am schnellsten. Einmaliger Download von etwa 0,4 GB. Einfache Antworten.' },
+  { id:'Qwen3-1.7B-q4f16_1-MLC', f32:'Qwen3-1.7B-q4f32_1-MLC', name:'Mittel', info:'Für Handys und Laptops. Einmaliger Download von etwa 1 GB.' },
+  { id:'Qwen3-4B-q4f16_1-MLC', f32:'Qwen3-4B-q4f32_1-MLC', name:'Stark', info:'Für PC und Laptop mit guter Grafik. Einmaliger Download von etwa 2,3 GB.' },
+  { id:'Qwen3-8B-q4f16_1-MLC', f32:'Qwen3-8B-q4f32_1-MLC', name:'Sehr stark', info:'Nur für Gaming-PCs mit starker Grafikkarte (ab 8 GB Grafikspeicher). Einmaliger Download von etwa 4,6 GB.' }
 ];
-function kiStufe(){ var id = KI.modellAktiv || kiModellId(); for (var i=0;i<KIMODELLE.length;i++) if (KIMODELLE[i].id === id) return i; return 1; }
+var KINOTNAGEL = 'Qwen2.5-1.5B-Instruct-q4f16_1-MLC';
+var KIALT = ['Qwen3.5-0.8B-q4f16_1-MLC','Qwen3.5-2B-q4f16_1-MLC','Qwen3.5-4B-q4f16_1-MLC','Qwen3.5-9B-q4f16_1-MLC','Qwen2.5-0.5B-Instruct-q4f16_1-MLC'];
+function kiStufe(){ var id = KI.modellAktiv || kiModellId(); for (var i=0;i<KIMODELLE.length;i++) if (KIMODELLE[i].id === id || KIMODELLE[i].f32 === id) return i; return 1; }
+function kiName(id){ for (var i=0;i<KIMODELLE.length;i++) if (KIMODELLE[i].id === id || KIMODELLE[i].f32 === id) return KIMODELLE[i].name; return 'Ersatz'; }
 function kiDenken(){ if (KI.quelle !== 'lokal' || KI.modus !== 'tutor') return false; return S.set.kiDenken == null ? kiStufe() >= 2 : !!S.set.kiDenken; }
 var KI = { quelle:null, engine:null, sample:null, lib:null, laedt:false, fortschritt:0, status:'', fehler:'', modus:'tutor', verlauf:{ tutor:[], emma:[] }, antwortet:false, abbruch:null, zurueck:null, vorlage:'', geprueft:false };
 function imClaude(){ return !!(window.claude && typeof window.claude.use === 'function'); }
@@ -1695,12 +1698,14 @@ function blaseHTML(m, i){
 }
 function rKi(){
   if (!KI.geprueft){ kiPruefen(); }
+  if (!imClaude() && !kiBereit() && !KI.laedt && !KI.fehler && S.set.kiGeladen && !KI.autoStart){ KI.autoStart = true; setTimeout(function(){ kiLaden(); }, 0); }
   if (!kiBereit()){ main.innerHTML = '<div class="ki">' + kiStartHTML() + '</div>'; return; }
   var v = KI.verlauf[KI.modus];
   if (KI.modus === 'emma' && !v.length) v.push({ role:'assistant', content:'Salut ! Moi, c\'est Emma, j\'habite à Genève. Et toi, comment tu t\'appelles ?' });
   main.innerHTML = '<div class="ki"><div class="ki-leiste">' + seg('ki-modus', KI.modus, [['tutor','Tutor'],['emma','Emma']]) +
     '<span class="ki-schalter">' + (KI.quelle === 'lokal' && KI.modus === 'tutor' ? '<button type="button" class="ki-chip vorlesen" data-act="ki-denken" aria-pressed="' + kiDenken() + '" title="Die KI denkt vor der Antwort nach. Dauert länger, ist aber klüger.">' + svg(P.ki, 16) + 'Gründlich ' + (kiDenken() ? 'an' : 'aus') + '</button>' : '') +
       (kiKannVorlesen() ? '<button type="button" class="ki-chip vorlesen" data-act="ki-vorlesen" aria-pressed="' + !!S.set.kiVorlesen + '">' + svg(P.spk, 16) + 'Vorlesen ' + (S.set.kiVorlesen ? 'an' : 'aus') + '</button>' : '') + '</span></div>' +
+    (KI.hinweis ? '<div class="ki-warn"><span>' + esc(KI.hinweis) + '</span></div>' : '') +
     '<p class="hinweis">' + (KI.modus === 'emma' ? 'Emma aus Genf schreibt dir auf Französisch. Antworte auch auf Französisch, gern per Sprachnachricht. Machst du einen Fehler, zeigt sie dir die bessere Version.' : 'Frag alles zu deinen Vokabeln und zur Grammatik, auf Deutsch. Der Tutor schlägt die Wörter und Beispiele aus deinem Buch nach.' + (kiDenken() ? ' „Gründlich“ ist an: Er denkt erst nach, das dauert etwas länger.' : '')) + '</p>' +
     '<div class="ki-chips">' + kiChips().map(function(c){ return '<button type="button" class="ki-chip" data-act="ki-chip" data-t="' + esc(c.t) + '" data-a="' + esc(c.a || '') + '"' + (KI.antwortet ? ' disabled' : '') + (KI.modus === 'emma' ? ' lang="fr"' : '') + '>' + esc(c.l) + '</button>'; }).join('') + '</div>' +
     '<div class="ki-verlauf" id="ki-verlauf">' + v.map(function(m, i){ return blaseHTML(m, i); }).join('') + (KI.antwortet ? '<div class="blase ki-b" id="ki-live"><div class="tippt"><i></i><i></i><i></i></div></div>' : '') + '</div>' +
@@ -1721,15 +1726,15 @@ function kiStartHTML(){
   }
   h += '<ul class="ki-punkte">' + [
     'Läuft direkt auf deinem Gerät und kostet nichts. Was du tippst, bleibt bei dir. Nur Sprachnachrichten wandelt dein Browser über Google oder Apple in Text um.',
-    'Beim ersten Mal wird die KI einmal heruntergeladen. Am besten im WLAN. Danach startet sie schneller.',
+    'Beim ersten Mal wird die KI heruntergeladen, am besten im WLAN. Danach ist sie gespeichert und startet beim Öffnen der Seite von selbst im Hintergrund.',
     'Sie ist klein und kann sich irren. Im Zweifel gilt immer dein Buch.'
   ].map(function(t){ return '<li>' + svg(P.haken, 18) + '<span>' + t + '</span></li>'; }).join('') + '</ul>';
   if (KI.laedt){
-    return h + '<div class="block"><div class="eyebrow">KI wird geladen</div><div class="ki-balken"><i id="ki-balken" style="width:' + Math.round(KI.fortschritt * 100) + '%"></i></div><p class="ki-status" id="ki-status">' + esc(KI.status || 'Startet …') + '</p><p class="hinweis">Lass die Seite offen. Beim ersten Mal kann das ein paar Minuten dauern.</p></div></div>';
+    return h + '<div class="block"><div class="eyebrow">KI wird geladen</div><div class="ki-balken"><i id="ki-balken" style="width:' + Math.round(KI.fortschritt * 100) + '%"></i></div><p class="ki-status" id="ki-status">' + esc(KI.status || 'Startet …') + '</p><p class="hinweis">' + (KI.phase === 'gpu' ? 'Fast geschafft. Dieser Schritt passiert bei jedem Start und dauert am Handy etwas länger.' : 'Du musst nicht warten: Geh einfach zurück und lern weiter, die KI lädt im Hintergrund. Am KI-Knopf auf der Startseite siehst du, wie weit sie ist.') + '</p></div></div>';
   }
   h += '<div class="block"><div class="eyebrow">Welche KI?</div><div class="ki-modelle">' + KIMODELLE.map(function(m){
     return '<button type="button" class="ki-modell" data-act="ki-modell" data-w="' + m.id + '" aria-pressed="' + (m.id === id) + '"><b>' + m.name + '</b><span>' + m.info + '</span></button>'; }).join('') + '</div></div>';
-  if (KI.fehler) h += '<div class="ki-warn"><b>Das hat nicht geklappt.</b><span>' + esc(KI.fehler) + '</span></div>';
+  if (KI.fehler) h += '<div class="ki-warn"><b>Das hat nicht geklappt.</b><span>' + esc(KI.fehler) + '</span>' + (KI.fehlerDetail ? '<details><summary>Technische Details</summary><code style="font-size:.78rem;overflow-wrap:anywhere">' + esc(KI.fehlerDetail) + '</code></details>' : '') + '</div>';
   return h + '<div class="fuss"><button type="button" class="btn prim gross" id="ki-laden" data-act="ki-laden">KI starten</button></div></div>';
 }
 function kiPruefen(){
@@ -1742,39 +1747,103 @@ function kiPruefen(){
     if (view === 'ki') render();
   }, function(){ KI.fehler = 'Claude ist gerade nicht erreichbar.'; if (view === 'ki') render(); });
 }
-function kiLaden(){
-  if (KI.laedt) return;
-  KI.laedt = true; KI.fehler = ''; KI.fortschritt = 0; KI.status = ''; KI.quelle = 'lokal'; render();
-  var id = kiModellId();
-  Promise.resolve().then(function(){
+function kiKnopfStatus(){
+  var el = document.getElementById('ki-knopf-status'); if (!el) return;
+  el.textContent = KI.engine ? 'bereit' : KI.laedt ? Math.round(KI.fortschritt * 100) + ' %' : '';
+  el.hidden = !(KI.engine || KI.laedt);
+}
+function kiFortschritt(r){
+  var p = r.progress || 0, t = String(r.text || ''), jetzt = Date.now();
+  var cache = /Loading model from cache/i.test(t), laden = !cache && /Fetching|MB fetched|cache\[/i.test(t), gpu = /shader|GPU|compil/i.test(t);
+  if (laden && !KI.tDl){ KI.tDl = jetzt; KI.pDl = p; }
+  var rest = '';
+  if (laden && KI.tDl && p - KI.pDl > .02 && p < 1){
+    var sek = (jetzt - KI.tDl) / 1000 * (1 - p) / (p - KI.pDl);
+    rest = sek > 90 ? ' · noch etwa ' + Math.round(sek / 60) + ' Min.' : sek > 8 ? ' · noch etwa ' + Math.max(10, Math.round(sek / 10) * 10) + ' Sek.' : '';
+  }
+  var mb = /(\d+)\s*MB/i.exec(t);
+  KI.phase = gpu ? 'gpu' : laden ? 'download' : cache ? 'cache' : KI.phase || 'start';
+  KI.fortschritt = p;
+  KI.status = (gpu ? 'Wird für deine Grafikkarte vorbereitet' : laden ? 'Wird heruntergeladen' + (mb ? ' (' + mb[1] + ' MB)' : '') : cache ? 'Wird aus dem Speicher geladen' : 'Startet') + ' … ' + Math.round(p * 100) + ' %' + rest;
+  var b = document.getElementById('ki-balken'), s2 = document.getElementById('ki-status');
+  if (b) b.style.width = Math.round(p * 100) + '%';
+  if (s2) s2.textContent = KI.status;
+  kiKnopfStatus();
+}
+function kiWorker(){
+  var code = 'import { WebWorkerMLCEngineHandler } from "' + KIURL + '";\nconst h = new WebWorkerMLCEngineHandler();\nself.onmessage = (m) => { h.onmessage(m); };';
+  return new Worker(URL.createObjectURL(new Blob([code], { type:'text/javascript' })), { type:'module' });
+}
+function kiAlleIds(){ return KIALT.concat(KIMODELLE.map(function(m){ return m.id; }), KIMODELLE.map(function(m){ return m.f32; }), [KINOTNAGEL]); }
+function kiAufraeumen(lib, behalten){
+  return Promise.all(kiAlleIds().filter(function(id){ return behalten.indexOf(id) < 0; }).map(function(id){
+    return Promise.resolve().then(function(){ return lib.hasModelInCache(id); }).then(function(da){ if (da) return lib.deleteModelAllInfoInCache(id); }).catch(function(){});
+  }));
+}
+function kiNetzFehler(e){ var m = String(e && (e.message || e) || ''); return !navigator.onLine || /failed to fetch|networkerror|network error|load failed|ERR_/i.test(m); }
+function kiLaden(leise){
+  if (KI.laedt || KI.engine) return Promise.resolve();
+  KI.laedt = true; KI.leise = !!leise; KI.fehler = ''; KI.fehlerDetail = ''; KI.fortschritt = 0; KI.status = ''; KI.phase = 'start'; KI.tDl = 0; KI.quelle = 'lokal'; KI.hinweis = '';
+  if (view === 'ki') render();
+  kiKnopfStatus();
+  var wahl = kiModellId(), lib = null, f16 = true, liste = [], versuche = [];
+  return Promise.resolve().then(function(){
     if (!navigator.gpu) throw { code:'gpu' };
     return navigator.gpu.requestAdapter();
   }).then(function(ad){
     if (!ad) throw { code:'gpu' };
+    f16 = !!(ad.features && ad.features.has && ad.features.has('shader-f16'));
+    try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); } catch(e){}
     return import(KIURL);
-  }).then(function(lib){
-    KI.lib = lib;
-    return lib.CreateMLCEngine(id, { initProgressCallback:function(r){
-      KI.fortschritt = r.progress || 0; KI.status = kiStatusText(r);
-      var b = document.getElementById('ki-balken'), t = document.getElementById('ki-status');
-      if (b) b.style.width = Math.round(KI.fortschritt * 100) + '%'; if (t) t.textContent = KI.status;
-    } });
-  }).then(function(engine){
-    KI.engine = engine; KI.modellAktiv = id; KI.laedt = false; S.set.kiModell = id; speichern();
+  }).then(function(l){
+    lib = KI.lib = l;
+    var da = {};
+    ((l.prebuiltAppConfig && l.prebuiltAppConfig.model_list) || []).forEach(function(m){ da[m.model_id] = 1; });
+    var start = 1;
+    KIMODELLE.forEach(function(m, i){ if (m.id === wahl) start = i; });
+    for (var i = start; i >= 0; i--){ var id = f16 ? KIMODELLE[i].id : KIMODELLE[i].f32; if (da[id]) liste.push(id); }
+    if (f16 && da[KINOTNAGEL]) liste.push(KINOTNAGEL);
+    if (!liste.length) throw new Error('Kein passendes Modell in der Liste gefunden.');
+    return kiAufraeumen(l, liste.concat([S.set.kiGeladen || '']));
+  }).then(function(){
+    function versuch(k){
+      if (k >= liste.length) throw versuche[versuche.length - 1] || new Error('Kein Modell passt zu diesem Gerät.');
+      var id = liste[k], w = null, cfg = { initProgressCallback:kiFortschritt }, p;
+      KI.tDl = 0; KI.versuchId = id;
+      try { w = kiWorker(); p = lib.CreateWebWorkerMLCEngine(w, id, cfg); }
+      catch(e){ w = null; p = lib.CreateMLCEngine(id, cfg); }
+      return p.then(function(engine){ return { engine:engine, id:id }; }, function(e){
+        if (w) try { w.terminate(); } catch(x){}
+        versuche.push(e);
+        if (kiNetzFehler(e)) throw e;
+        return versuch(k + 1);
+      });
+    }
+    return versuch(0);
+  }).then(function(r){
+    KI.engine = r.engine; KI.modellAktiv = r.id; KI.laedt = false; S.set.kiGeladen = r.id; speichern();
+    if (kiName(r.id) !== kiName(wahl)) KI.hinweis = '„' + kiName(wahl) + '“ lief auf diesem Gerät nicht, deshalb ist jetzt „' + kiName(r.id) + '“ geladen.';
+    if (lib) kiAufraeumen(lib, [r.id]);
+    kiKnopfStatus();
     if (view === 'ki'){ render(); if (KI.wartet){ var t = KI.wartet; KI.wartet = null; kiSenden(t); } }
+    else if (!KI.leise) toast('Die KI ist bereit.');
   }).catch(function(e){
-    KI.laedt = false;
+    KI.laedt = false; kiKnopfStatus();
+    KI.fehlerDetail = String(e && (e.message || e.code || e) || '').slice(0, 400);
     if (e && e.code === 'gpu') KI.fehler = 'gpu';
-    else if (!navigator.onLine) KI.fehler = 'Du bist offline. Zum ersten Laden braucht die KI Internet.';
-    else KI.fehler = id !== KIMODELLE[0].id ? 'Vermutlich hat dein Gerät nicht genug Speicher für diese KI. Probier eine kleinere.' : 'Die KI konnte nicht geladen werden. Schließ andere Tabs und versuch es noch einmal.';
+    else if (kiNetzFehler(e)) KI.fehler = 'Der Download wurde unterbrochen. Prüfe dein Internet und tippe noch einmal auf „KI starten“. Was schon geladen ist, bleibt gespeichert.';
+    else KI.fehler = 'Die KI konnte nicht geladen werden. Schließ andere Apps und Tabs und versuch es noch einmal, am besten mit „Klein“.';
     if (view === 'ki') render();
   });
 }
-function kiStatusText(r){
-  var t = String(r.text || ''), m = /(\d+)MB/i.exec(t), p = Math.round((r.progress || 0) * 100);
-  if (/Fetching|Loading model from cache/i.test(t)) return (/cache/i.test(t) ? 'Aus dem Speicher laden' : 'Herunterladen') + ' … ' + p + ' %' + (m ? ' (' + m[1] + ' MB)' : '');
-  if (/shader|GPU|Loading GPU/i.test(t)) return 'KI wird vorbereitet … ' + p + ' %';
-  return p ? 'Lädt … ' + p + ' %' : 'Startet …';
+function kiVorbereiten(){
+  if (imClaude() || !navigator.gpu || !S.set.kiGeladen || S.set.kiVorbereiten === false || KI.laedt || KI.engine) return;
+  import(KIURL).then(function(l){ return l.hasModelInCache(S.set.kiGeladen); }).then(function(da){
+    if (!da) return;
+    var m = KIMODELLE.filter(function(x){ return x.id === S.set.kiGeladen || x.f32 === S.set.kiGeladen; })[0];
+    if (m) S.set.kiModell = m.id;
+    kiLaden(true);
+  }).catch(function(){});
 }
 function kiRunter(){ var v = document.getElementById('ki-verlauf'); if (v) requestAnimationFrame(function(){ window.scrollTo(0, document.body.scrollHeight); }); }
 function kiLive(text){
@@ -1899,7 +1968,7 @@ function kiKlick(act, w, b){
       if (z === 'runde' && R){ R.i++; go('runde'); } else if (z === 'text' && TQ){ go('tq'); } else go('start');
       return true;
     case 'ki-modell': S.set.kiModell = w; speichern(); render(); return true;
-    case 'ki-laden': kiLaden(); return true;
+    case 'ki-laden': KI.autoStart = true; kiLaden(); return true;
     case 'ki-modus': if (KI.antwortet || MIK.an) return true; KI.modus = w; render(); return true;
     case 'ki-chip': kiSenden(b.getAttribute('data-t'), false, b.getAttribute('data-a')); return true;
     case 'ki-mik': if (MIK.an) mikStopp(); else mikStart(); return true;
@@ -1909,8 +1978,8 @@ function kiKlick(act, w, b){
     case 'ki-uebersetzen': kiUebersetzen(w); return true;
     case 'ki-loeschen':
       b.disabled = true;
-      import(KIURL).then(function(lib){ return Promise.all(KIMODELLE.map(function(m){ return lib.deleteModelAllInfoInCache(m.id).catch(function(){}); })); })
-        .then(function(){ KI.engine = null; toast('Die KI wurde von diesem Gerät gelöscht.'); }, function(){ toast('Löschen hat nicht geklappt.'); b.disabled = false; });
+      import(KIURL).then(function(lib){ return kiAufraeumen(lib, []); })
+        .then(function(){ KI.engine = null; KI.modellAktiv = null; S.set.kiGeladen = ''; speichern(); kiKnopfStatus(); toast('Die KI wurde von diesem Gerät gelöscht.'); }, function(){ toast('Löschen hat nicht geklappt.'); b.disabled = false; });
       return true;
   }
   return false;
@@ -1946,7 +2015,7 @@ function rMehr(){
       '<div class="opt-zeile"><div><b>Eigennamen und Landeskunde</b><small>Zum Beispiel Denis Zakaria, la Palme d’Or oder la Fête de l’Escalade.</small></div>' + seg('set-extra', S.set.extra ? 1 : 0, [[1,'Mitlernen'],[0,'Weglassen']]) + '</div>' +
       '<div class="opt-zeile"><div><b>Aussprache</b><small>' + (stimme ? 'Soll das französische Wort nach jeder Antwort vorgelesen werden?' : 'Dieses Gerät hat keine französische Stimme. Die Lautsprecher-Knöpfe und die Lernart „Hören“ sind deshalb ausgeblendet.') + '</small></div>' + (stimme ? seg('set-auto', S.set.auto ? 1 : 0, [[1,'Automatisch'],[0,'Nur auf Knopfdruck']]) : '') + '</div>' +
     '</div></section>' +
-    (!imClaude() && navigator.gpu ? '<section class="block"><h2>KI-Lernhelfer</h2><p class="hinweis">Die KI ist nach dem ersten Start auf diesem Gerät gespeichert. Brauchst du den Platz, kannst du sie hier löschen. Beim nächsten Start wird sie neu heruntergeladen.</p><div class="aktionen"><button type="button" class="btn klein" data-act="ki-loeschen">KI vom Gerät löschen</button></div></section>' : '') +
+    (!imClaude() && navigator.gpu ? '<section class="block"><h2>KI-Lernhelfer</h2><p class="hinweis">Die KI ist nach dem ersten Start auf diesem Gerät gespeichert. Brauchst du den Platz, kannst du sie hier löschen. Beim nächsten Start wird sie neu heruntergeladen.</p><div class="opt-zeile"><div><b>Im Hintergrund vorbereiten</b><small>Startet die gespeicherte KI gleich beim Öffnen der Seite, damit sie fertig ist, wenn du sie brauchst. Lädt dabei nichts Neues herunter.</small></div>' + seg('set-kivor', S.set.kiVorbereiten === false ? 0 : 1, [[1,'An'],[0,'Aus']]) + '</div><div class="aktionen"><button type="button" class="btn klein" data-act="ki-loeschen">KI vom Gerät löschen</button></div></section>' : '') +
     '<section class="block"><h2>Eigene Wörter eintragen</h2><p class="hinweis">Fehlt ein Wort oder willst du zusätzliche lernen? Trag sie hier ein. Sie werden nur bei dir gespeichert.</p>' +
       '<form class="form" id="f-eigen" autocomplete="off"><label>Französisch<input type="text" class="feld" id="own-fr" lang="fr" autocapitalize="off" spellcheck="false" placeholder="le mot"></label>' +
       '<label>Deutsch<input type="text" class="feld" id="own-de" placeholder="das Wort"></label><label>Gehört zu' + wahl + '</label>' +
@@ -2033,6 +2102,7 @@ document.addEventListener('click', function(ev){
     case 'set-modus': setzen('modus', w); break;
     case 'set-extra': setzen('extra', w === '1'); break;
     case 'set-auto': setzen('auto', w === '1'); break;
+    case 'set-kivor': S.set.kiVorbereiten = w === '1'; speichern(); render(); if (w === '1') kiVorbereiten(); break;
     case 'own-del': S.own.forEach(function(o){ if (o.id === w){ o.del = true; o.t = Date.now(); } }); delete S.cards[w]; speichern(); karten(); render(); break;
     case 'code-kopieren':
       var ta = $('#code-aus');
@@ -2092,6 +2162,7 @@ document.addEventListener('keydown', function(ev){
 
 /* ---------- Start ---------- */
 laden(); karten(); stimmen(); render(); wolkeStart();
+setTimeout(kiVorbereiten, 2500);
 })();
 </script>
 
