@@ -1714,7 +1714,7 @@ function rKi(){
     '<div class="fuss"><form class="ki-eingabe" id="f-ki" autocomplete="off">' +
       (kiKannSprechen() && !KI.antwortet ? '<button type="button" class="btn mik' + (MIK.an ? ' an' : '') + '" id="ki-mik" data-act="ki-mik" aria-pressed="' + MIK.an + '" aria-label="' + (MIK.an ? 'Aufnahme beenden und senden' : 'Sprachnachricht aufnehmen') + '">' + svg(P.mik, 22) + '</button>' : '') + '<textarea id="ki-text" rows="1" placeholder="' + (KI.modus === 'emma' ? 'Écris en français …' : 'Deine Frage …') + '" aria-label="Nachricht an die KI"' + (KI.modus === 'emma' ? ' lang="fr"' : '') + '>' + esc(KI.vorlage) + '</textarea>' +
       (KI.antwortet ? '<button type="button" class="btn" data-act="ki-stopp" aria-label="Antwort anhalten">' + svg(P.stopp, 20) + '</button>' : '<button type="submit" class="btn prim" aria-label="Senden">' + svg(P.senden, 20) + '</button>') + '</form>' +
-      '<p class="ki-hinweis">Die KI kann sich irren. Im Zweifel gilt dein Buch.' + (KI.online && !KI.engine ? ' Läuft auf dem gemeinsamen KI-Server der Lernseite, Gespräche werden dort nicht gespeichert. Antworten brauchen ein paar Sekunden.' : '') + (KI.quelle === 'lokal' ? ' Getippte Nachrichten bleiben auf deinem Gerät.' + (SR ? ' Sprachnachrichten wandelt dein Browser in Text um, bei Chrome über Google, bei Safari über Apple.' : '') : '') + '</p></div></div>';
+      '<p class="ki-hinweis">Die KI kann sich irren. Im Zweifel gilt dein Buch.' + (KI.online && !KI.engine ? ' Läuft auf dem gemeinsamen KI-Server der Lernseite bei Cloudflare. Gespräche werden dort nicht gespeichert.' : '') + (KI.quelle === 'lokal' ? ' Getippte Nachrichten bleiben auf deinem Gerät.' + (SR ? ' Sprachnachrichten wandelt dein Browser in Text um, bei Chrome über Google, bei Safari über Apple.' : '') : '') + '</p></div></div>';
   KI.vorlage = '';
   kiRunter();
 }
@@ -1994,6 +1994,7 @@ function kiOnlineAntwort(msgs, live, emma){
     method:'POST', headers:{ 'Content-Type':'application/json' }, signal:ab.signal,
     body:JSON.stringify({ messages:msgs, stream:true, temperature:emma ? .7 : .3, top_p:.9, frequency_penalty:.3, presence_penalty:.1, max_tokens:450, chat_template_kwargs:{ enable_thinking:false } })
   }).then(function(r){
+    if (r.status === 429){ KI.online = false; KI.onlineFehler = 'Das Tageskontingent der Online-KI ist für heute aufgebraucht. Ab 1 Uhr nachts geht es wieder. Bis dahin hilft dir die KI auf deinem Gerät.'; throw { name:'OnlineFehler', message:KI.onlineFehler }; }
     if (!r.ok){ var e = new Error('HTTP ' + r.status); e.status = r.status; throw e; }
     var leser = r.body.getReader(), dec = new TextDecoder(), puffer = '', text = '';
     function weiter(){
@@ -2004,14 +2005,14 @@ function kiOnlineAntwort(msgs, live, emma){
         zeilen.forEach(function(z){
           z = z.trim(); if (z.indexOf('data:') !== 0) return;
           var d = z.slice(5).trim(); if (!d || d === '[DONE]') return;
-          try { var j = JSON.parse(d), c = j.choices && j.choices[0] && j.choices[0].delta && j.choices[0].delta.content; if (c){ text += c; if (live) live(kiSauber(text)); } } catch(e){}
+          try { var j = JSON.parse(d), c = (j.choices && j.choices[0] && j.choices[0].delta && j.choices[0].delta.content) || (typeof j.response === 'string' ? j.response : ''); if (c){ text += c; if (live) live(kiSauber(text)); } } catch(e){}
         });
         return weiter();
       });
     }
     return weiter();
   }).catch(function(e){
-    if (e && e.name === 'AbortError') throw e;
+    if (e && (e.name === 'AbortError' || e.name === 'OnlineFehler')) throw e;
     KI.online = false;
     throw { name:'OnlineFehler', message:'Der KI-Server ist gerade nicht erreichbar. Tippe gleich noch einmal auf Senden, dann verbindet sich die Seite neu.' };
   });
