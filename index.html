@@ -673,7 +673,7 @@ function satzVoll(c, html){
 }
 
 /* ---------- Zustand ---------- */
-function leer(){ return { v:2, cards:{}, sel:[], art:'kasten', set:{neu:10, modus:'tippen', richtung:'de-fr', folge:'buch', anzahl:20, extra:true, auto:false, kiModell:'', kiGeladen:'', kiVorbereiten:true, kiDenken:null, kiVorlesen:false, kiQuelle:''}, own:[], texte:{}, tage:{last:0, serie:0}, tut:0, reset:0, t:0 }; }
+function leer(){ return { v:2, cards:{}, sel:[], art:'kasten', set:{neu:10, modus:'tippen', richtung:'de-fr', folge:'buch', anzahl:20, extra:true, auto:false, kiModell:'', kiGeladen:'', kiVorbereiten:true, kiDenken:null, kiVorlesen:false, kiQuelle:'', kiOhneWorker:false}, own:[], texte:{}, tage:{last:0, serie:0}, tut:0, reset:0, t:0 }; }
 var S = leer();
 function uebernehmen(o){
   var n = leer(); if (!o || typeof o !== 'object') return n;
@@ -1573,8 +1573,8 @@ function txKlick(act, w, b){
 var KIURL = 'https://cdn.jsdelivr.net/npm/@mlc-ai/web-llm@0.2.86/+esm';
 var KISERVER = '';
 var KIMODELLE = [
-  { id:'Qwen3-0.6B-q4f16_1-MLC', f32:'Qwen3-0.6B-q4f32_1-MLC', name:'Klein', info:'Startet am schnellsten. Einmaliger Download von etwa 0,4 GB. Einfache Antworten.' },
-  { id:'Qwen3-1.7B-q4f16_1-MLC', f32:'Qwen3-1.7B-q4f32_1-MLC', name:'Mittel', info:'Für Handys und Laptops. Einmaliger Download von etwa 1 GB.' },
+  { id:'Qwen3-0.6B-q4f16_1-MLC', f32:'Qwen3-0.6B-q4f32_1-MLC', name:'Klein', info:'Für Handy und Tablet. Startet am schnellsten, einmaliger Download von etwa 0,4 GB. Einfache Antworten.' },
+  { id:'Qwen3-1.7B-q4f16_1-MLC', f32:'Qwen3-1.7B-q4f32_1-MLC', name:'Mittel', info:'Für PC, Laptop und neue Handys. Einmaliger Download von etwa 1 GB.' },
   { id:'Qwen3-4B-q4f16_1-MLC', f32:'Qwen3-4B-q4f32_1-MLC', name:'Stark', info:'Für PC und Laptop mit guter Grafik. Einmaliger Download von etwa 2,3 GB.' },
   { id:'Qwen3-8B-q4f16_1-MLC', f32:'Qwen3-8B-q4f32_1-MLC', name:'Sehr stark', info:'Nur für Gaming-PCs mit starker Grafikkarte (ab 8 GB Grafikspeicher). Einmaliger Download von etwa 4,6 GB.' }
 ];
@@ -1587,7 +1587,7 @@ var KI = { quelle:null, engine:null, sample:null, lib:null, laedt:false, fortsch
 function imClaude(){ return !!(window.claude && typeof window.claude.use === 'function'); }
 function kiMoeglich(){ return imClaude() || !!KISERVER || !!navigator.gpu; }
 function kiBereit(){ return !!(KI.engine || KI.sample || KI.online); }
-function kiModellId(){ var id = S.set.kiModell; if (!KIMODELLE.some(function(m){ return m.id === id; })){ var handy = window.matchMedia && window.matchMedia('(pointer:coarse)').matches; id = KIMODELLE[handy ? 1 : 2].id; } return id; }
+function kiModellId(){ var id = S.set.kiModell; if (!KIMODELLE.some(function(m){ return m.id === id; })){ var handy = window.matchMedia && window.matchMedia('(pointer:coarse)').matches; id = KIMODELLE[handy ? 0 : 1].id; } return id; }
 function kiWorte(n){
   var basis = pool().filter(function(c){ return !c.extra; }); if (!basis.length) basis = CARDS.filter(function(c){ return !c.extra; });
   var schwach = basis.filter(function(c){ var st = stand(c); return st && (st[0] <= 2 || st[4] > 0); }), rest = basis.filter(function(c){ return schwach.indexOf(c) < 0; });
@@ -1739,7 +1739,7 @@ function kiStartHTML(){
     'Sie ist klein und kann sich irren. Im Zweifel gilt immer dein Buch.'
   ].map(function(t){ return '<li>' + svg(P.haken, 18) + '<span>' + t + '</span></li>'; }).join('') + '</ul>';
   if (KI.laedt){
-    return h + '<div class="block"><div class="eyebrow">KI wird geladen</div><div class="ki-balken"><i id="ki-balken" style="width:' + Math.round(KI.fortschritt * 100) + '%"></i></div><p class="ki-status" id="ki-status">' + esc(KI.status || 'Startet …') + '</p><p class="hinweis">' + (KI.phase === 'gpu' ? 'Fast geschafft. Dieser Schritt passiert bei jedem Start und dauert am Handy etwas länger.' : 'Du musst nicht warten: Geh einfach zurück und lern weiter, die KI lädt im Hintergrund. Am KI-Knopf auf der Startseite siehst du, wie weit sie ist.') + '</p></div></div>';
+    return h + '<div class="block"><div class="eyebrow">KI wird geladen</div><div class="ki-balken"><i id="ki-balken" style="width:' + Math.round(KI.fortschritt * 100) + '%"></i></div><p class="ki-status" id="ki-status">' + esc(KI.status || 'Startet …') + '</p><div class="ki-warn" id="ki-haengt" hidden><b>Es geht gerade nicht weiter.</b><span>Seit über anderthalb Minuten hat sich nichts getan. Lade die Seite neu und probier es noch einmal, am besten mit „Klein“.</span><div class="aktionen"><button type="button" class="btn klein" data-act="neu-laden">Seite neu laden</button></div></div><p class="ki-status" style="opacity:.6;font-size:.72rem" id="ki-roh">' + esc(KI.rohText || '') + '</p><p class="hinweis">' + (KI.phase === 'gpu' ? 'Fast geschafft. Dieser Schritt passiert bei jedem Start und dauert am Handy etwas länger.' : 'Du musst nicht warten: Geh einfach zurück und lern weiter, die KI lädt im Hintergrund. Am KI-Knopf auf der Startseite siehst du, wie weit sie ist.') + '</p></div></div>';
   }
   if (KISERVER) h += '<div class="aktionen"><button type="button" class="btn" data-act="ki-online">Lieber die Online-KI nutzen (ohne Download)</button></div>';
   h += '<div class="block"><div class="eyebrow">Welche KI?</div><div class="ki-modelle">' + KIMODELLE.map(function(m){
@@ -1773,16 +1773,31 @@ function kiFortschritt(r){
   }
   var mb = /(\d+)\s*MB/i.exec(t);
   KI.phase = gpu ? 'gpu' : laden ? 'download' : cache ? 'cache' : KI.phase || 'start';
-  KI.fortschritt = p;
+  KI.fortschritt = p; KI.letzterSchritt = jetzt; KI.rohText = t;
   KI.status = (gpu ? 'Wird für deine Grafikkarte vorbereitet' : laden ? 'Wird heruntergeladen' + (mb ? ' (' + mb[1] + ' MB)' : '') : cache ? 'Wird aus dem Speicher geladen' : 'Startet') + ' … ' + Math.round(p * 100) + ' %' + rest;
   var b = document.getElementById('ki-balken'), s2 = document.getElementById('ki-status');
   if (b) b.style.width = Math.round(p * 100) + '%';
   if (s2) s2.textContent = KI.status;
+  var roh = document.getElementById('ki-roh'); if (roh) roh.textContent = t.slice(0, 160);
+  var hg = document.getElementById('ki-haengt'); if (hg) hg.hidden = true;
   kiKnopfStatus();
 }
 function kiWorker(){
   var code = 'import { WebWorkerMLCEngineHandler } from "' + KIURL + '";\nconst h = new WebWorkerMLCEngineHandler();\nself.onmessage = (m) => { h.onmessage(m); };';
   return new Worker(URL.createObjectURL(new Blob([code], { type:'text/javascript' })), { type:'module' });
+}
+function kiMitWorker(lib, id, cfg){
+  return new Promise(function(resolve, reject){
+    var w, fertig = false, lebt = false, uhr;
+    function aus(e){ if (fertig) return; fertig = true; clearTimeout(uhr); try { w.terminate(); } catch(x){} var f = e instanceof Error ? e : new Error(String(e)); f.worker = true; reject(f); }
+    try { w = kiWorker(); } catch(e){ return aus(e); }
+    w.addEventListener('error', function(e){ aus('Hintergrund-Prozess startet nicht: ' + ((e && e.message) || 'unbekannt')); });
+    w.addEventListener('messageerror', function(){ aus('Hintergrund-Prozess: Nachricht nicht lesbar'); });
+    uhr = setTimeout(function(){ if (!lebt) aus('Hintergrund-Prozess antwortet nicht'); }, 30000);
+    lib.CreateWebWorkerMLCEngine(w, id, { initProgressCallback:function(r){ lebt = true; cfg.initProgressCallback(r); } }).then(function(en){
+      if (fertig) return; fertig = true; clearTimeout(uhr); resolve(en);
+    }, function(e){ if (e && !/webgpu|adapter|device|gpu/i.test(String(e.message || e))) { if (fertig) return; fertig = true; clearTimeout(uhr); try { w.terminate(); } catch(x){} reject(e); } else aus(e); });
+  });
 }
 function kiAlleIds(){ return KIALT.concat(KIMODELLE.map(function(m){ return m.id; }), KIMODELLE.map(function(m){ return m.f32; }), [KINOTNAGEL]); }
 function kiAufraeumen(lib, behalten){
@@ -1797,6 +1812,12 @@ function kiLaden(leise){
   if (view === 'ki') render();
   kiKnopfStatus();
   var wahl = kiModellId(), lib = null, f16 = true, liste = [], versuche = [];
+  KI.letzterSchritt = Date.now(); clearInterval(KI.waechter);
+  KI.waechter = setInterval(function(){
+    if (!KI.laedt){ clearInterval(KI.waechter); return; }
+    var still = (Date.now() - KI.letzterSchritt) / 1000, el = document.getElementById('ki-haengt');
+    if (el) el.hidden = still < 90;
+  }, 5000);
   return Promise.resolve().then(function(){
     if (!navigator.gpu) throw { code:'gpu' };
     return navigator.gpu.requestAdapter();
@@ -1816,20 +1837,22 @@ function kiLaden(leise){
     if (!liste.length) throw new Error('Kein passendes Modell in der Liste gefunden.');
     return kiAufraeumen(l, liste.concat([S.set.kiGeladen || '']));
   }).then(function(){
-    function versuch(k){
+    function versuch(k, ohneWorker){
       if (k >= liste.length) throw versuche[versuche.length - 1] || new Error('Kein Modell passt zu diesem Gerät.');
-      var id = liste[k], w = null, cfg = { initProgressCallback:kiFortschritt }, p;
-      KI.tDl = 0; KI.versuchId = id;
-      try { w = kiWorker(); p = lib.CreateWebWorkerMLCEngine(w, id, cfg); }
-      catch(e){ w = null; p = lib.CreateMLCEngine(id, cfg); }
-      return p.then(function(engine){ return { engine:engine, id:id }; }, function(e){
-        if (w) try { w.terminate(); } catch(x){}
+      var id = liste[k], cfg = { initProgressCallback:kiFortschritt }, mitW = !ohneWorker && !S.set.kiOhneWorker && typeof Worker !== 'undefined';
+      KI.tDl = 0; KI.versuchId = id; KI.letzterSchritt = Date.now();
+      var p = mitW ? kiMitWorker(lib, id, cfg) : lib.CreateMLCEngine(id, cfg);
+      return p.then(function(engine){
+        if (ohneWorker && KI.workerGescheitert && !S.set.kiOhneWorker){ S.set.kiOhneWorker = true; speichern(); }
+        return { engine:engine, id:id };
+      }, function(e){
         versuche.push(e);
         if (kiNetzFehler(e)) throw e;
-        return versuch(k + 1);
+        if (mitW){ KI.workerGescheitert = true; return versuch(k, true); }
+        return versuch(k + 1, ohneWorker);
       });
     }
-    return versuch(0);
+    return versuch(0, false);
   }).then(function(r){
     KI.engine = r.engine; KI.modellAktiv = r.id; KI.laedt = false; S.set.kiGeladen = r.id; speichern();
     if (kiName(r.id) !== kiName(wahl)) KI.hinweis = '„' + kiName(wahl) + '“ lief auf diesem Gerät nicht, deshalb ist jetzt „' + kiName(r.id) + '“ geladen.';
@@ -2040,6 +2063,7 @@ function kiKlick(act, w, b){
       return true;
     case 'ki-modell': S.set.kiModell = w; speichern(); render(); return true;
     case 'ki-laden': KI.autoStart = true; kiLaden(); return true;
+    case 'neu-laden': try { location.reload(); } catch(e){} return true;
     case 'ki-online': KI.onlineFehler = ''; S.set.kiQuelle = ''; speichern(); KI.quelle = 'online'; kiOnlineVerbinden(); render(); return true;
     case 'ki-quelle-lokal': S.set.kiQuelle = 'lokal'; speichern(); KI.verbindet = false; KI.quelle = null; render(); return true;
     case 'ki-modus': if (KI.antwortet || MIK.an) return true; KI.modus = w; render(); return true;
