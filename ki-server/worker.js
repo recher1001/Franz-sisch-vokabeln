@@ -23,7 +23,13 @@ export default {
     if (req.method === 'OPTIONS') return new Response(null, { headers: cors });
 
     const pfad = new URL(req.url).pathname;
-    if (pfad === '/health') return Response.json({ status: 'ok' }, { headers: cors });
+    if (pfad === '/health') return Response.json({ status: env.AI ? 'ok' : 'ki-fehlt' }, { headers: cors });
+    if (pfad === '/' && req.method === 'GET') {
+      const ki = env.AI ? '✅ Die KI ist verbunden. Alles bereit.' : '❌ Die KI ist noch nicht verbunden: Im Worker unter Settings → Bindings → Add → Workers AI mit dem Namen AI hinzufügen.';
+      return new Response('<!doctype html><meta charset="utf-8"><title>Vokabel-KI</title><body style="font:18px system-ui;padding:24px;line-height:1.5">' +
+        '<h1>Vokabel-KI</h1><p>✅ Der Server läuft.</p><p>' + ki + '</p><p>Diese Adresse an Claude schicken: <b>' + new URL(req.url).origin + '</b></p></body>',
+        { headers: { 'Content-Type': 'text/html; charset=utf-8' } });
+    }
     if (pfad !== '/v1/chat/completions' || req.method !== 'POST') return new Response('Nicht gefunden', { status: 404, headers: cors });
     if (!ERLAUBT.includes(origin)) return new Response('Nicht erlaubt', { status: 403, headers: cors });
 
@@ -45,6 +51,8 @@ export default {
       temperature: zahl(body.temperature, 0, 1.2, 0.4),
       top_p: zahl(body.top_p, 0.1, 1, 0.9),
     };
+
+    if (!env.AI) return Response.json({ error: 'Die KI ist im Worker nicht verbunden (Binding AI fehlt).' }, { status: 503, headers: cors });
 
     let fehler = null;
     for (const modell of MODELLE) {
