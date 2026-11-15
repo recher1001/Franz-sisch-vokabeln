@@ -1578,6 +1578,21 @@ function txKlick(act, w, b){
 /* ----- KI-Lernhelfer ----- */
 var KIURL = 'https://cdn.jsdelivr.net/npm/@mlc-ai/web-llm@0.2.86/+esm';
 var KISERVER = 'https://vokabel-ki.hallosuperbs.workers.dev';
+var STAND = '9873ace47b';
+/* Neue Version da? Safari und GitHub Pages halten alte Seiten sonst eine Weile im Zwischenspeicher. */
+function standPruefen(){
+  if (!STAND || imClaude() || !/^https?:$/.test(location.protocol)) return;
+  fetch(location.pathname + '?stand=' + Date.now(), { cache:'no-store' }).then(function(r){ return r.ok ? r.text() : ''; }).then(function(t){
+    var m = /var STAND = '([0-9a-f]+)'/.exec(t || '');
+    if (!m || m[1] === STAND) return;
+    var schon = ''; try { schon = sessionStorage.getItem('stand-neu') || ''; } catch(e){}
+    if (schon === m[1]) return;
+    try { sessionStorage.setItem('stand-neu', m[1]); } catch(e){}
+    var beschaeftigt = view === 'runde' || view === 'ueben' || view === 'tq' || view === 'ord' || KI.antwortet || KI.laedt;
+    if (!beschaeftigt){ location.replace(location.pathname + '?v=' + m[1]); return; }
+    var e = $('#toast'); e.innerHTML = 'Es gibt eine neue Version der Seite. <button type="button" class="btn klein prim" data-act="neu-laden" style="margin-left:8px">Neu laden</button>'; e.hidden = false;
+  }).catch(function(){});
+}
 var KIMODELLE = [
   { id:'Qwen3-0.6B-q4f16_1-MLC', f32:'Qwen3-0.6B-q4f32_1-MLC', name:'Klein', info:'Für Handy und Tablet. Startet am schnellsten, einmaliger Download von etwa 0,4 GB. Einfache Antworten.' },
   { id:'Qwen3-1.7B-q4f16_1-MLC', f32:'Qwen3-1.7B-q4f32_1-MLC', name:'Mittel', info:'Für PC, Laptop und neue Handys. Einmaliger Download von etwa 1 GB.' },
@@ -1718,7 +1733,7 @@ function rKi(){
     '<div class="ki-chips">' + kiChips().map(function(c){ return '<button type="button" class="ki-chip" data-act="ki-chip" data-t="' + esc(c.t) + '" data-a="' + esc(c.a || '') + '"' + (KI.antwortet ? ' disabled' : '') + (KI.modus === 'emma' ? ' lang="fr"' : '') + '>' + esc(c.l) + '</button>'; }).join('') + '</div>' +
     '<div class="ki-verlauf" id="ki-verlauf">' + v.map(function(m, i){ return blaseHTML(m, i); }).join('') + (KI.antwortet ? '<div class="blase ki-b" id="ki-live"><div class="tippt"><i></i><i></i><i></i></div></div>' : '') + '</div>' +
     '<div class="fuss"><form class="ki-eingabe" id="f-ki" autocomplete="off">' +
-      (kiKannSprechen() && !KI.antwortet ? '<button type="button" class="btn mik' + (MIK.an ? ' an' : '') + '" id="ki-mik" data-act="ki-mik" aria-pressed="' + MIK.an + '" aria-label="' + (MIK.an ? 'Aufnahme beenden und senden' : 'Sprachnachricht aufnehmen') + '">' + svg(P.mik, 22) + '</button>' : '') + '<textarea id="ki-text" rows="1" placeholder="' + (KI.modus === 'emma' ? 'Écris en français …' : 'Deine Frage …') + '" aria-label="Nachricht an die KI"' + (KI.modus === 'emma' ? ' lang="fr"' : '') + '>' + esc(KI.vorlage) + '</textarea>' +
+      (kiKannSprechen() && !KI.antwortet ? '<button type="button" class="btn mik' + (MIK.an ? ' an' : '') + '" id="ki-mik" data-act="ki-mik" aria-pressed="' + MIK.an + '" aria-label="' + (MIK.an ? 'Aufnahme beenden und senden' : 'Sprachnachricht aufnehmen') + '">' + svg(MIK.an ? P.stopp : P.mik, 22) + '</button>' : '') + '<textarea id="ki-text" rows="1" placeholder="' + (KI.modus === 'emma' ? 'Écris en français …' : 'Deine Frage …') + '" aria-label="Nachricht an die KI"' + (KI.modus === 'emma' ? ' lang="fr"' : '') + '>' + esc(KI.vorlage) + '</textarea>' +
       (KI.antwortet ? '<button type="button" class="btn" data-act="ki-stopp" aria-label="Antwort anhalten">' + svg(P.stopp, 20) + '</button>' : '<button type="submit" class="btn prim" aria-label="Senden">' + svg(P.senden, 20) + '</button>') + '</form>' +
       '<p class="ki-hinweis">Die KI kann sich irren. Im Zweifel gilt dein Buch.' + (KI.online && !KI.engine ? ' Läuft auf dem gemeinsamen KI-Server der Lernseite bei Cloudflare. Gespräche werden dort nicht gespeichert.' : '') + (KI.quelle === 'lokal' ? ' Getippte Nachrichten bleiben auf deinem Gerät.' + (SR ? ' Sprachnachrichten wandelt dein Browser in Text um, bei Chrome über Google, bei Safari über Apple.' : '') : '') + '</p></div></div>';
   KI.vorlage = '';
@@ -2009,9 +2024,10 @@ function kiKannSprechen(){ return imClaude() ? !!MIK.diktat : !!SR; }
 function mikZeigen(){
   var t = $('#ki-text'), b = $('#ki-mik');
   if (t){ t.value = MIK.text; t.placeholder = MIK.an ? (KI.modus === 'emma' ? 'Je t\'écoute …' : 'Ich höre zu …') : (KI.modus === 'emma' ? 'Écris en français …' : 'Deine Frage …'); t.style.height = 'auto'; t.style.height = Math.min(140, t.scrollHeight) + 'px'; }
-  if (b){ b.classList.toggle('an', MIK.an); b.setAttribute('aria-label', MIK.an ? 'Aufnahme beenden und senden' : 'Sprachnachricht aufnehmen'); b.setAttribute('aria-pressed', MIK.an); }
+  if (b){ b.classList.toggle('an', MIK.an); b.setAttribute('aria-label', MIK.an ? 'Aufnahme beenden und senden' : 'Sprachnachricht aufnehmen'); b.setAttribute('aria-pressed', MIK.an); b.innerHTML = svg(MIK.an ? P.stopp : P.mik, 22); }
 }
 function mikFertig(){
+  clearTimeout(MIK.grenze); clearTimeout(MIK.notstopp);
   var t = MIK.text.trim(); MIK.an = false; MIK.rec = null; mikZeigen();
   if (t){ MIK.text = ''; kiSenden(t, true); }
 }
@@ -2043,7 +2059,8 @@ function mikStart(){
     return;
   }
   var rec = new SR(); MIK.rec = rec;
-  rec.lang = KI.modus === 'emma' ? 'fr-FR' : 'de-DE'; rec.interimResults = true; rec.continuous = false; rec.maxAlternatives = 1;
+  rec.lang = KI.modus === 'emma' ? 'fr-FR' : 'de-DE'; rec.interimResults = true; rec.continuous = true; rec.maxAlternatives = 1;
+  clearTimeout(MIK.grenze); MIK.grenze = setTimeout(function(){ if (MIK.rec === rec) mikStopp(); }, 60000);
   rec.onresult = function(e){ var t = ''; for (var i=0;i<e.results.length;i++) t += e.results[i][0].transcript; MIK.text = basis + t; mikZeigen(); };
   rec.onerror = function(e){
     if (e.error === 'not-allowed'){ MIK.text = ''; if (MIK.geprueft && geraet() === 'ios') mikHilfe('dienst'); else { MIK.erlaubnis = 'denied'; mikHilfe('gesperrt'); } return; }
@@ -2051,13 +2068,18 @@ function mikStart(){
     var m = { 'no-speech':'Ich habe nichts gehört. Tippe aufs Mikrofon und sprich gleich los.', 'audio-capture':'Es wurde kein Mikrofon gefunden.', 'network':'Für die Spracherkennung braucht dein Browser Internet.' }[e.error];
     if (m) toast(m);
   };
-  rec.onend = function(){ if (MIK.rec === rec) mikFertig(); };
+  rec.onend = function(){ clearTimeout(MIK.grenze); clearTimeout(MIK.notstopp); if (MIK.rec === rec) mikFertig(); };
   try { rec.start(); MIK.an = true; mikZeigen(); } catch(e){ toast('Die Aufnahme hat nicht geklappt.'); }
 }
 function mikStopp(){
   if (!MIK.an) return;
   if (imClaude() && MIK.diktat){ MIK.diktat.stop().catch(function(){}); return; }
-  if (MIK.rec) try { MIK.rec.stop(); } catch(e){ mikFertig(); }
+  var rec = MIK.rec;
+  if (!rec){ MIK.an = false; mikZeigen(); return; }
+  var b = $('#ki-mik'); if (b){ b.classList.remove('an'); b.innerHTML = svg(P.mik, 22); }
+  try { rec.stop(); } catch(e){}
+  clearTimeout(MIK.notstopp);
+  MIK.notstopp = setTimeout(function(){ if (MIK.rec === rec){ try { rec.abort(); } catch(e){} mikFertig(); } }, 900);
 }
 /* ----- Online-KI: ein gemeinsamer Server (Hugging Face Space mit llama.cpp) für alle ----- */
 function kiOnlineAn(){ return !!KISERVER && !imClaude() && S.set.kiQuelle !== 'lokal'; }
@@ -2141,7 +2163,7 @@ function kiKlick(act, w, b){
       return true;
     case 'ki-modell': S.set.kiModell = w; speichern(); render(); return true;
     case 'ki-laden': KI.autoStart = true; kiLaden(); return true;
-    case 'neu-laden': try { location.reload(); } catch(e){} return true;
+    case 'neu-laden': try { location.replace(location.pathname + '?v=' + Date.now()); } catch(e){ try { location.reload(); } catch(x){} } return true;
     case 'ki-online': KI.onlineFehler = ''; S.set.kiQuelle = ''; speichern(); KI.quelle = 'online'; kiOnlineVerbinden(); render(); return true;
     case 'ki-quelle-lokal': S.set.kiQuelle = 'lokal'; speichern(); KI.verbindet = false; KI.quelle = null; render(); return true;
     case 'ki-modus': if (KI.antwortet || MIK.an) return true; KI.modus = w; render(); return true;
@@ -2341,6 +2363,8 @@ document.addEventListener('keydown', function(ev){
 /* ---------- Start ---------- */
 laden(); karten(); stimmen(); render(); wolkeStart();
 setTimeout(kiVorbereiten, 2500);
+setTimeout(standPruefen, 1200);
+document.addEventListener('visibilitychange', function(){ if (document.visibilityState === 'visible') standPruefen(); });
 })();
 </script>
 
