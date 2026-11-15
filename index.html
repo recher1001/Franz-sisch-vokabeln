@@ -1,0 +1,1143 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<style>
+:root{color-scheme:light;padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px)}
+body{margin:0;font:14px system-ui,sans-serif}
+img{max-width:100%}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<title>Vokabeltrainer À plus! 4</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Figtree:wght@400..800&family=Playwrite+FR+Moderne:wght@100..400&display=swap">
+<style>
+/* Layout: ein französisches Schulheft. Die Startseite ist der Heftdeckel (königsblau, mit Etikett),
+   dahinter kommen Seite für Seite: Vokabeln wählen, Lernart wählen, Einstellungen, Lernen.
+   Lernkarten tragen die Seyès-Lineatur, die Rückmeldung kommt in Schreibschrift wie vom Korrekturstift.
+   Jede Lernart hat ihre eigene Farbe, wie Registerblätter. Dunkel wird das Heft zur Tafel. Eine schmale Spalte. */
+:root{
+  --bg:#eceef8; --paper:#ffffff; --ink:#1b2250; --ink2:#555d8a; --rule:#cdd2f0; --rule2:#e9ebf8; --marge:#e23d57;
+  --accent:#2a3bd0; --on-accent:#ffffff; --accent-soft:#e1e5ff;
+  --cover:#2536c9; --cover2:#3446d8; --on-cover:#ffffff; --on-cover2:#cfd5ff; --cta:#ffd45e; --on-cta:#1b2250;
+  --good:#0b7f54; --good-soft:#dcf3e8; --bad:#c9233f; --bad-soft:#fde3e8; --warn:#9a5700; --warn-soft:#fbebcd;
+  --k1:#2a3bd0; --k2:#d92f4b; --k3:#0b8f63; --k4:#b96c00; --k5:#7a4be0; --k6:#0b879f; --k7:#d2470f; --k8:#ad3089; --on-k:#ffffff;
+  --shadow:0 1px 0 rgba(27,34,80,.06),0 14px 32px -16px rgba(27,34,80,.32);
+  --f-display:"Bricolage Grotesque","Avenir Next","Segoe UI",system-ui,sans-serif;
+  --f-body:"Figtree","Segoe UI",system-ui,-apple-system,"Helvetica Neue",sans-serif;
+  --f-hand:"Playwrite FR Moderne","Segoe Script","Bradley Hand","Snell Roundhand",cursive;
+  --r:20px;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#12201c; --paper:#1a2d28; --ink:#eef3e8; --ink2:#a4b7ab; --rule:#30504a; --rule2:#223a34; --marge:#ff8496;
+  --accent:#ffd45e; --on-accent:#1e2710; --accent-soft:#394630;
+  --cover:#0c1714; --cover2:#16271f; --on-cover:#eef3e8; --on-cover2:#a4b7ab; --cta:#ffd45e; --on-cta:#1e2710;
+  --good:#7fe3ac; --good-soft:#1e4335; --bad:#ff93a0; --bad-soft:#4a2630; --warn:#ffc46b; --warn-soft:#45391f;
+  --k1:#9aa8ff; --k2:#ff8496; --k3:#7fe3ac; --k4:#ffd45e; --k5:#c6adff; --k6:#7fd8ea; --k7:#ffa377; --k8:#f29ad6; --on-k:#12201c;
+  --shadow:0 1px 0 rgba(0,0,0,.3),0 14px 32px -16px rgba(0,0,0,.7);
+  color-scheme:dark } }
+:root[data-theme="dark"]{
+  --bg:#12201c; --paper:#1a2d28; --ink:#eef3e8; --ink2:#a4b7ab; --rule:#30504a; --rule2:#223a34; --marge:#ff8496;
+  --accent:#ffd45e; --on-accent:#1e2710; --accent-soft:#394630;
+  --cover:#0c1714; --cover2:#16271f; --on-cover:#eef3e8; --on-cover2:#a4b7ab; --cta:#ffd45e; --on-cta:#1e2710;
+  --good:#7fe3ac; --good-soft:#1e4335; --bad:#ff93a0; --bad-soft:#4a2630; --warn:#ffc46b; --warn-soft:#45391f;
+  --k1:#9aa8ff; --k2:#ff8496; --k3:#7fe3ac; --k4:#ffd45e; --k5:#c6adff; --k6:#7fd8ea; --k7:#ffa377; --k8:#f29ad6; --on-k:#12201c;
+  --shadow:0 1px 0 rgba(0,0,0,.3),0 14px 32px -16px rgba(0,0,0,.7);
+  color-scheme:dark }
+
+*,*::before,*::after{box-sizing:border-box}
+html,body{height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.45;
+  -webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent;transition:background-color .25s}
+body.deckel{background:var(--cover)}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer;touch-action:manipulation}
+h1,h2,h3,p{margin:0}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;line-height:1.12;letter-spacing:-.01em}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:6px}
+.deckel :focus-visible{outline-color:var(--cta)}
+
+.app{max-width:640px;margin:0 auto;min-height:100%;display:flex;flex-direction:column;gap:18px;
+  padding-block:14px 28px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.top{display:flex;align-items:center;gap:10px;min-height:44px}
+.top:empty{display:none}
+.titel{display:flex;flex-direction:column;line-height:1.15;min-width:0;flex:1}
+.titel b{font-family:var(--f-display);font-weight:800;font-size:1.15rem;letter-spacing:-.02em}
+.titel span{font-size:.8rem;color:var(--ink2)}
+.nav{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 14px;border-radius:999px;border:1.5px solid var(--rule);
+  background:transparent;font-weight:650;font-size:.92rem;flex:none}
+.nav:hover{border-color:var(--accent)}
+main{display:flex;flex-direction:column;gap:20px;flex:1;min-width:0}
+main.blatt{animation:blatt .26s ease-out}
+@keyframes blatt{from{opacity:0;transform:translateX(14px)}to{opacity:1;transform:none}}
+
+/* ---------- Bausteine ---------- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:52px;padding:0 22px;border-radius:14px;
+  border:1.5px solid var(--rule);background:var(--paper);font-weight:700;font-size:1rem;text-align:center}
+.btn.prim{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.btn.gut{background:var(--good);border-color:var(--good);color:var(--paper)}
+.btn.schlecht{border-color:var(--bad);color:var(--bad)}
+.btn.klein{min-height:44px;padding:0 14px;font-size:.92rem;border-radius:12px}
+.btn.gross{min-height:60px;font-size:1.1rem;flex-direction:column;gap:1px;width:100%}
+.btn small{font-weight:600;font-size:.82rem;opacity:.9}
+.btn:disabled{opacity:.5;cursor:default}
+.btn:not(:disabled):active{transform:translateY(1px)}
+.aktionen{display:flex;gap:10px;flex-wrap:wrap}
+.aktionen .btn{flex:1 1 140px}
+.fuss{position:sticky;bottom:0;z-index:5;margin-inline:-6px;padding:14px 6px calc(10px + env(safe-area-inset-bottom,0px));
+  background:linear-gradient(to bottom,transparent,var(--bg) 30%)}
+.fuss .btn{box-shadow:var(--shadow)}
+.spk{display:none;align-items:center;justify-content:center;width:44px;height:44px;flex:none;border-radius:50%;
+  border:1.5px solid var(--rule);background:var(--paper);color:var(--accent);vertical-align:middle}
+.kann-sprechen .spk{display:inline-flex}
+.hand{font-family:var(--f-hand);font-weight:400}
+.eyebrow{font-size:.74rem;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--ink2)}
+.hinweis{font-size:.88rem;color:var(--ink2);max-width:62ch}
+.badge{display:inline-flex;align-items:center;padding:2px 9px;border-radius:999px;font-size:.72rem;font-weight:750;letter-spacing:.04em;text-transform:uppercase;white-space:nowrap}
+.badge.neu{background:var(--accent-soft);color:var(--accent)}
+.badge.warn{background:var(--warn-soft);color:var(--warn)}
+.badge.faellig{background:var(--bad-soft);color:var(--bad)}
+.seyes{background-color:var(--paper);background-image:
+  linear-gradient(90deg,transparent 1.75rem,var(--marge) 1.75rem,var(--marge) calc(1.75rem + 1.5px),transparent calc(1.75rem + 1.5px)),
+  repeating-linear-gradient(0deg,var(--rule) 0,var(--rule) 1px,transparent 1px,transparent 2rem),
+  repeating-linear-gradient(0deg,var(--rule2) 0,var(--rule2) 1px,transparent 1px,transparent .5rem),
+  repeating-linear-gradient(90deg,var(--rule2) 0,var(--rule2) 1px,transparent 1px,transparent 2rem)}
+.seg{display:inline-flex;flex-wrap:wrap;gap:4px;padding:4px;border-radius:14px;background:var(--rule2);border:1px solid var(--rule)}
+.seg button{min-height:42px;padding:0 14px;border-radius:10px;border:0;background:transparent;font-weight:650;font-size:.92rem;color:var(--ink2)}
+.seg button[aria-pressed="true"]{background:var(--paper);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.18)}
+.pips{display:inline-flex;gap:4px;align-items:center}
+.pips i{width:9px;height:9px;border-radius:50%;border:1.5px solid var(--ink2)}
+.pips i.an{background:var(--accent);border-color:var(--accent)}
+.pips.fertig i{background:var(--good);border-color:var(--good)}
+.schritte{display:flex;gap:6px;align-items:center;list-style:none;margin:0;padding:0;font-size:.8rem;font-weight:700;color:var(--ink2)}
+.schritte li{display:flex;align-items:center;gap:6px;flex:1;min-width:0}
+.schritte li::after{content:"";flex:1;height:2px;background:var(--rule);border-radius:2px}
+.schritte li:last-child{flex:none}
+.schritte li:last-child::after{display:none}
+.schritte i{font-style:normal;width:26px;height:26px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;border:2px solid var(--rule);flex:none;font-variant-numeric:tabular-nums}
+.schritte .da{color:var(--ink)}
+.schritte .da i{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.schritte .war i{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
+.schritte span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kopf h1{font-size:clamp(1.55rem,6.4vw,2rem);font-weight:800}
+.kopf{display:flex;flex-direction:column;gap:6px}
+.kopf p{color:var(--ink2)}
+
+/* ---------- Deckel (Start) ---------- */
+.deckel .app{color:var(--on-cover)}
+.cover{display:flex;flex-direction:column;gap:22px;flex:1}
+.cover-nav{display:flex;justify-content:flex-end;gap:8px}
+.cover-nav .nav{border-color:var(--cover2);background:var(--cover2);color:var(--on-cover)}
+.etikett{align-self:center;width:min(100%,430px);border-radius:14px;padding:6px;background:var(--paper);box-shadow:var(--shadow);transform:rotate(-1.2deg)}
+.etikett-in{border:2px solid var(--marge);border-radius:9px;padding:14px 18px 16px;display:flex;flex-direction:column;gap:2px;color:var(--ink);
+  background-image:repeating-linear-gradient(0deg,transparent 0,transparent calc(2.25rem - 1px),var(--rule) calc(2.25rem - 1px),var(--rule) 2.25rem);background-position:0 .5rem}
+.etikett .eyebrow{line-height:2.25rem}
+.etikett .hand{font-size:clamp(1.7rem,8vw,2.3rem);line-height:2.25rem;color:var(--accent);white-space:nowrap}
+.etikett .zeile{font-family:var(--f-display);font-weight:750;font-size:1.02rem;line-height:2.25rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gruss{display:flex;flex-direction:column;gap:8px}
+.gruss .hand{font-size:1.35rem;color:var(--cta)}
+.gruss h1{font-size:clamp(1.7rem,7vw,2.4rem);font-weight:800}
+.gruss h1 em{font-style:normal;color:var(--cta)}
+.cover .btn.cta{background:var(--cta);border-color:var(--cta);color:var(--on-cta);min-height:64px;font-size:1.2rem;width:100%;box-shadow:var(--shadow)}
+.cover .btn.zweit{background:transparent;border-color:var(--on-cover2);color:var(--on-cover);width:100%}
+.cover-knopf{display:flex;flex-direction:column;gap:10px}
+.zahlen{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.zahl{border-radius:14px;background:var(--cover2);padding:12px 10px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.zahl b{font-family:var(--f-display);font-weight:800;font-size:1.5rem;line-height:1;font-variant-numeric:tabular-nums}
+.zahl span{font-size:.76rem;color:var(--on-cover2);font-weight:600}
+.kasten-wrap{display:flex;flex-direction:column;gap:10px}
+.kasten{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;align-items:end;padding:14px 10px 10px;border-radius:var(--r);
+  background:var(--paper);border:1.5px solid var(--rule);color:var(--ink)}
+.fach{display:flex;flex-direction:column;align-items:center;gap:6px;min-width:0}
+.fach-n{font-family:var(--f-display);font-weight:800;font-size:1.05rem;font-variant-numeric:tabular-nums;line-height:1}
+.fach-n.null{color:var(--ink2);opacity:.55}
+.stapel{width:100%;height:70px;display:flex;flex-direction:column-reverse;gap:2px;padding:4px 4px 0;border-radius:6px 6px 0 0;
+  border:1.5px solid var(--rule);border-bottom-width:4px;background:var(--rule2)}
+.stapel i{height:5px;border-radius:2px;background:var(--ink2);opacity:.45}
+.stapel i.f{background:var(--marge);opacity:1}
+.stapel.ziel i{background:var(--good);opacity:.9}
+.fach-l{font-size:.7rem;font-weight:700;color:var(--ink2);letter-spacing:.02em;white-space:nowrap}
+.legende{display:flex;flex-wrap:wrap;gap:4px 16px;font-size:.8rem;color:var(--ink2)}
+.deckel .legende,.deckel .kasten-wrap>.eyebrow{color:var(--on-cover2)}
+.legende span{display:inline-flex;align-items:center;gap:6px}
+.legende i{width:14px;height:5px;border-radius:2px;background:currentColor;opacity:.6}
+.legende i.f{background:var(--marge);opacity:1}
+.legende i.z{background:var(--good);opacity:1}
+.deckel .legende i.z{background:var(--cta)}
+
+/* ---------- Schritt 1: Auswahl ---------- */
+.gruppe{display:flex;flex-direction:column;gap:8px}
+.gruppe-kopf{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.gruppe-kopf h2{font-size:1.1rem;font-weight:750}
+.link{border:0;background:none;padding:10px 4px;color:var(--accent);font-weight:700;font-size:.9rem;text-decoration:underline;text-underline-offset:3px}
+.volet{position:relative;display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:4px 12px;padding:12px 14px;border-radius:14px;
+  border:1.5px solid var(--rule);background:var(--paper);cursor:pointer}
+.volet input{position:absolute;opacity:0;width:1px;height:1px}
+.haken{width:26px;height:26px;border-radius:8px;border:2px solid var(--ink2);display:flex;align-items:center;justify-content:center;color:transparent;grid-row:1 / span 2}
+.volet input:checked ~ .haken{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.volet input:focus-visible ~ .haken{outline:3px solid var(--accent);outline-offset:2px}
+.volet:has(input:checked){border-color:var(--accent);background:var(--accent-soft)}
+.volet-name{font-weight:750;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.volet-meta{font-size:.84rem;color:var(--ink2);grid-column:2}
+.volet-zahl{grid-column:3;grid-row:1 / span 2;text-align:right;font-size:.8rem;color:var(--ink2);font-variant-numeric:tabular-nums;display:flex;flex-direction:column;align-items:flex-end;gap:5px}
+.balken{display:flex;width:64px;height:7px;border-radius:4px;overflow:hidden;background:var(--rule2);border:1px solid var(--rule)}
+.balken i{display:block;height:100%}
+.balken .b1{background:var(--accent)} .balken .b2{background:var(--good)}
+.schnell{display:flex;gap:8px;flex-wrap:wrap}
+
+/* ---------- Schritt 2: Lernart ---------- */
+.arten{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.art{--k:var(--k1);display:flex;flex-direction:column;gap:8px;align-items:flex-start;text-align:left;padding:14px;border-radius:18px;border:1.5px solid var(--rule);
+  background:var(--paper);min-width:0;position:relative;overflow:hidden}
+.art::after{content:"";position:absolute;inset:0 0 auto 0;height:5px;background:var(--k)}
+.art:not(:disabled):hover{border-color:var(--k)}
+.art .bild{width:46px;height:46px;border-radius:14px;background:var(--k);color:var(--on-k);display:flex;align-items:center;justify-content:center;flex:none}
+.art b{font-family:var(--f-display);font-size:1.12rem;font-weight:750;line-height:1.15;color:var(--ink)}
+.art span{font-size:.86rem;color:var(--ink2);line-height:1.35}
+.art.breit{grid-column:1 / -1;flex-direction:row;align-items:center;gap:14px;padding:18px 16px}
+.art.breit .text{display:flex;flex-direction:column;gap:4px;min-width:0}
+.art.breit .bild{width:56px;height:56px;border-radius:16px}
+.art:disabled{opacity:.55;cursor:default}
+.art .zeile{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+
+/* ---------- Schritt 3: Einstellungen ---------- */
+.opt-zeile{display:flex;flex-direction:column;gap:8px;padding:14px 0;border-bottom:1px solid var(--rule)}
+.opt-zeile:last-child{border-bottom:0}
+.opt-zeile b{font-weight:700;display:block}
+.opt-zeile small{color:var(--ink2);font-size:.86rem}
+.wie{border-radius:var(--r);padding:16px 18px 16px 2.6rem;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:6px}
+.wie p{font-size:.98rem}
+
+/* ---------- Lernen ---------- */
+.runde{display:flex;flex-direction:column;gap:16px;width:100%}
+.fortschritt{display:flex;align-items:center;gap:12px}
+.fortschritt .spur{flex:1;height:10px;border-radius:6px;background:var(--rule2);border:1px solid var(--rule);overflow:hidden}
+.fortschritt .spur i{display:block;height:100%;background:var(--accent);border-radius:6px;transition:width .3s}
+.fortschritt span{font-size:.86rem;font-weight:700;color:var(--ink2);font-variant-numeric:tabular-nums}
+.karte{border-radius:var(--r);box-shadow:var(--shadow);padding:16px 18px 20px 2.6rem;display:flex;flex-direction:column;gap:12px;min-width:0}
+.karte.rein{animation:rein .28s ease-out}
+@keyframes rein{from{opacity:.2;transform:translateY(10px) rotate(-.6deg)}to{opacity:1;transform:none}}
+.k-kopf{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;min-height:1.5rem}
+.k-sec{font-size:.78rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2)}
+.k-frage{font-size:.92rem;color:var(--ink2);font-weight:600}
+.k-wort{font-family:var(--f-display);font-weight:750;font-size:clamp(1.5rem,6.4vw,2.1rem);line-height:1.15;overflow-wrap:anywhere;hyphens:auto}
+.k-wort.lang{font-size:clamp(1.15rem,4.6vw,1.45rem);font-weight:650}
+.k-zeile{display:flex;align-items:center;gap:12px}
+.k-zeile .k-wort{flex:1;min-width:0}
+.k-neben{font-size:1.08rem;overflow-wrap:anywhere}
+.k-satz{font-size:1rem;color:var(--ink2);overflow-wrap:anywhere}
+.k-satz b{color:var(--ink);font-weight:750}
+.k-satz .luecke{display:inline-block;min-width:4.5em;border-bottom:2.5px solid var(--accent);text-align:center;color:var(--accent);font-weight:750}
+.hoer{display:inline-flex;align-items:center;gap:10px;align-self:flex-start;min-height:56px;padding:0 20px;border-radius:999px;border:0;background:var(--accent);color:var(--on-accent);font-weight:700}
+.eingabe{display:flex;flex-direction:column;gap:10px}
+.eingabe input[type=text]{width:100%;min-height:56px;padding:0 16px;border-radius:14px;border:2px solid var(--ink2);background:var(--paper);
+  font-size:1.2rem;font-weight:600}
+.eingabe input[type=text]:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 4px var(--accent-soft)}
+.akzente{display:flex;flex-wrap:wrap;gap:6px}
+.akzente button{min-width:40px;height:44px;padding:0 6px;border-radius:10px;border:1.5px solid var(--rule);background:var(--paper);font-size:1.1rem;font-weight:650}
+.urteil{display:flex;flex-direction:column;gap:10px;padding-top:4px}
+.stempel{font-family:var(--f-hand);font-size:1.6rem;line-height:1.4;transform:rotate(-3deg);transform-origin:left center;align-self:flex-start;animation:stempel .3s cubic-bezier(.2,1.6,.4,1)}
+@keyframes stempel{from{opacity:0;transform:rotate(-9deg) scale(1.5)}to{opacity:1;transform:rotate(-3deg)}}
+.stempel.ok{color:var(--good)} .stempel.fast{color:var(--warn)} .stempel.nein{color:var(--bad)}
+.erkl{font-size:.92rem;font-weight:650}
+.erkl.fast{color:var(--warn)} .erkl.nein{color:var(--bad)} .erkl.leise{color:var(--ink2)}
+.deins{font-size:.98rem;color:var(--ink2)}
+.deins s{color:var(--bad);text-decoration-thickness:2px}
+.weg{font-size:.86rem;font-weight:650;color:var(--ink2)}
+.ende{align-items:flex-start}
+.ende .hand{font-size:1.6rem;color:var(--accent);line-height:2rem}
+.ende h1{font-size:clamp(1.5rem,6vw,2rem);font-weight:800}
+.note{display:flex;align-items:center;gap:16px}
+.note b{font-family:var(--f-hand);font-weight:400;font-size:3.2rem;line-height:1;color:var(--bad);width:84px;height:84px;border:3px solid var(--bad);border-radius:50%;display:flex;align-items:center;justify-content:center;transform:rotate(-6deg);flex:none}
+.note.gut b{color:var(--good);border-color:var(--good)}
+.fehlt{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;width:100%}
+.fehlt li{display:grid;grid-template-columns:auto minmax(0,1fr);gap:2px 10px;padding:9px 0;border-bottom:1px dashed var(--rule)}
+.fehlt li:last-child{border-bottom:0}
+.fehlt .m{grid-row:1 / span 3;font-weight:800;width:1.6rem}
+.fehlt .m.ok{color:var(--good)} .fehlt .m.fast{color:var(--warn)} .fehlt .m.nein{color:var(--bad)}
+.fehlt b{font-weight:750;overflow-wrap:anywhere}
+.fehlt span{color:var(--ink2);overflow-wrap:anywhere}
+.fehlt s{color:var(--bad)}
+#konfetti{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:30}
+
+/* ---------- Üben ---------- */
+.flip{perspective:1200px;cursor:pointer;border-radius:var(--r);display:block;width:100%}
+.flip-in{position:relative;display:grid;transition:transform .45s;transform-style:preserve-3d}
+.flip-in.um{transform:rotateY(180deg)}
+.seite{grid-area:1 / 1;backface-visibility:hidden;-webkit-backface-visibility:hidden;min-height:230px;justify-content:center}
+.seite.hinten{transform:rotateY(180deg)}
+.tipp{font-size:.82rem;color:var(--ink2);text-align:center}
+.optionen{display:grid;gap:10px}
+.opt{min-height:54px;padding:10px 16px;border-radius:14px;border:1.5px solid var(--rule);background:var(--paper);text-align:left;font-weight:600;font-size:1rem;overflow-wrap:anywhere}
+.opt.richtig{border-color:var(--good);background:var(--good-soft);color:var(--good)}
+.opt.falsch{border-color:var(--bad);background:var(--bad-soft);color:var(--bad)}
+.opt:disabled{cursor:default}
+.paare{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.paar{min-height:62px;padding:8px 10px;border-radius:12px;border:1.5px solid var(--rule);background:var(--paper);font-weight:600;font-size:.92rem;line-height:1.25;overflow-wrap:anywhere;hyphens:auto}
+.paar.fr{font-family:var(--f-display);font-weight:700}
+.paar[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft)}
+.paar.weg{opacity:.28;border-style:dashed;background:transparent}
+.paar.zitter{animation:zitter .3s;border-color:var(--bad)}
+@keyframes zitter{25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+.punkte{font-weight:700;color:var(--ink2);font-size:.9rem;font-variant-numeric:tabular-nums}
+
+/* ---------- Liste ---------- */
+.werkzeug{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.feld{min-height:48px;padding:0 14px;border-radius:12px;border:1.5px solid var(--rule);background:var(--paper);width:100%}
+.werkzeug .feld{flex:1 1 200px;width:auto}
+textarea.feld{padding:10px 14px;min-height:92px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.78rem;word-break:break-all}
+.liste{display:flex;flex-direction:column;gap:18px}
+.liste h3{font-size:1rem;font-weight:750;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.liste section{display:flex;flex-direction:column;gap:8px}
+.zeilen{border-radius:14px;border:1.5px solid var(--rule);background:var(--paper);overflow:hidden}
+.zeile{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) auto;gap:4px 12px;align-items:center;padding:10px 12px;border-bottom:1px solid var(--rule2)}
+.zeile:last-child{border-bottom:0}
+.zeile .fr{font-weight:700;overflow-wrap:anywhere}
+.zeile .de{color:var(--ink2);overflow-wrap:anywhere;hyphens:auto}
+.zeile .rand{display:flex;align-items:center;gap:8px}
+.zeile .spk{width:38px;height:38px}
+.deck-fr .zeile:not(.auf) .fr,.deck-de .zeile:not(.auf) .de{color:transparent;border-radius:6px;cursor:pointer;user-select:none;
+  background:repeating-linear-gradient(135deg,var(--rule) 0 6px,var(--rule2) 6px 12px)}
+.deck-fr .zeile,.deck-de .zeile{cursor:pointer}
+@media (max-width:520px){ .zeile{grid-template-columns:minmax(0,1fr) auto} .zeile .de{grid-column:1} .zeile .rand{grid-column:2;grid-row:1 / span 2} }
+
+/* ---------- Mehr ---------- */
+.mehr{display:flex;flex-direction:column;gap:26px}
+.block{display:flex;flex-direction:column;gap:12px}
+.block>h2{font-size:1.25rem;font-weight:750}
+.form{display:grid;gap:10px}
+.form label{display:flex;flex-direction:column;gap:4px;font-size:.84rem;font-weight:650;color:var(--ink2)}
+.eigene{list-style:none;margin:0;padding:0}
+.eigene li{display:flex;gap:10px;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px dashed var(--rule)}
+.eigene li>span{min-width:0;overflow-wrap:anywhere}
+.toast{position:fixed;left:50%;bottom:calc(92px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:20;max-width:min(92vw,420px);
+  padding:12px 18px;border-radius:14px;background:var(--ink);color:var(--bg);font-weight:650;font-size:.94rem;box-shadow:var(--shadow);text-align:center}
+@media (prefers-reduced-motion: reduce){ *,*::before,*::after{animation:none!important;transition:none!important} }
+</style>
+
+<div class="app" id="app">
+  <header class="top" id="top"></header>
+  <main id="main"></main>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+<script>
+(function(){
+'use strict';
+var DATA = {"buch":"À plus! 4 – Nouvelle édition, Gymnasium Bayern (Cornelsen)","abschnitte":[{"id":"u1v1","gruppe":"Unité 1","titel":"Volet 1","vollstaendig":true,"vokabeln":[{"fr":"la Romandie, la Suisse romande","de":"die Romandie, die französischsprachige Schweiz","akzeptiert":["la romandie","la suisse romande"],"satz":"Mon professeur de français vient de la ___.","loesung":["Romandie","Suisse romande"]},{"fr":"olympique (m./f. adj.)","de":"olympisch","akzeptiert":["olympique"],"satz":"J'aime regarder les Jeux ___.","loesung":["olympiques"]},{"fr":"le siège","de":"der Sitz","akzeptiert":["le siège"],"satz":"L'Institut français a son ___ principal à Paris.","loesung":["siège"]},{"fr":"le CIO","de":"das Internationale Olympische Komitee (IOC)","akzeptiert":["le cio"],"satz":"Le ___ organise les Jeux olympiques.","loesung":["CIO"]},{"fr":"l'organisation (f.)","de":"die Organisation","akzeptiert":["l'organisation"],"satz":"La ONU est une ___ internationale.","loesung":["organisation"]},{"fr":"l'office (m.)","de":"das Büro","akzeptiert":["l'office"],"satz":"L'___ des Nations unies se trouve à Genève.","loesung":["office"]},{"fr":"l'ONU / l'Organisation des Nations unies","de":"die UNO / die Organisation der Vereinten Nationen","akzeptiert":["l'onu","l'organisation des nations unies"],"satz":"Pia veut travailler pour l'___.","loesung":["ONU","Organisation des Nations unies"]},{"fr":"la lutte","de":"der Ringkampf, das Ringen","akzeptiert":["la lutte"],"satz":"Il est champion du monde de ___.","loesung":["lutte"]},{"fr":"la lutte suisse","de":"der Schweizer Ringkampf, das Schwingen","akzeptiert":["la lutte suisse"],"satz":"Théo adore la ___.","loesung":["lutte suisse"]},{"fr":"pratiquer qc","de":"etw. praktizieren, ausüben","akzeptiert":["pratiquer","pratiquer qc"],"satz":"On peut ___ le rugby dans un club.","loesung":["pratiquer"]},{"fr":"en plein air","de":"im Freien","akzeptiert":["en plein air"],"satz":"Le rafting se pratique ___.","loesung":["en plein air"]},{"fr":"représenter qc","de":"etw. darstellen, bedeuten","akzeptiert":["représenter","représenter qc"],"satz":"Que ___ ce symbole?","loesung":["représente"]},{"fr":"le sport d'hiver","de":"der Wintersport","akzeptiert":["le sport d'hiver"],"satz":"Le ski est un ___ très populaire en Suisse.","loesung":["sport d'hiver"]},{"fr":"les raquettes (f.)","de":"die Schneeschuhe","akzeptiert":["les raquettes"],"satz":"Regarde, il neige! Il faut mettre tes ___!","loesung":["raquettes"]},{"fr":"populaire (m./f. adj.)","de":"beliebt, populär","akzeptiert":["populaire"],"satz":"Les sports nautiques sont très ___ en Suisse.","loesung":["populaires"]},{"fr":"le canton","de":"der Kanton (Landkreis in der Schweiz)","akzeptiert":["le canton"],"satz":"En Suisse, il y a 26 ___.","loesung":["cantons"]},{"fr":"l'altitude (f.)","de":"die Höhe","akzeptiert":["l'altitude"],"satz":"Notre hôtel est à 2000 mètres d'___.","loesung":["altitude"]},{"fr":"la piste","de":"die (Ski-)Piste","akzeptiert":["la piste"],"satz":"Aujourd'hui, il y a beaucoup de monde sur la ___.","loesung":["piste"]},{"fr":"la station","de":"hier: der Wintersportort","akzeptiert":["la station"],"satz":"Verbier est une belle ___ de ski.","loesung":["station"]},{"fr":"le championnat du monde","de":"die Weltmeisterschaft","akzeptiert":["le championnat du monde"],"satz":"Qui a gagné le dernier ___ de hockey sur glace?","loesung":["championnat du monde"]},{"fr":"le paddle","de":"das Stand-Up-Paddling (SUP), das Stehpaddeln","akzeptiert":["le paddle"],"satz":"Tu as déjà essayé le ___?","loesung":["paddle"]},{"fr":"Tchô","de":"Schweizerisch für Hallo","akzeptiert":["tchô","tcho"],"satz":"___ Antoine, ça va?","loesung":["Tchô"]},{"fr":"l'annonce (f.)","de":"die Annonce, die Anzeige","akzeptiert":["l'annonce"],"satz":"Tu as vu l'___ dans le journal?","loesung":["annonce"]},{"fr":"dingue (m./f. adj. fam.)","de":"verrückt","akzeptiert":["dingue"],"satz":"Ils sont complètement ___.","loesung":["dingues"]},{"fr":"11e du Cycle d'orientation","de":"die 9. Jahrgangsstufe (Bezeichnung für das 1. Jahr der Sekundarstufe im Kanton Genf)","akzeptiert":["11e du cycle d'orientation","11e"],"satz":"Emma est en ___.","loesung":["11e"],"extra":true},{"fr":"correspondre à qn/qc","de":"etw./jdm entsprechen","akzeptiert":["correspondre","correspondre à qn","correspondre à qc","correspondre à qn/qc"],"satz":"La cinquième ___ à la siebte Klasse.","loesung":["correspond"]},{"fr":"la piste cyclable","de":"der Fahrradweg","akzeptiert":["la piste cyclable"],"satz":"Léa et Gabin font du vélo sur la ___.","loesung":["piste cyclable"]},{"fr":"par contre","de":"jedoch, allerdings","akzeptiert":["par contre"],"satz":"J'adore passer du temps avec mes amis. ___, j'ai besoin d'être seul parfois.","loesung":["Par contre"]},{"fr":"la Nati","de":"die Schweizer Fußballnationalmannschaft","akzeptiert":["la nati"],"satz":"___ a perdu le match contre la France.","loesung":["La Nati"],"extra":true},{"fr":"Denis Zakaria","de":"Schweizer Fußballspieler","akzeptiert":["denis zakaria"],"satz":"___ a marqué un but contre le PSG!","loesung":["Denis Zakaria"],"extra":true},{"fr":"être gourmand/e","de":"ein Leckermäulchen sein","akzeptiert":["être gourmand","être gourmande","gourmand","gourmande"],"satz":"Ma grand-mère est très ___ de biscuits.","loesung":["gourmande"]},{"fr":"la fondue au fromage","de":"das Käsefondue","akzeptiert":["la fondue au fromage"],"satz":"Tous les hivers, on fait une ___ avec ma famille.","loesung":["fondue au fromage"]},{"fr":"la raclette","de":"das Raclette","akzeptiert":["la raclette"],"satz":"La ___ se mange avec des pommes de terre.","loesung":["raclette"]},{"fr":"l'appareil dentaire (m.)","de":"die Zahnspange","akzeptiert":["l'appareil dentaire"],"satz":"Je déteste porter mon ___.","loesung":["appareil dentaire"]},{"fr":"coller à qc","de":"an etw. kleben","akzeptiert":["coller","coller à qc"],"satz":"Le bonbon ___ aux dents.","loesung":["colle"]},{"fr":"se débrouiller (ê)","de":"zurechtkommen","akzeptiert":["se débrouiller"],"satz":"Je n'ai pas besoin d'aide. Je ___ seul(e).","loesung":["me débrouillerai"]},{"fr":"le rösti","de":"Züricher Kartoffel-Spezialität","akzeptiert":["le rösti"],"satz":"Avec ma famille, on adore les ___.","loesung":["rösti"]},{"fr":"la qualité","de":"die Stärke, die gute Eigenschaft","akzeptiert":["la qualité"],"satz":"Je préfère acheter un jean de ___.","loesung":["qualité"]},{"fr":"le défaut","de":"die Schwäche","akzeptiert":["le défaut"],"satz":"Mon père a un seul ___: il est trop gentil.","loesung":["défaut"]},{"fr":"la Fête de l'Escalade","de":"jährlich stattfindendes Fest zur Erinnerung an die erfolgreiche Verteidigung der Stadt Genf","akzeptiert":["la fête de l'escalade"],"satz":"En décembre, à la ___, on fait la fête.","loesung":["Fête de l'Escalade"],"extra":true},{"fr":"célébrer qc","de":"etw. feiern","akzeptiert":["célébrer","célébrer qc"],"satz":"À la Fête de l'Escalade, on ___ la mère Royaume.","loesung":["célèbre"]},{"fr":"la mère Royaume","de":"die Mutter Royaume (Symbolfigur der Fête de l'Escalade)","akzeptiert":["la mère royaume"],"satz":"___ est un symbole de Genève.","loesung":["La mère Royaume"],"extra":true},{"fr":"verser qc sur qc","de":"etw. auf etw. kippen, gießen","akzeptiert":["verser","verser qc sur qc"],"satz":"Mon père ___ du coca dans sa bouteille.","loesung":["verse"]},{"fr":"la marmite","de":"der Kochtopf","akzeptiert":["la marmite"],"satz":"Pour la raclette, je verse du fromage dans la ___.","loesung":["marmite"]},{"fr":"brûlant/e","de":"glühend heiß","akzeptiert":["brûlant","brûlante"],"satz":"Le café est ___.","loesung":["brûlant"]},{"fr":"le/la Savoyard/e","de":"der Savoyarde / die Savoyardin (Einwohner Savoyens)","akzeptiert":["le savoyard","la savoyarde","savoyard","savoyarde"],"satz":"Les ___ habitent dans les Alpes.","loesung":["Savoyards"]},{"fr":"attaquer qc/qn","de":"etw./jdn angreifen","akzeptiert":["attaquer","attaquer qc","attaquer qn","attaquer qc/qn"],"satz":"Astérix ___ César.","loesung":["attaque"]},{"fr":"se déguiser (ê)","de":"sich verkleiden","akzeptiert":["se déguiser"],"satz":"Pour le carnaval, je ___ en cow-boy.","loesung":["me déguise"]},{"fr":"défiler","de":"vorbeiziehen","akzeptiert":["défiler"],"satz":"Pendant le carnaval, les voitures ___.","loesung":["défilent"]},{"fr":"revenir de + Ort (ê)","de":"zurückkommen aus/von + Ortsname","akzeptiert":["revenir de","revenir"],"satz":"Hier, mes frères ___ d'une fête avec un tas de bonbons.","loesung":["sont revenus"]},{"fr":"divers/e (adj.)","de":"unterschiedlich, verschieden, divers","akzeptiert":["divers","diverse"],"satz":"Nous discutons de ___ questions.","loesung":["diverses"]},{"fr":"la plupart de + Nomen","de":"die meisten + Nomen","akzeptiert":["la plupart de","la plupart"],"satz":"___ des Français sont gourmands.","loesung":["La plupart"]},{"fr":"la pâtisserie","de":"die Patisserie, die Konditorei","akzeptiert":["la pâtisserie"],"satz":"Après l'école, je m'achète quelque chose à la ___.","loesung":["pâtisserie"]},{"fr":"à l'intérieur (de qc)","de":"drinnen, im Inneren","akzeptiert":["à l'intérieur","à l'intérieur de"],"satz":"___ du gâteau, il y a des fruits.","loesung":["À l'intérieur"]},{"fr":"la pâte d'amandes","de":"das Marzipan","akzeptiert":["la pâte d'amandes"],"satz":"La ___ des Mozartkugeln est délicieuse.","loesung":["pâte d'amandes"]},{"fr":"le natel","de":"schweizerisch für Handy","akzeptiert":["le natel"],"satz":"Tu me donnes ton numéro de ___?","loesung":["natel"]},{"fr":"septante","de":"schweizerisch für siebzig","akzeptiert":["septante"],"satz":"___ euros! C'est trop cher!","loesung":["Septante"]},{"fr":"le rafting","de":"das Rafting (Sportart)","akzeptiert":["le rafting"],"satz":"En Savoie, on peut faire du ___ dans les montagnes.","loesung":["rafting"]},{"fr":"l'Arve","de":"Fluss, der in Genf in die Rhône mündet","akzeptiert":["l'arve"],"satz":"En été, on peut se baigner dans ___.","loesung":["l'Arve"],"extra":true},{"fr":"s'en aller (ê)","de":"weggehen","akzeptiert":["s'en aller"],"satz":"J'en ai marre, je ___!","loesung":["m'en vais"]},{"fr":"Tout de bon!","de":"schweizerisch für Alles Gute!","akzeptiert":["tout de bon"],"satz":"Je te souhaite ___! À bientôt!","loesung":["Tout de bon"]}]},{"id":"u1v2","gruppe":"Unité 1","titel":"Volet 2","vollstaendig":true,"vokabeln":[{"fr":"Quel temps de chien! (fam.)","de":"Was für ein Sauwetter!","akzeptiert":["quel temps de chien"],"satz":"___! On ne peut même pas aller se baigner!","loesung":["Quel temps de chien"]},{"fr":"durer","de":"dauern","akzeptiert":["durer"],"satz":"Malheureusement, le voyage va ___ longtemps.","loesung":["durer"]},{"fr":"ultra (fam.)","de":"ultra-, extrem","akzeptiert":["ultra"],"satz":"J'ai ___ soif!","loesung":["ultra"]},{"fr":"bronzé/bronzée (adj.)","de":"sonnengebräunt","akzeptiert":["bronzé","bronzée"],"satz":"En été, je suis toujours ___.","loesung":["bronzé","bronzée"]},{"fr":"effectivement (adv.)","de":"tatsächlich","akzeptiert":["effectivement"]},{"fr":"pareil/pareille (adj.)","de":"hier: derartig/derartige","akzeptiert":["pareil","pareille"],"satz":"Comment tu peux dire un truc ___?","loesung":["pareil"]},{"fr":"le pédalo","de":"das Tretboot","akzeptiert":["le pédalo"],"satz":"Sur le lac, j'adore faire du ___ avec mes copains.","loesung":["pédalo"]},{"fr":"le witz","de":"schweizerisch für Witz","akzeptiert":["le witz"],"satz":"Tu rigoles! C'est un ___!","loesung":["witz"]},{"fr":"Ne monte pas dans les tours!","de":"schweizerisch für Reg dich nicht auf!","akzeptiert":["ne monte pas dans les tours"],"satz":"___! Nous allons trouver une solution.","loesung":["Ne monte pas dans les tours"]},{"fr":"Tiens!","de":"Schau!","akzeptiert":["tiens"]},{"fr":"le souper","de":"schweizerisch für das Abendessen","akzeptiert":["le souper"],"satz":"Ce soir, on fait une soupe pour le ___.","loesung":["souper"]},{"fr":"Ça joue!","de":"schweizerisch für OK!","satz":"On se retrouve à 17 h. ___?","loesung":["Ça joue"]},{"fr":"poutser qc","de":"schweizerisch für etw. putzen","satz":"Maintenant, tu ___ la salle de bains, s'il te plaît.","loesung":["poutses"]}]},{"id":"mA","gruppe":"Module A","titel":"Wortschatz","vollstaendig":true,"vokabeln":[{"fr":"emporter qc","de":"etw. mitnehmen","satz":"Quand il part en vacances, Maxime ___ toujours un tas de vêtements.","loesung":["emporte"]},{"fr":"la pièce","de":"hier: der Raum, das Zimmer","satz":"La maison a six ___ et un grand jardin.","loesung":["pièces"]},{"fr":"croiser qn/qc","de":"jdm/etw. begegnen, jdn/etw. treffen","satz":"J'ai ___ ma prof d'histoire au cinéma!","loesung":["croisé"]},{"fr":"en toute discrétion","de":"heimlich","satz":"Parfois, je lis ___ en cours de maths.","loesung":["en toute discrétion"]},{"fr":"le panorama","de":"der Panoramablick","satz":"Ici, nous avons un beau ___ sur toute la ville.","loesung":["panorama"]},{"fr":"la résidence","de":"der Wohnsitz","satz":"Quel château était la ___ préférée du dernier roi?","loesung":["résidence"]},{"fr":"tout à côté","de":"gleich nebenan","satz":"Mes amis habitent ___ de chez moi.","loesung":["tout à côté"]},{"fr":"créer qc","de":"etw. erschaffen, kreieren","satz":"Van Gogh a ___ plus de 900 tableaux.","loesung":["créé"]},{"fr":"la tombe","de":"das Grab","satz":"La ___ de Jim Morrison est devant vous.","loesung":["tombe"]},{"fr":"du matin au soir","de":"von morgens bis abends","satz":"C'est un vrai bavard. Il parle ___.","loesung":["du matin au soir"]},{"fr":"le compromis","de":"der Kompromiss","satz":"Qui fait les courses? Nous devons trouver un ___.","loesung":["compromis"]},{"fr":"le vol","de":"hier: der Diebstahl","satz":"Le journal parle d'un ___ dans un centre commercial.","loesung":["vol"]},{"fr":"l'architecture (f.)","de":"die Architektur","satz":"L'___ de ce bâtiment est magnifique!","loesung":["architecture"]},{"fr":"blond/blonde (m./f. adj.)","de":"blond","satz":"Elle a les cheveux ___.","loesung":["blonds"]},{"fr":"bousculer qn/qc","de":"jdn/etw. anstoßen, schubsen","satz":"Elle ___ tout le monde parce qu'elle doit vite partir.","loesung":["bouscule"]},{"fr":"le porte-monnaie / les porte-monnaie","de":"das Portemonnaie, der Geldbeutel","satz":"Zut! Je ne trouve plus mon ___!","loesung":["porte-monnaie"]},{"fr":"l'appareil photo (m.)","de":"der Fotoapparat","satz":"Mon grand-père m'a offert son vieil ___.","loesung":["appareil photo"]},{"fr":"la carte d'identité","de":"der Ausweis","satz":"Zut! J'ai perdu ma ___.","loesung":["carte d'identité"]},{"fr":"la poche","de":"die Tasche, das Innenfach (z. B. an Kleidung)","satz":"J'ai toujours un livre dans ma ___ de manteau.","loesung":["poche"]},{"fr":"le commissariat","de":"die Polizeiwache","satz":"Le ___ le plus proche est à 4 km.","loesung":["commissariat"]},{"fr":"la déclaration","de":"die Anzeige","satz":"Tu as perdu ton porte-monnaie? Il faut vite faire une ___ de vol!","loesung":["déclaration"]},{"fr":"retrouver qc","de":"etw. wiederfinden","satz":"J'ai ___ mon portable!","loesung":["retrouvé"]},{"fr":"les faits divers (m.)","de":"Verschiedenes, Lokalnachrichten"},{"fr":"la vie de château","de":"die guten Zeiten (wörtlich: das Leben wie im Schloss)","satz":"J'adore les vacances avec Mamie! C'est ___!","loesung":["la vie de château"]},{"fr":"le pickpocket (m./f.)","de":"der Taschendieb / die Taschendiebin","satz":"Autour de la tour Eiffel, il y a plein de ___.","loesung":["pickpockets"]}]},{"id":"mA-archi","gruppe":"Module A","titel":"Architektur (freiwillig)","vollstaendig":true,"vokabeln":[{"fr":"la cheminée","de":"der Kamin"},{"fr":"le toit","de":"das Dach"},{"fr":"l'escalier à vis","de":"die Wendeltreppe"},{"fr":"l'escalier à double vis","de":"die doppelläufige Wendeltreppe"},{"fr":"l'aile (f.)","de":"der Flügel"},{"fr":"le style architectural","de":"der architektonische Stil"},{"fr":"extérieur/extérieure (adj.)","de":"äußerlich, Außen- (+ Nomen)"},{"fr":"l'escalier à vis extérieur","de":"die außenliegende Wendeltreppe"},{"fr":"le souterrain","de":"das Untergeschoss"},{"fr":"relier qc","de":"etw. miteinander verbinden"},{"fr":"la chapelle","de":"die Kapelle"},{"fr":"l'agrandissement (m.)","de":"die Vergrößerung"},{"fr":"la galerie","de":"die Galerie"},{"fr":"la galerie-pont","de":"die zweistöckige Galerie (auf der Brücke über dem Cher)"}]},{"id":"u2v1","gruppe":"Unité 2","titel":"Volet 1","vollstaendig":true,"vokabeln":[{"fr":"gagner de l'argent","de":"Geld verdienen","satz":"Mara voudrait un métier où on ___.","loesung":["gagne de l'argent"]},{"fr":"stressé/stressée (adj.)","de":"gestresst","satz":"Mon prof de maths est trop ___.","loesung":["stressé"]},{"fr":"avoir l'impression de","de":"den Eindruck haben","satz":"J'___ perdre mon temps.","loesung":["ai l'impression de"]},{"fr":"le talent","de":"das Talent","satz":"Mon frère chante bien. Il a beaucoup de ___.","loesung":["talent"]},{"fr":"avoir confiance en qn","de":"Vertrauen in jdn haben","satz":"Mes parents m'aident beaucoup. Ils ___ moi.","loesung":["ont confiance en"]},{"fr":"la passion","de":"die Leidenschaft","satz":"Ma ___, c'est le sport.","loesung":["passion"]},{"fr":"faire du cheval","de":"reiten","satz":"___, c'est ma passion.","loesung":["Faire du cheval"]},{"fr":"Quelle horreur!","de":"Wie furchtbar!","satz":"Mon petit frère est blessé. ___!","loesung":["Quelle horreur"]},{"fr":"réaliser qc","de":"hier: etw. verwirklichen","satz":"Mon oncle a ___ son rêve: il construit une maison au bord de la mer.","loesung":["réalisé"]},{"fr":"l'avenir (m.)","de":"die Zukunft","satz":"Tu as des projets pour l'___?","loesung":["avenir"]},{"fr":"la formation","de":"die Ausbildung","satz":"La ___ de boulanger dure 3 ans.","loesung":["formation"]},{"fr":"le métier","de":"der Beruf","satz":"Mon ___ de rêve, c'est astronaute.","loesung":["métier"]},{"fr":"suivre qn/qc","de":"etw./jdm folgen, jdn verfolgen","satz":"La police a ___ la voiture.","loesung":["suivi"]},{"fr":"le conseiller / la conseillère d'orientation","de":"der/die Berufsberater/in","akzeptiert":["le conseiller d'orientation","la conseillère d'orientation","le conseiller / la conseillère d'orientation","le conseiller, la conseillère d'orientation"],"satz":"Si tu ne sais pas quel métier choisir, demande à un ___.","loesung":["conseiller d'orientation"]},{"fr":"le dessinateur / la dessinatrice","de":"der/die Zeichner/in","satz":"___ est un métier très créatif.","loesung":["Dessinateur","Dessinatrice"]},{"fr":"être doué/douée (adj.)","de":"begabt sein","akzeptiert":["être doué","être douée","doué","douée","être doué/douée"],"satz":"Madeleine ___ pour le dessin.","loesung":["est douée"]},{"fr":"l'autre jour","de":"letztens","satz":"___, je me suis baigné dans la mer.","loesung":["L'autre jour"]},{"fr":"l'article (m.)","de":"der Artikel, der Zeitungsartikel","satz":"J'ai lu un ___ intéressant sur les métiers.","loesung":["article"]},{"fr":"impressionner qn","de":"jdn beeindrucken","satz":"Souleymane m'___ vraiment. Il sait tout!","loesung":["impressionne"]},{"fr":"partir de rien (ê)","de":"bei Null starten","satz":"Pour ce projet, il faudra ___.","loesung":["partir de rien"]},{"fr":"se battre (ê)","de":"sich (durch)schlagen, kämpfen","satz":"Parfois, il faut ___ pour arriver à quelque chose.","loesung":["se battre"]},{"fr":"battre qn/qc","de":"jdn/etw. schlagen, jdn/etw. besiegen","satz":"Max est très fort à ce jeu. Il peut ___ tout le monde.","loesung":["battre"]},{"fr":"malgré (+ nom)","de":"trotz (+ Nomen)","satz":"___ le mauvais temps, Sophie va à la piscine.","loesung":["Malgré"]},{"fr":"modeste (m./f. adj.)","de":"bescheiden","satz":"Manon est très douée pour la musique, mais elle n'en parle pas. Elle est trop ___.","loesung":["modeste"]},{"fr":"Médecins du monde","de":"Ärzte der Welt (internationale Hilfsorganisation)","extra":true},{"fr":"soigner qn/qc","de":"jdn/etw. pflegen","satz":"Ludivine aime ___ les gens.","loesung":["soigner"]},{"fr":"s'engager (ê)","de":"sich engagieren","satz":"Laurent ___ pour la solidarité à l'école.","loesung":["s'engage"]},{"fr":"l'exclusion (f.)","de":"die Ausgrenzung","satz":"Il faut lutter contre ___.","loesung":["l'exclusion"]},{"fr":"quelqu'un de bien","de":"ein guter Mensch (wörtl.: jemand Gutes)","satz":"J'ai rencontré ___.","loesung":["quelqu'un de bien"]},{"fr":"utile (m./f. adj.)","de":"nützlich","satz":"Les langues sont très ___ pour travailler à l'étranger.","loesung":["utiles"]},{"fr":"empêcher qn/qc de (+ inf.)","de":"etw. verhindern, jdn an etw. hindern","akzeptiert":["empêcher","empêcher de","empêcher qn de","empêcher qc de","empêcher qn/qc de"],"satz":"Mes parents m'___ de faire des études. Ils voudraient que je trouve vite un travail.","loesung":["empêchent"]},{"fr":"à ta place","de":"an deiner Stelle","satz":"Moi, ___, je partirais faire des études aux États-Unis.","loesung":["à ta place"]},{"fr":"Ça ne me dit rien (du tout).","de":"Das ist (gar) nichts für mich.","akzeptiert":["ça ne me dit rien","ça ne me dit rien du tout"],"satz":"L'escalade, ___.","loesung":["ça ne me dit rien"]},{"fr":"le reporter ou le reporteur / la reportrice","de":"der/die Reporter/in","akzeptiert":["le reporter","le reporteur","la reportrice","le reporter / la reportrice","le reporteur / la reportrice","le reporter, la reportrice","le reporteur, la reportrice"],"satz":"C'est un ___ célèbre. Il va partout dans le monde et écrit des articles.","loesung":["reporter","reporteur"]},{"fr":"imaginer qc","de":"sich etw. vorstellen","satz":"Je ne pourrais pas ___ travailler dans un bureau. Je préfère travailler chez moi.","loesung":["imaginer"]}]},{"id":"u2v2","gruppe":"Unité 2","titel":"Volet 2","vollstaendig":true,"vokabeln":[{"fr":"la responsabilité","de":"die Verantwortung","satz":"Les parents ont la ___ de leurs enfants.","loesung":["responsabilité"]},{"fr":"n'en savoir rien","de":"keine Ahnung (von etw.) haben","satz":"– Qu'est-ce que tu voudrais faire plus tard? – Je ___.","loesung":["n'en sais rien"]},{"fr":"la montre","de":"die Armbanduhr","satz":"Regarde, j'ai acheté une ___. Comment tu la trouves?","loesung":["montre"]},{"fr":"rater qc","de":"etw. verpassen, durchfallen (bei einer Prüfung)","satz":"Vera a ___ le bus.","loesung":["raté"]},{"fr":"l'examen (m.)","de":"die Prüfung, auch: die ärztliche Untersuchung","satz":"Demain, j'ai un ___ très important.","loesung":["examen"]},{"fr":"propre (m./f. adj.)","de":"hier: eigener/eigene/eigenes (steht vor dem Nomen)","satz":"Sarah voudrait avoir sa ___ chambre.","loesung":["propre"]},{"fr":"repasser qc","de":"etw. wiederholen (Prüfung)","satz":"Lucie a raté l'examen d'anglais, mais elle peut le ___ dans un mois.","loesung":["repasser"]},{"fr":"poser sa candidature (pour qc)","de":"sich (um etw.) bewerben","satz":"Selma ne sait pas comment ___. Alors, elle va chez le conseiller d'orientation.","loesung":["poser sa candidature"]},{"fr":"la candidature","de":"die Bewerbung","satz":"Fatih a envoyé sa ___ à plusieurs entreprises.","loesung":["candidature"]},{"fr":"passionnant/passionnante (adj.)","de":"faszinierend, fesselnd","satz":"Reporter doit être un métier ___. On voyage beaucoup et on rencontre plein de gens.","loesung":["passionnant"]},{"fr":"enrichissant/enrichissante (adj.)","de":"bereichernd","satz":"Notre voyage au Portugal a été très ___.","loesung":["enrichissant"]},{"fr":"l'horaire (m.)","de":"hier: die Arbeitszeit, auch: der Fahrplan","satz":"– Quels seront tes ___ de travail? – Tous les jours de 9 h à 17 h 30.","loesung":["horaires"]},{"fr":"flexible (m./f. adj.)","de":"flexibel","satz":"Parfois, il faut être ___ pour trouver du travail.","loesung":["flexible"]},{"fr":"l'ordre (m.)","de":"der Befehl, auch: die Ordnung","satz":"L'entraîneur donne des ___ aux joueurs.","loesung":["ordres"]},{"fr":"prendre une décision","de":"eine Entscheidung treffen, einen Entschluss fassen","satz":"Où est-ce qu'on part en vacances, cet été? Il faut ___.","loesung":["prendre une décision"]},{"fr":"la décision","de":"die Entscheidung, der Entschluss","satz":"Choisir un métier, c'est une ___ difficile.","loesung":["décision"]},{"fr":"le superhéros / la superhéroïne","de":"der/die Superheld/in","satz":"Spiderman est mon ___ préféré.","loesung":["superhéros"]},{"fr":"sauver qn/qc","de":"jdn/etw. retten","satz":"Élise veut devenir médecin pour ___ les gens malades dans les pays pauvres.","loesung":["sauver"]},{"fr":"être prêt/prête (à) (+ inf.)","de":"bereit sein (etw. zu tun)","akzeptiert":["être prêt","être prête","être prêt à","être prête à","être prêt/prête","être prêt/prête à"],"satz":"Samira veut devenir journaliste. Pour y arriver, elle ___ à faire des efforts.","loesung":["est prête"]},{"fr":"prêt/prête (adj.)","de":"hier: bereit","satz":"À table, le déjeuner est ___!","loesung":["prêt"]},{"fr":"le domaine","de":"das Gebiet, der Bereich","satz":"Damien veut travailler dans le ___ de la recherche.","loesung":["domaine"]},{"fr":"optimiste (m./f. adj.)","de":"optimistisch","satz":"Tout est plus facile quand on reste ___!","loesung":["optimiste"]},{"fr":"le job d'été","de":"der Ferienjob","satz":"Cette année, je veux faire un ___.","loesung":["job d'été"]},{"fr":"le/la baby-sitter","de":"der/die Babysitter/in","akzeptiert":["le baby-sitter","la baby-sitter","le/la baby-sitter","baby-sitter"],"satz":"Mon cousin travaille comme ___.","loesung":["baby-sitter"]},{"fr":"le serveur / la serveuse","de":"der/die Kellner/in","satz":"Germain voudrait travailler comme ___.","loesung":["serveur"]},{"fr":"la majorité","de":"die Mehrheit","satz":"La ___ de mes amis veulent faire le bac.","loesung":["majorité"]},{"fr":"le concepteur / la conceptrice de jeux vidéo","de":"Game Conceptioner (Entwickler für Videospiele)","akzeptiert":["le concepteur de jeux vidéo","la conceptrice de jeux vidéo","le concepteur / la conceptrice de jeux vidéo","le concepteur, la conceptrice de jeux vidéo"],"satz":"___, c'est le métier de rêve de Sonia!","loesung":["Conceptrice de jeux vidéo"]},{"fr":"le traducteur / la traductrice","de":"der/die Übersetzer/in","satz":"Un ___ doit être doué pour les langues.","loesung":["traducteur"]},{"fr":"le salaire fixe","de":"das Festgehalt","satz":"Je voudrais un travail avec un ___.","loesung":["salaire fixe"]},{"fr":"le salaire","de":"das Gehalt","satz":"Pour moi, le ___ est moins important. Je veux surtout un travail enrichissant.","loesung":["salaire"]},{"fr":"fixe (m./f. adj.)","de":"fest, unveränderlich","satz":"Le rendez-vous est ___, je ne peux plus le changer.","loesung":["fixe"]},{"fr":"l'économie (f.)","de":"die Wirtschaft, BWL (= Betriebswirtschaftslehre)","satz":"Pauline ne s'intéresse pas à l'___. Elle voudrait faire des études de géographie.","loesung":["économie"]},{"fr":"curieux/curieuse (adj.)","de":"neugierig, merkwürdig","satz":"Nadine veut toujours tout savoir. Elle est très ___.","loesung":["curieuse"]}]},{"id":"mB","gruppe":"Module B","titel":"Wortschatz","vollstaendig":true,"vokabeln":[{"fr":"Laurent Cantet","de":"französischer Filmregisseur","extra":true},{"fr":"la synopsis","de":"die Kurzbeschreibung","satz":"Pour savoir de quoi le film parle, il faut lire la ___.","loesung":["synopsis"]},{"fr":"agressif/agressive (adj.)","de":"aggressiv","satz":"Nous avons deux chiens qui ne sont jamais ___, ils sont toujours gentils.","loesung":["agressifs"]},{"fr":"insolent/insolente (adj.)","de":"unverschämt, frech","satz":"On peut critiquer les autres sans pour cela être ___.","loesung":["insolent"]},{"fr":"motiver qn","de":"jdn motivieren","satz":"Notre prof de sport nous ___ toujours, même si on n'en peut plus.","loesung":["motive"]},{"fr":"prendre des risques","de":"Risiken eingehen","satz":"J'adore aller très vite à vélo, mais je ne ___.","loesung":["prends pas de risques"]},{"fr":"la critique","de":"die Kritik","satz":"C'est un commentaire. Ne le prends pas comme une ___.","loesung":["critique"]},{"fr":"le réalisateur / la réalisatrice","de":"der/die Regisseur/in","satz":"Steven Spielberg est le ___ plus célèbre du monde.","loesung":["réalisateur"]},{"fr":"la Palme d'Or","de":"die Goldene Palme (französischer Filmpreis beim Filmfest in Cannes)","extra":true},{"fr":"le Festival de Cannes","de":"Internationale Filmfestspiele von Cannes","extra":true},{"fr":"l'adaptation (f.)","de":"die Adaption, die Bearbeitung","satz":"J'ai vu «Les profs» au cinéma. C'est une ___ de la bédé.","loesung":["adaptation"]},{"fr":"François Bégaudeau","de":"französischer Autor","extra":true},{"fr":"le scénario","de":"das Drehbuch","satz":"J'aimerais écrire un ___.","loesung":["scénario"]},{"fr":"Robin Campillo","de":"französischer Filmregisseur und Cutter","extra":true},{"fr":"d'ailleurs","de":"übrigens","satz":"Je n'ai pas réussi à ouvrir la boîte. Papa non plus ___.","loesung":["d'ailleurs"]},{"fr":"l'amateur (m.) / l'amatrice (f.)","de":"hier: der Laie, auch: der Fan","satz":"Ma mère n'a jamais appris à faire du théâtre, c'est une ___.","loesung":["amatrice"]},{"fr":"rendre qc authentique","de":"etw. authentisch wirken lassen, etw. authentisch machen","akzeptiert":["rendre authentique","rendre qc authentique"],"satz":"Les vêtements et la musique de l'époque ont ___ le film authentique.","loesung":["rendu"]},{"fr":"le documentaire","de":"der Dokumentarfilm","satz":"Ce ___ me plaît beaucoup.","loesung":["documentaire"]},{"fr":"le quotidien","de":"der Alltag","satz":"Ma famille, mes amis, l'école, les devoirs, c'est mon ___.","loesung":["quotidien"]},{"fr":"le goût","de":"der Geschmack, die Vorliebe","satz":"Ma copine et moi, on aime les mêmes choses, nous avons les mêmes ___.","loesung":["goûts"]},{"fr":"en particulier","de":"insbesondere, vor allem","satz":"J'aime bien la mer, la mer Méditerranée ___.","loesung":["en particulier"]},{"fr":"vivant/vivante (adj.)","de":"lebendig","satz":"Dans ma ville, il y a plein de choses à faire, c'est une ville ___.","loesung":["vivante"]},{"fr":"à la fois","de":"gleichzeitig, auf einmal","satz":"Le livre est ___ drôle et touchant.","loesung":["à la fois"]},{"fr":"captiver qn/qc","de":"jdn/etw. fesseln","satz":"Lucie a vu un film qui l'a ___.","loesung":["captivée"]},{"fr":"le spectateur / la spectatrice","de":"der/die Zuschauer/in","satz":"Les ___ étaient très intéressés par la présentation.","loesung":["spectateurs"]},{"fr":"le gros plan","de":"die Nahaufnahme","satz":"Dans la plupart des scènes, on voit le visage de l'acteur principal en ___.","loesung":["gros plan"]},{"fr":"l'émotion (f.)","de":"die Gefühlsregung, die Aufregung","satz":"Mon père montre ses ___.","loesung":["émotions"]},{"fr":"l'arrière-plan (m.)","de":"der Hintergrund","satz":"Au premier plan, il y a un homme en motoneige. À l'___ on voit un paysage d'hiver.","loesung":["arrière-plan"]},{"fr":"le comportement","de":"das Verhalten","satz":"Mon voisin ne dit jamais bonjour. Son ___ est bizarre.","loesung":["comportement"]},{"fr":"maîtriser qc","de":"etw. beherrschen","satz":"Mon ami Karol vient d'arriver en France. Il ne ___ pas encore la langue.","loesung":["maîtrise"]},{"fr":"la situation","de":"die Situation","satz":"Hier, j'ai dû aller au tableau. C'était une ___ pénible!","loesung":["situation"]},{"fr":"le conseil de classe","de":"die Klassenkonferenz","satz":"Le ___ sert à prendre des décisions sur l'avenir des élèves.","loesung":["conseil de classe"]},{"fr":"le dialogue","de":"der Dialog","satz":"Je comprends bien l'anglais, mais ce ___ est trop compliqué.","loesung":["dialogue"]},{"fr":"professionnel/professionnelle (adj.)","de":"professionell, beruflich","satz":"Omar Sy est un acteur ___.","loesung":["professionnel"]},{"fr":"reprocher qc à qn","de":"jdm etw. vorwerfen","satz":"Ma grand-mère m'a ___ de ne pas l'appeler assez souvent.","loesung":["reproché"]},{"fr":"le moment-clé","de":"der Schlüsselmoment","satz":"D'après toi, c'est quand, le ___ du film?","loesung":["moment-clé"]},{"fr":"dégénérer","de":"ausarten, sich verschlechtern","satz":"Non, je ne veux plus de fête chez nous. À chaque fois, ça ___!","loesung":["dégénère"]},{"fr":"le délégué de classe / la déléguée de classe","de":"der/die Schülervertreter/in","satz":"Nos ___ parlent pour nous avec les profs et les surveillants.","loesung":["délégués de classe"]},{"fr":"complètement (adv.)","de":"ganz, vollständig","satz":"J'ai ___ oublié son anniversaire!","loesung":["complètement"]},{"fr":"la comédie","de":"die Komödie","satz":"Si la pièce de théâtre est drôle, c'est une ___.","loesung":["comédie"]},{"fr":"qui s'inspire de ...","de":"der auf ... basiert","akzeptiert":["qui s'inspire de"],"satz":"Il y a beaucoup de films ___ une œuvre littéraire.","loesung":["qui s'inspirent d'","qui s'inspirent d"]},{"fr":"emmener qn/qc","de":"jdn/etw. mitnehmen","satz":"Je pars en vacances et cette fois, je veux ___ mon chien.","loesung":["emmener"]}]},{"id":"u3v1","gruppe":"Unité 3","titel":"Volet 1","vollstaendig":false,"vokabeln":[{"fr":"Grand Est","de":"wörtlich: Großer Osten (eine der 13 Verwaltungsregionen Frankreichs)","satz":"Je viens de ___. J'habite en Alsace.","loesung":["Grand Est"],"extra":true},{"fr":"frontalier/ière (de) (+ adj.)","de":"angrenzend (zu)","akzeptiert":["frontalier","frontalière","frontalier de","frontalière de","frontalier/frontalière"],"satz":"La Belgique est ___ de la France.","loesung":["frontalière"]}]},{"id":"mC","gruppe":"Module C","titel":"Wortschatz","vollstaendig":false,"vokabeln":[{"fr":"face à qc/qn","de":"etw./jdm gegenüber","akzeptiert":["face à","face à qc","face à qn","face à qc/qn"],"satz":"___ mon frère, je suis gentil.","loesung":["Face à"]},{"fr":"le projecteur","de":"der Scheinwerfer","satz":"Sur scène, il y a un ___.","loesung":["projecteur"]},{"fr":"le compliment","de":"das Kompliment","satz":"N'exagère pas avec tes ___!","loesung":["compliments"]},{"fr":"le jet de fleurs","de":"der Blumenregen","satz":"Sur scène, il y a un ___.","loesung":["jet de fleurs"]},{"fr":"rouillé/rouillée (adj.)","de":"eingerostet","satz":"Mon vélo est ___.","loesung":["rouillé"]},{"fr":"coincé/coincée (adj.)","de":"hier: steckengeblieben","satz":"Le chat est ___ dans l'armoire.","loesung":["coincé"]},{"fr":"la routine","de":"die Routine","satz":"Le matin, tout le monde a sa ___.","loesung":["routine"]},{"fr":"arriver à qn (ê)","de":"hier: jdm passieren","satz":"Cela t'___ de chanter sous la douche?","loesung":["arrive"]},{"fr":"affalé/affalée (adj.)","de":"niedergesunken","satz":"Mon père est ___ sur sa chaise.","loesung":["affalé"]},{"fr":"le canapé","de":"das Sofa, die Couch","satz":"On a un grand ___ dans le salon.","loesung":["canapé"]},{"fr":"engueuler qn (fam.)","de":"jdn anschnauzen","satz":"Parfois, je veux ___ mon frère.","loesung":["engueuler"]},{"fr":"la lune","de":"der Mond","satz":"___ est belle, ce soir!","loesung":["La lune"]},{"fr":"tenir compagnie à qn","de":"jdm Gesellschaft leisten","satz":"Attends, je te ___!","loesung":["tiens compagnie"]},{"fr":"déprimer","de":"deprimiert sein","satz":"Océane ___, elle est malheureuse.","loesung":["déprime"]},{"fr":"tellement (adv.)","de":"so, dermaßen","satz":"J'ai ___ faim!","loesung":["tellement"]},{"fr":"le type (fam.)","de":"der Typ, der Kerl","satz":"Qui est le ___ là-bas?","loesung":["type"]},{"fr":"l'allée (f.)","de":"die Allee","satz":"J'habite près de l'___.","loesung":["allée"]},{"fr":"entier/entière (adj.)","de":"ganz","satz":"Il a mangé le paquet ___.","loesung":["entier"]},{"fr":"la bière","de":"das Bier","satz":"Je n'aime pas la ___.","loesung":["bière"]},{"fr":"rouler","de":"fahren, rollen","satz":"Jean veut ___ en voiture, Yves à vélo.","loesung":["rouler"]},{"fr":"le bout","de":"hier: das Stück, auch: das Ende","satz":"Tu veux un ___ de pain?","loesung":["bout"]},{"fr":"le pneu","de":"der Reifen","satz":"Zut! Le ___ de mon vélo est crevé!","loesung":["pneu"]},{"fr":"crever","de":"platzen, reißen","satz":"Ah non, mon sac avec les courses ___!","loesung":["est crevé"]}]}]};
+var KEY = 'aplus4-vokabeltrainer-v1';
+var INT = [0,1,3,9,29,90];           // Tage bis zur nächsten Abfrage, je Fach
+var FACH = ['Neu','Fach 1','Fach 2','Fach 3','Fach 4','Fach 5','Sitzt'];
+document.documentElement.lang = 'de';
+
+/* ---------- kleine Helfer ---------- */
+var $ = function(s){ return document.querySelector(s); };
+var main = $('#main'), topEl = $('#top');
+function esc(s){ return String(s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+function today(){ var d = new Date(); return Math.floor((d.getTime() - d.getTimezoneOffset()*60000) / 86400000); }
+function shuffle(a){ for (var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i]; a[i]=a[j]; a[j]=t; } return a; }
+function einmal(a){ return a.filter(function(x,i){ return x && a.indexOf(x) === i; }); }
+function norm(s){ return String(s).toLowerCase().normalize('NFC').replace(/[’‘`´]/g,"'").replace(/œ/g,'oe').replace(/æ/g,'ae')
+  .replace(/\s*'\s*/g,"'").replace(/[\s!?.…]+$/g,'').replace(/\s+/g,' ').trim(); }
+function noAcc(s){ return s.normalize('NFD').replace(/[̀-ͯ]/g,''); }
+function noArt(s){ return s.replace(/^(le|la|les|un|une|des)\s+/,'').replace(/^l'/,''); }
+function slug(s){ return noAcc(norm(s)).replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,''); }
+function tage(n){ return n <= 1 ? 'morgen' : 'in ' + n + ' Tagen'; }
+function wort(n, ein, mehr){ return n + ' ' + (n === 1 ? ein : mehr); }
+
+/* Französische Antwort prüfen: 'ok' | 'acc' (nur Akzente falsch) | 'art' (nur Artikel falsch) | 'no' */
+function check1(i, L){
+  var k;
+  for (k=0;k<L.length;k++) if (i === L[k] || i === noArt(L[k])) return 'ok';
+  var ia = noAcc(i);
+  for (k=0;k<L.length;k++) if (ia === noAcc(L[k]) || ia === noAcc(noArt(L[k]))) return 'acc';
+  var ib = noAcc(noArt(i));
+  for (k=0;k<L.length;k++) if (ib === noAcc(noArt(L[k]))) return 'art';
+  return 'no';
+}
+function check(input, list){
+  var i = norm(input); if (!i) return 'no';
+  var L = list.map(norm), r = check1(i, L);
+  if (r !== 'no') return r;
+  var teile = i.split(/\s*[,\/]\s*/).filter(Boolean);       // "blond, blonde" zählt auch
+  if (teile.length < 2) return 'no';
+  var rs = teile.map(function(t){ return check1(t, L); });
+  if (rs.indexOf('no') >= 0) return 'no';
+  return rs.indexOf('art') >= 0 ? 'art' : rs.indexOf('acc') >= 0 ? 'acc' : 'ok';
+}
+/* Aus "le mot / les mots (m.)" die erlaubten Schreibweisen ableiten */
+function variants(fr){
+  var base = fr.replace(/\([^)]*\)/g,' ').replace(/\s+/g,' ').trim();
+  var out = [base];
+  base.split(/\s*[,;]\s*|\s+\/\s+|\s+ou\s+/).forEach(function(p){ if (p) out.push(p); });
+  out.slice().forEach(function(p){
+    if (/^\S+\/\S+$/.test(p) && !/(^|\/)(qn|qc)(\/|$)/.test(p)) p.split('/').forEach(function(x){ if (x.length > 2) out.push(x); });
+    var q = p.replace(/\s+((à|de|sur|pour|avec|en)\s+)?(qn\/qc|qc\/qn|qn|qc)(\s.*)?$/,'').trim();
+    if (q && q !== p) out.push(q);
+    var q1 = p.replace(/\s+(qn\/qc|qc\/qn|qn|qc)$/,'').trim();
+    if (q1 && q1 !== p) out.push(q1);
+  });
+  return einmal(out.map(norm));
+}
+/* Deutsche Antwort prüfen (für Französisch → Deutsch): großzügig, Artikel und "etw./jdn" egal */
+function normDe(s){ return String(s).toLowerCase().replace(/ß/g,'ss').replace(/ä/g,'ae').replace(/ö/g,'oe').replace(/ü/g,'ue')
+  .replace(/\b(jdn|jdm|jemanden|jemandem|jemand|etw|etwas)\b\.?/g,' ').replace(/[\/.!?…:;"„“”=]/g,' ').replace(/-/g,'')
+  .replace(/^\s*(der|die|das|ein|eine|einen|einem|einer)\s+/,'').replace(/\s+/g,' ').trim(); }
+function deTeile(de){
+  var out = [];
+  [de.replace(/\([^)]*\)/g,' '), de.replace(/[()]/g,'')].forEach(function(b){
+    out.push(b);
+    b.split(/[,;]|\s\/\s/).forEach(function(p){
+      p = p.replace(/^\s*(hier|auch|wörtlich|wörtl\.)\s*:\s*/i,'').replace(/^\s*schweizerisch für\s+/i,'').replace(/\s*\+\s*[A-Za-zÄÖÜäöü]+\.?\s*$/,'').replace(/^\s*der\/die\s+/i,'').trim();
+      if (!p) return;
+      var m = /^(.*\S)\/in$/.exec(p);
+      if (m){ out.push(m[1], m[1] + 'in'); return; }
+      if (/^\S+(\/\S+)+$/.test(p) && !/etw|jd[nm]/.test(p)){ p.split('/').forEach(function(x){ out.push(x); }); return; }
+      var m2 = /^(.*\s)(\S+)\/(\S+)$/.exec(p);
+      if (m2 && !/etw|jd[nm]/.test(m2[2] + m2[3])){ out.push(m2[1] + m2[2], m2[1] + m2[3]); return; }
+      out.push(p);
+    });
+  });
+  out = out.map(normDe);
+  out.slice().forEach(function(p){ if (/^sich /.test(p)) out.push(p.slice(5)); if (/ sein$/.test(p)) out.push(p.slice(0, -5)); });
+  return einmal(out);
+}
+function checkDe(input, de){
+  var T = deTeile(de), ganz = normDe(input);
+  if (!ganz) return false;
+  if (T.indexOf(ganz) >= 0) return true;
+  var teile = String(input).split(/[,;]/).map(normDe).filter(Boolean);
+  return teile.length > 0 && teile.every(function(p){ return T.indexOf(p) >= 0; });
+}
+function deTippbar(c){ return !c.extra && c.de.length <= 64 && deTeile(c.de).length > 0; }
+function sprechtext(c){
+  var t = c.fr.replace(/\([^)]*\)/g,' ').replace(/\.\.\./g,' ').replace(/\s*\+\s*[^\s,]+/g,' ').replace(/\s+/g,' ').trim();
+  if (/\b(le\/la)\b|\/(e|ière|euse|trice|ne)\b/.test(t)) return c.acc[1] && c.acc[1] !== c.acc[0] ? c.acc[0] + ', ' + c.acc[1] : c.acc[0];
+  return t.replace(/\bqn\/qc\b|\bqc\/qn\b/g,'quelqu’un ou quelque chose').replace(/\bqn\b/g,'quelqu’un').replace(/\bqc\b/g,'quelque chose')
+    .replace(/\s+\/\s+|\s+ou\s+/g,', ').replace(/(\S)\/(\S)/g,'$1, $2');
+}
+function satzVoll(c, html){
+  if (!c.satz || !c.loes) return '';
+  return html ? esc(c.satz).replace('___', '<b>' + esc(c.loes[0]) + '</b>') : c.satz.replace('___', c.loes[0]);
+}
+
+/* ---------- Zustand ---------- */
+function leer(){ return { v:2, cards:{}, sel:[], art:'kasten', set:{neu:10, modus:'tippen', richtung:'de-fr', folge:'buch', anzahl:20, extra:true, auto:false}, own:[], tage:{last:0, serie:0}, reset:0, t:0 }; }
+var S = leer();
+function uebernehmen(o){
+  var n = leer(); if (!o || typeof o !== 'object') return n;
+  if (o.cards && typeof o.cards === 'object') n.cards = o.cards;
+  if (Array.isArray(o.sel)) n.sel = o.sel;
+  if (typeof o.art === 'string') n.art = o.art;
+  if (o.set) Object.keys(n.set).forEach(function(k){ if (k in o.set) n.set[k] = o.set[k]; });
+  if (Array.isArray(o.own)) n.own = o.own;
+  if (o.tage) n.tage = { last:+o.tage.last||0, serie:+o.tage.serie||0 };
+  n.reset = +o.reset || 0; n.t = +o.t || 0;
+  return n;
+}
+function laden(){ try { var raw = localStorage.getItem(KEY); if (raw) S = uebernehmen(JSON.parse(raw)); } catch(e){} }
+function speichern(){
+  S.t = Date.now();
+  try { localStorage.setItem(KEY, JSON.stringify(S)); } catch(e){}
+  wolkeSpaeter();
+}
+/* Zwei Stände zusammenführen: pro Karte gewinnt die zuletzt abgefragte. Gibt true zurück, wenn sich S geändert hat. */
+function mischen(o){
+  o = uebernehmen(o); var vorher = JSON.stringify(S);
+  var reset = Math.max(S.reset, o.reset);
+  var cards = {};
+  [S.cards, o.cards].forEach(function(src){ Object.keys(src).forEach(function(id){
+    var a = src[id]; if (!Array.isArray(a) || (a[2]||0) < reset) return;
+    if (!cards[id] || (cards[id][2]||0) < (a[2]||0)) cards[id] = a;
+  }); });
+  var own = {};
+  S.own.concat(o.own).forEach(function(w){ if (w && w.id && (!own[w.id] || (own[w.id].t||0) < (w.t||0))) own[w.id] = w; });
+  if (o.t > S.t){ S.set = o.set; S.sel = o.sel; S.art = o.art; }
+  if (o.tage.last > S.tage.last || (o.tage.last === S.tage.last && o.tage.serie > S.tage.serie)) S.tage = o.tage;
+  S.cards = cards; S.reset = reset;
+  S.own = Object.keys(own).map(function(k){ return own[k]; });
+  return JSON.stringify(S) !== vorher;
+}
+
+/* ---------- Abgleich mit dem Claude-Konto (nur wenn die Seite auf claude.ai läuft und man angemeldet ist) ---------- */
+var wolke = null, wolkeTimer = null, wolkeLaeuft = false, wolkeOffen = false, wolkeStand = '';
+function wolkeSpaeter(){ if (!wolke) return; wolkeOffen = true; clearTimeout(wolkeTimer); wolkeTimer = setTimeout(wolkeSenden, 1500); }
+function wolkeSenden(){
+  if (!wolke || wolkeLaeuft || !wolkeOffen) return;
+  var json = JSON.stringify(S); wolkeOffen = false;
+  if (json === wolkeStand) return;
+  wolkeLaeuft = true;
+  wolke.set({ json: json, t: Date.now() }).then(function(){ wolkeStand = json; }, function(){ wolke = null; })
+    .then(function(){ wolkeLaeuft = false; if (wolkeOffen) wolkeSpaeter(); });
+}
+function wolkeStart(){
+  if (!window.claude || typeof window.claude.use !== 'function') return;
+  Promise.all([window.claude.use('db'), window.claude.use('user')]).then(function(r){
+    var db = r[0], user = r[1]; if (!db || !user) return;
+    return Promise.resolve(user.id()).then(function(id){
+      if (!id) return;
+      var doc = db.collection('data/users/' + id).doc('lernstand');
+      return doc.get().then(function(snap){
+        var d = snap && snap.exists ? snap.data() : null, anders = false;
+        if (d && typeof d.json === 'string'){ wolkeStand = d.json; try { anders = mischen(JSON.parse(d.json)); } catch(e){} }
+        wolke = doc;
+        if (anders){ try { localStorage.setItem(KEY, JSON.stringify(S)); } catch(e){} karten(); if (view === 'start' || view === 'wahl' || view === 'mehr' || view === 'liste') render(); }
+        wolkeSpaeter();
+      });
+    });
+  }).catch(function(){});
+}
+document.addEventListener('visibilitychange', function(){ if (document.visibilityState === 'hidden' && wolkeOffen){ clearTimeout(wolkeTimer); wolkeSenden(); } });
+
+/* ---------- Karten und Abschnitte ---------- */
+var CARDS = [], SECS = [], GRUPPEN = [];
+function karten(){
+  CARDS = []; SECS = []; GRUPPEN = []; var ids = {}, nach = {};
+  function einfuegen(sec, c){ var id = c.id, n = 2; while (ids[c.id]) c.id = id + '-' + (n++); ids[c.id] = 1; sec.cards.push(c); }
+  DATA.abschnitte.forEach(function(a){
+    var sec = { key:a.id, gruppe:a.gruppe, titel:a.titel, voll:a.vollstaendig !== false, cards:[] };
+    SECS.push(sec); nach[sec.key] = sec;
+    a.vokabeln.forEach(function(v){
+      einfuegen(sec, { id:a.id + ':' + slug(v.fr), sec:a.id, fr:v.fr, de:v.de, acc:(v.akzeptiert && v.akzeptiert.length ? v.akzeptiert : variants(v.fr)),
+        satz:v.satz || null, loes:(v.loesung && v.loesung.length ? v.loesung : null), extra:!!v.extra });
+    });
+  });
+  S.own.forEach(function(o){
+    if (!o || o.del || !o.fr || !o.de) return;
+    var sec = nach[o.sec];
+    if (!sec){ sec = nach.eigen; if (!sec){ sec = nach.eigen = { key:'eigen', gruppe:'Eigene Wörter', titel:'Meine Liste', voll:true, eigen:true, cards:[] }; SECS.push(sec); } }
+    einfuegen(sec, { id:o.id, sec:sec.key, fr:o.fr, de:o.de, acc:variants(o.fr), satz:null, loes:null, extra:false, own:true });
+  });
+  SECS.forEach(function(s){
+    s.cards.forEach(function(c){ CARDS.push(c); });
+    var g = GRUPPEN.filter(function(x){ return x.name === s.gruppe; })[0];
+    if (!g){ g = { name:s.gruppe, secs:[] }; GRUPPEN.push(g); }
+    g.secs.push(s);
+  });
+  S.sel = S.sel.filter(function(k){ return !!nach[k]; });
+}
+function secName(key){ var s = SECS.filter(function(x){ return x.key === key; })[0]; return !s ? key : s.titel === 'Wortschatz' ? s.gruppe : s.gruppe + ' · ' + s.titel; }
+function zaehlt(c){ return S.set.extra || !c.extra; }
+function pool(){ return CARDS.filter(function(c){ return S.sel.indexOf(c.sec) >= 0 && zaehlt(c); }); }
+function stand(c){ return S.cards[c.id] || null; }
+function fach(c){ var s = stand(c); return s ? s[0] : 0; }
+function faellig(c, t){ var s = stand(c); return !!s && s[0] >= 1 && s[0] <= 5 && s[1] <= t; }
+function uebersicht(list){
+  var t = today(), o = { n:list.length, fach:[0,0,0,0,0,0,0], due:[0,0,0,0,0,0,0], faellig:0, neu:0, naechste:0, naechsteN:0 };
+  list.forEach(function(c){
+    var s = stand(c), p = s ? s[0] : 0; o.fach[p]++;
+    if (!s) o.neu++;
+    else if (p <= 5){ if (s[1] <= t){ o.due[p]++; o.faellig++; } else if (!o.naechste || s[1] < o.naechste){ o.naechste = s[1]; o.naechsteN = 1; } else if (s[1] === o.naechste) o.naechsteN++; }
+  });
+  return o;
+}
+
+/* ---------- Aussprache ---------- */
+var stimme = null;
+function stimmen(){
+  if (!('speechSynthesis' in window)) return;
+  function waehlen(){
+    var vs = []; try { vs = window.speechSynthesis.getVoices() || []; } catch(e){}
+    var neu = vs.filter(function(v){ return /^fr[-_]FR/i.test(v.lang); })[0] || vs.filter(function(v){ return /^fr/i.test(v.lang); })[0] || null;
+    var vorher = !!stimme; stimme = neu;
+    document.documentElement.classList.toggle('kann-sprechen', !!stimme);
+    if (vorher !== !!stimme && (view === 'art' || view === 'mehr')) render();
+  }
+  waehlen();
+  try { window.speechSynthesis.addEventListener('voiceschanged', waehlen); } catch(e){}
+}
+function sprich(t){
+  if (!stimme || !t) return;
+  try { window.speechSynthesis.cancel(); var u = new SpeechSynthesisUtterance(t); u.lang = 'fr-FR'; u.voice = stimme; u.rate = .9; window.speechSynthesis.speak(u); } catch(e){}
+}
+
+/* ---------- Bausteine ---------- */
+function svg(p, n){ n = n || 20; return '<svg viewBox="0 0 24 24" width="' + n + '" height="' + n + '" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + p + '</svg>'; }
+var P = {
+  spk:'<path d="M11 5 6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 5.5a9 9 0 0 1 0 13"/>',
+  back:'<path d="m15 6-6 6 6 6"/>', x:'<path d="M6 6l12 12M18 6 6 18"/>', ok:'<path d="m5 12.5 4.5 4.5L19 7.5"/>',
+  kasten:'<path d="M3 9h18v10H3z"/><path d="M9 9v10M15 9v10M3 9l2.5-4h13L21 9"/>',
+  schreiben:'<path d="M4 20l1-4L16 5l3 3L8 19z"/><path d="m14 7 3 3"/>',
+  karten:'<rect x="3" y="8" width="13" height="11" rx="2"/><path d="M8 8V6a1 1 0 0 1 1-1h11a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1h-4"/>',
+  quiz:'<circle cx="6" cy="7" r="2.2"/><path d="M12 7h9"/><circle cx="6" cy="17" r="2.2"/><path d="M12 17h9"/>',
+  luecke:'<path d="M3 6h18M3 12h4M17 12h4M3 18h12"/><path d="M9.5 13.5h5"/>',
+  paare:'<rect x="3" y="4" width="8" height="7" rx="1.5"/><rect x="13" y="13" width="8" height="7" rx="1.5"/><path d="M11 7.5h3a2.5 2.5 0 0 1 2.5 2.5v3"/>',
+  test:'<rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4h6v3H9z"/><path d="m8.5 14 2.2 2.2 4.8-4.8"/>'
+};
+P.hoeren = P.spk;
+function spk(text, label){ return '<button type="button" class="spk" data-act="sprich" data-t="' + esc(text) + '" aria-label="' + esc(label || 'Aussprache anhören') + '">' + svg(P.spk) + '</button>'; }
+function pips(p){ var h = '<span class="pips' + (p >= 6 ? ' fertig' : '') + '" title="' + FACH[p] + '">'; for (var i=1;i<=5;i++) h += '<i' + (i <= p ? ' class="an"' : '') + '></i>'; return h + '</span>'; }
+function seg(act, wert, opts){ return '<div class="seg" role="group">' + opts.map(function(o){
+  return '<button type="button" data-act="' + act + '" data-w="' + esc(o[0]) + '" aria-pressed="' + (String(wert) === String(o[0])) + '">' + esc(o[1]) + '</button>'; }).join('') + '</div>'; }
+function kastenHTML(u){
+  var max = Math.max.apply(null, u.fach.concat([1])), h = '';
+  for (var p=0;p<=6;p++){
+    var n = u.fach[p], b = n ? Math.max(1, Math.round(n / max * 9)) : 0, f = n ? Math.min(b, Math.ceil(u.due[p] / n * b)) : 0, st = '';
+    for (var k=0;k<b;k++) st += '<i' + (k >= b - f ? ' class="f"' : '') + '></i>';
+    h += '<div class="fach"><div class="fach-n' + (n ? '' : ' null') + '">' + n + '</div><div class="stapel' + (p === 6 ? ' ziel' : '') + '">' + st + '</div><div class="fach-l">' + (p === 0 ? 'Neu' : p === 6 ? 'Sitzt' : p) + '</div></div>';
+  }
+  var txt = u.fach.map(function(n,p){ return FACH[p] + ': ' + n; }).join(', ');
+  return '<div class="kasten" role="img" aria-label="Karteikasten. ' + esc(txt) + '">' + h + '</div>';
+}
+function schritte(n){
+  var namen = ['Vokabeln','Lernart','Einstellungen'];
+  return '<ol class="schritte" aria-label="Schritt ' + n + ' von 3">' + namen.map(function(t, i){
+    return '<li class="' + (i + 1 === n ? 'da' : i + 1 < n ? 'war' : '') + '"' + (i + 1 === n ? ' aria-current="step"' : '') + '><i>' + (i + 1) + '</i><span>' + t + '</span></li>'; }).join('') + '</ol>';
+}
+var toastTimer = null;
+function toast(t){ var e = $('#toast'); e.textContent = t; e.hidden = false; clearTimeout(toastTimer); toastTimer = setTimeout(function(){ e.hidden = true; }, 2600); }
+function konfetti(){
+  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  var c = document.createElement('canvas'); c.id = 'konfetti'; document.body.appendChild(c);
+  var x = c.getContext('2d'), W = c.width = window.innerWidth, H = c.height = window.innerHeight, st = getComputedStyle(document.documentElement);
+  var farben = ['--k1','--k2','--k3','--k4','--k5','--k6','--k7'].map(function(k){ return st.getPropertyValue(k).trim() || '#2a3bd0'; });
+  var t = [], i, t0 = null;
+  for (i=0;i<90;i++) t.push({ x:W/2 + (Math.random() - .5) * W * .5, y:H * .32, vx:(Math.random() - .5) * 11, vy:-Math.random() * 11 - 3, r:4 + Math.random() * 5, f:farben[i % farben.length], w:Math.random() * 6 });
+  function bild(z){
+    if (!t0) t0 = z; var a = (z - t0) / 1900; x.clearRect(0, 0, W, H);
+    t.forEach(function(p){ p.vy += .32; p.x += p.vx; p.y += p.vy; p.w += .2; x.globalAlpha = Math.max(0, 1 - a); x.fillStyle = p.f; x.fillRect(p.x, p.y, p.r, p.r * (.5 + Math.abs(Math.sin(p.w)) * .7)); });
+    if (a < 1) requestAnimationFrame(bild); else c.remove();
+  }
+  requestAnimationFrame(bild);
+}
+
+/* ---------- Lernarten ---------- */
+var ARTEN = [
+  { id:'kasten', k:1, name:'Karteikasten', kurz:'Dein Lernplan. Was du weißt, kommt immer seltener wieder, was nicht sitzt, öfter.', opts:['richtung','modus','folge','neu'],
+    wie:'Neue Wörter siehst du zuerst und wirst dann abgefragt. Richtig beantwortet wandert ein Wort ein Fach weiter und kommt nach 1, 3, 9, 29 und 90 Tagen wieder. Falsch beantwortet geht es zurück in Fach 1.' },
+  { id:'schreiben', k:2, name:'Schreiben', kurz:'Jedes Wort eintippen, bis es sitzt', opts:['richtung','folge','anzahl'],
+    wie:'Du tippst jedes Wort ein. Was falsch war, kommt in derselben Runde noch einmal, bis alles stimmt.' },
+  { id:'karten', k:3, name:'Karten', kurz:'Umdrehen und einprägen', opts:['richtung','folge','anzahl'],
+    wie:'Karte ansehen, im Kopf antworten, umdrehen. Gut zum ersten Kennenlernen der Wörter.' },
+  { id:'quiz', k:4, name:'Quiz', kurz:'Vier Antworten, eine stimmt', opts:['richtung','folge','anzahl'],
+    wie:'Zu jedem Wort gibt es vier Antworten. Tippe die richtige an.' },
+  { id:'hoeren', k:5, name:'Hören', kurz:'Zuhören und aufschreiben', opts:['folge','anzahl'],
+    wie:'Du hörst das französische Wort und schreibst es auf. Das trainiert Aussprache und Rechtschreibung zugleich.' },
+  { id:'luecke', k:6, name:'Lückensätze', kurz:'Das Wort im Satz einsetzen', opts:['folge','anzahl'],
+    wie:'Du bekommst die Beispielsätze aus dem Buch mit einer Lücke und setzt das Wort in der richtigen Form ein.' },
+  { id:'paare', k:7, name:'Paare', kurz:'Französisch und Deutsch zuordnen', opts:['anzahl'],
+    wie:'Immer sechs Wörter: Tippe links das französische Wort an und rechts die passende Übersetzung.' },
+  { id:'test', k:8, name:'Vokabeltest', kurz:'Wie in der Schule, Auswertung am Ende', opts:['richtung','folge','anzahl'],
+    wie:'Du schreibst alle Wörter ohne Rückmeldung. Erst am Ende siehst du, was richtig war, und bekommst eine Note als Richtwert. Fehlende Akzente geben einen halben Punkt.' }
+];
+function art(id){ return ARTEN.filter(function(a){ return a.id === id; })[0] || ARTEN[0]; }
+function artMoeglich(a, p){
+  if (!p.length) return 'Keine Wörter ausgewählt';
+  if (a.id === 'hoeren' && !stimme) return 'Dieses Gerät hat keine französische Stimme';
+  if (a.id === 'luecke' && !p.some(function(c){ return c.satz && c.loes; })) return 'Zu diesen Wörtern gibt es keine Sätze';
+  if ((a.id === 'quiz' || a.id === 'paare') && p.length < 4) return 'Dafür brauchst du mindestens 4 Wörter';
+  return '';
+}
+function reihe(list){
+  var l = list.slice(); if (S.set.folge === 'zufall') shuffle(l);
+  if (S.set.anzahl && l.length > S.set.anzahl) l = l.slice(0, S.set.anzahl);
+  return l;
+}
+function richtung(c){
+  var r = S.set.richtung === 'mix' ? (Math.random() < .5 ? 'de-fr' : 'fr-de') : S.set.richtung;
+  return r;
+}
+
+/* ---------- Ansichten ---------- */
+var view = 'start', R = null, U = null, listeDeck = 'alles', listeSuche = '', resetFrage = false;
+function go(v){ view = v; resetFrage = false; render(); window.scrollTo(0,0); main.classList.remove('blatt'); void main.offsetWidth; main.classList.add('blatt'); }
+function render(){
+  var f = document.activeElement && document.activeElement.id;
+  document.body.classList.toggle('deckel', view === 'start');
+  kopf();
+  ({ start:rStart, wahl:rWahl, art:rArt, opt:rOpt, runde:rRunde, ende:rEnde, ueben:rUeben, liste:rListe, mehr:rMehr })[view]();
+  if (f){ var e = document.getElementById(f); if (e && e !== document.activeElement){ try { e.focus({preventScroll:true}); } catch(_){} } }
+}
+function kopf(){
+  var zurueck = { wahl:'start', art:'wahl', opt:'art', liste:'start', mehr:'start', ende:'start' }[view];
+  if (view === 'start') topEl.innerHTML = '';
+  else if (view === 'runde' || view === 'ueben'){
+    var a = art(view === 'runde' ? R.art : U.modus);
+    topEl.innerHTML = '<div class="titel"><b>' + a.name + '</b><span>' + (view === 'runde' && R.art === 'kasten' ? 'Jede Antwort wird sofort gespeichert' : esc(R && view === 'runde' ? R.info : U.info)) + '</span></div>' +
+      '<button type="button" class="nav" data-act="go" data-w="start" aria-label="Beenden und zur Startseite">' + svg(P.x, 18) + 'Beenden</button>';
+  } else {
+    topEl.innerHTML = '<button type="button" class="nav" data-act="go" data-w="' + zurueck + '">' + svg(P.back, 18) + (zurueck === 'start' ? 'Start' : 'Zurück') + '</button>' +
+      '<div class="titel" style="text-align:right"><b>' + ({ wahl:'Lernen', art:'Lernen', opt:'Lernen', liste:'Alle Wörter', mehr:'Mehr', ende:'Geschafft' })[view] + '</b></div>';
+  }
+}
+
+/* ----- Start: der Heftdeckel ----- */
+function rStart(){
+  var u = uebersicht(CARDS.filter(zaehlt)), h = new Date().getHours();
+  var salut = h < 5 ? 'Bonne nuit !' : h < 18 ? 'Bonjour !' : 'Bonsoir !';
+  var gelernt = u.n - u.neu, serie = S.tage.last >= today() - 1 ? S.tage.serie : 0, satz;
+  if (u.faellig) satz = 'Heute ' + (u.faellig === 1 ? 'wartet' : 'warten') + ' <em>' + wort(u.faellig, 'Wiederholung', 'Wiederholungen') + '</em> auf dich.';
+  else if (!gelernt) satz = '<em>' + u.n + ' Wörter</em> warten darauf, gelernt zu werden.';
+  else if (u.naechste) satz = 'Für heute ist <em>alles wiederholt</em>. Lust auf neue Wörter?';
+  else satz = 'Alle gelernten Wörter <em>sitzen</em>. Lust auf neue?';
+  main.innerHTML = '<div class="cover">' +
+    '<div class="cover-nav"><button type="button" class="nav" data-act="go" data-w="liste">Alle Wörter</button><button type="button" class="nav" data-act="go" data-w="mehr">Mehr</button></div>' +
+    '<div class="etikett"><div class="etikett-in"><span class="eyebrow">Cahier de</span><span class="hand" lang="fr">vocabulaire</span><span class="zeile">À plus! 4 · Gymnasium Bayern</span></div></div>' +
+    '<div class="gruss"><p class="hand" lang="fr">' + salut + '</p><h1>' + satz + '</h1></div>' +
+    '<div class="cover-knopf"><button type="button" class="btn cta" id="los" data-act="go" data-w="wahl">Lernen starten</button>' +
+      (u.faellig ? '<button type="button" class="btn zweit" data-act="faellig">Nur die ' + wort(u.faellig, 'fällige Wiederholung', 'fälligen Wiederholungen') + '</button>' : '') + '</div>' +
+    '<div class="zahlen"><div class="zahl"><b>' + u.fach[6] + '</b><span>von ' + u.n + ' sitzen</span></div><div class="zahl"><b>' + (gelernt - u.fach[6]) + '</b><span>im Karteikasten</span></div><div class="zahl"><b>' + serie + '</b><span>' + (serie === 1 ? 'Tag' : 'Tage') + ' in Folge</span></div></div>' +
+    '<section class="kasten-wrap" aria-label="Dein Karteikasten"><div class="eyebrow">Dein Karteikasten</div>' + kastenHTML(u) +
+      '<div class="legende"><span><i class="f"></i>heute fällig</span><span><i></i>wartet</span><span><i class="z"></i>sitzt</span></div></section>' +
+  '</div>';
+}
+
+/* ----- Schritt 1: Vokabeln wählen ----- */
+function rWahl(){
+  var p = pool();
+  var h = GRUPPEN.map(function(g){
+    var alle = g.secs.every(function(s){ return S.sel.indexOf(s.key) >= 0; });
+    return '<div class="gruppe"><div class="gruppe-kopf"><h2>' + esc(g.name) + '</h2>' + (g.secs.length > 1 ? '<button type="button" class="link" data-act="gruppe" data-w="' + esc(g.name) + '">' + (alle ? 'keine' : 'alle') + '</button>' : '') + '</div>' +
+      g.secs.map(function(s){
+        var list = s.cards.filter(zaehlt), o = uebersicht(list), inArbeit = o.n - o.neu - o.fach[6];
+        return '<label class="volet"><input type="checkbox" id="sel-' + s.key + '" data-sec="' + s.key + '"' + (S.sel.indexOf(s.key) >= 0 ? ' checked' : '') + '>' +
+          '<span class="haken">' + svg(P.ok, 18) + '</span>' +
+          '<span class="volet-name">' + esc(s.titel) + (s.voll ? '' : ' <span class="badge warn">unvollständig</span>') + (o.faellig ? ' <span class="badge faellig">' + o.faellig + ' fällig</span>' : '') + '</span>' +
+          '<span class="volet-meta">' + wort(o.n, 'Wort', 'Wörter') + (o.neu && o.neu < o.n ? ' · ' + o.neu + ' neu' : '') + '</span>' +
+          '<span class="volet-zahl">' + o.fach[6] + ' / ' + o.n + '<span class="balken" aria-hidden="true"><i class="b2" style="width:' + (o.n ? o.fach[6] / o.n * 100 : 0) + '%"></i><i class="b1" style="width:' + (o.n ? inArbeit / o.n * 100 : 0) + '%"></i></span></span></label>';
+      }).join('') + '</div>';
+  }).join('');
+  var unvoll = SECS.filter(function(s){ return !s.voll; }).map(function(s){ return secName(s.key); });
+  main.innerHTML = schritte(1) +
+    '<div class="kopf"><h1>Welche Vokabeln willst du lernen?</h1><p>Du kannst mehrere Abschnitte gleichzeitig auswählen.</p></div>' +
+    '<div class="schnell"><button type="button" class="btn klein" data-act="alle">Alles auswählen</button><button type="button" class="btn klein" data-act="keine"' + (S.sel.length ? '' : ' disabled') + '>Auswahl leeren</button></div>' + h +
+    (unvoll.length ? '<p class="hinweis">Noch nicht komplett abgetippt: ' + esc(unvoll.join(', ')) + '. Dafür fehlen die Seiten 138 bis 145 der Wortliste.</p>' : '') +
+    '<div class="fuss"><button type="button" class="btn prim gross" id="weiter1" data-act="go" data-w="art"' + (p.length ? '' : ' disabled') + '>' + (p.length ? 'Weiter<small>' + wort(p.length, 'Wort', 'Wörter') + ' ausgewählt</small>' : 'Erst einen Abschnitt auswählen') + '</button></div>';
+}
+
+/* ----- Schritt 2: Lernart wählen ----- */
+function rArt(){
+  var p = pool(), u = uebersicht(p);
+  if (!p.length){ view = 'wahl'; render(); return; }
+  var h = ARTEN.map(function(a){
+    var grund = artMoeglich(a, p), breit = a.id === 'kasten' || a.id === 'test', extra = '';
+    if (a.id === 'kasten') extra = '<span class="zeile"><span class="badge neu">Empfohlen</span>' + (u.faellig ? '<span class="badge faellig">' + u.faellig + ' fällig</span>' : '') + (u.neu ? '<span class="badge warn">' + u.neu + ' neu</span>' : '') + '</span>';
+    return '<button type="button" class="art' + (breit ? ' breit' : '') + '" style="--k:var(--k' + a.k + ')" data-act="art" data-w="' + a.id + '"' + (grund ? ' disabled' : '') + '>' +
+      '<span class="bild">' + svg(P[a.id], breit ? 30 : 26) + '</span>' + (breit ? '<span class="text">' : '') + '<b>' + a.name + '</b><span>' + esc(grund || a.kurz) + '</span>' + extra + (breit ? '</span>' : '') + '</button>';
+  }).join('');
+  main.innerHTML = schritte(2) + '<div class="kopf"><h1>Wie willst du lernen?</h1><p>' + wort(p.length, 'Wort', 'Wörter') + ' aus ' + wort(S.sel.length, 'Abschnitt', 'Abschnitten') + ' ausgewählt.</p></div><div class="arten">' + h + '</div>';
+}
+
+/* ----- Schritt 3: Einstellungen ----- */
+function rOpt(){
+  var a = art(S.art), p = pool(), u = uebersicht(p), z = '', knopf, sub, aus = false;
+  if (artMoeglich(a, p)){ view = 'art'; render(); return; }
+  if (a.opts.indexOf('richtung') >= 0) z += '<div class="opt-zeile"><div><b>Abfragerichtung</b><small>' + (a.id === 'karten' ? 'Welche Seite der Karte siehst du zuerst?' : 'In welcher Sprache sollst du antworten?') + '</small></div>' +
+    seg('set-richtung', S.set.richtung, [['de-fr','Deutsch → Französisch'],['fr-de','Französisch → Deutsch'],['mix','Gemischt']]) + '</div>';
+  if (a.opts.indexOf('modus') >= 0) z += '<div class="opt-zeile"><div><b>Antworten</b><small>Tippen prüft Rechtschreibung, Akzente und Artikel. Beim Aufdecken bewertest du dich selbst.</small></div>' + seg('set-modus', S.set.modus, [['tippen','Tippen'],['aufdecken','Aufdecken']]) + '</div>';
+  if (a.opts.indexOf('folge') >= 0) z += '<div class="opt-zeile"><div><b>Reihenfolge</b></div>' + seg('set-folge', S.set.folge, [['buch','Wie im Buch'],['zufall','Zufällig']]) + '</div>';
+  if (a.opts.indexOf('neu') >= 0) z += '<div class="opt-zeile"><div><b>Neue Wörter pro Runde</b><small>Fällige Wiederholungen kommen immer alle dran.</small></div>' + seg('set-neu', S.set.neu, [[5,'5'],[10,'10'],[15,'15'],[20,'20']]) + '</div>';
+  if (a.opts.indexOf('anzahl') >= 0) z += '<div class="opt-zeile"><div><b>Wie viele Wörter?</b></div>' + seg('set-anzahl', S.set.anzahl, [[10,'10'],[20,'20'],[40,'40'],[0,'Alle']]) + '</div>';
+  if (a.id === 'kasten'){
+    var neu = Math.min(u.neu, S.set.neu);
+    if (u.faellig || neu){ sub = [u.faellig ? wort(u.faellig, 'Wiederholung', 'Wiederholungen') : '', neu ? wort(neu, 'neues Wort', 'neue Wörter') : ''].filter(Boolean).join(' · '); }
+    else { aus = true; sub = u.naechste ? 'Heute nichts mehr fällig. Nächste Wiederholung ' + tage(u.naechste - today()) + '.' : 'Alle ausgewählten Wörter sitzen.'; }
+  } else {
+    var n = a.id === 'luecke' ? p.filter(function(c){ return c.satz && c.loes; }).length : p.length;
+    sub = wort(S.set.anzahl ? Math.min(n, S.set.anzahl) : n, 'Wort', 'Wörter');
+  }
+  main.innerHTML = schritte(3) + '<div class="kopf"><h1>' + a.name + '</h1></div>' +
+    '<section class="wie seyes"><span class="eyebrow">So geht’s</span><p>' + esc(a.wie) + '</p></section>' +
+    '<section>' + z + '</section>' +
+    '<div class="fuss"><button type="button" class="btn prim gross" id="los3" data-act="start"' + (aus ? ' disabled' : '') + '>' + (aus ? 'Nichts zu tun' : 'Los geht’s') + '<small>' + esc(sub) + '</small></button></div>';
+}
+
+/* ----- Runden mit Abfrage: Karteikasten, Schreiben, Hören, Vokabeltest ----- */
+function eintrag(c, extra){
+  var it = { c:c, art:'test', erst:true, dir:'de-fr' }, k;
+  if (R.art === 'hoeren') it.dir = 'hoer';
+  else { it.dir = richtung(c); if (it.dir === 'fr-de' && !deTippbar(c) && !(R.art === 'kasten' && S.set.modus === 'aufdecken')) it.dir = 'de-fr'; }
+  if (extra) for (k in extra) it[k] = extra[k];
+  return it;
+}
+function rundeStart(artId, opt){
+  opt = opt || {};
+  var p = opt.karten || pool(), t = today(), q = [], gesamt;
+  R = { art:artId, q:q, i:0, gesamt:0, fertig:0, richtig:0, daneben:[], erg:[], info:'' };
+  if (artId === 'kasten'){
+    if (opt.nurFaellig) p = CARDS.filter(zaehlt);
+    var due = p.filter(function(c){ return faellig(c, t); }), neu = opt.nurFaellig ? [] : p.filter(function(c){ return !stand(c); });
+    if (S.set.folge === 'zufall'){ shuffle(due); shuffle(neu); }
+    neu = neu.slice(0, S.set.neu);
+    due.forEach(function(c){ q.push(eintrag(c)); });
+    for (var i=0;i<neu.length;i+=4){
+      var g = neu.slice(i, i+4);
+      g.forEach(function(c){ q.push({ c:c, art:'neu' }); });
+      (S.set.folge === 'zufall' ? shuffle(g.slice()) : g).forEach(function(c){ q.push(eintrag(c, { neu:true })); });
+    }
+    gesamt = due.length + neu.length;
+  } else {
+    var l = opt.karten ? p.slice() : reihe(p);
+    l.forEach(function(c){ q.push(eintrag(c)); });
+    gesamt = l.length;
+    R.info = artId === 'test' ? 'Auswertung erst am Ende' : 'Freies Üben';
+  }
+  if (!q.length){ toast('Dafür gibt es gerade keine Wörter.'); return; }
+  R.gesamt = gesamt;
+  go('runde');
+}
+function werten(it, ok){
+  var c = it.c, t = today();
+  if (it.erst){
+    if (R.art === 'kasten'){
+      var alt = stand(c); it.alt = alt ? alt.slice() : null;
+      var s = alt ? alt.slice() : [0,0,0,0,0];
+      if (ok){ var p = it.neu ? 1 : Math.min(6, s[0] + 1); s = [p, p >= 6 ? 0 : t + INT[p], Date.now(), (s[3]||0) + 1, s[4]||0]; }
+      else s = [1, t + 1, Date.now(), s[3]||0, (s[4]||0) + 1];
+      S.cards[c.id] = s;
+    }
+    if (ok) R.richtig++; else R.daneben.push(c);
+    if (S.tage.last !== t){ S.tage = { last:t, serie:(S.tage.last === t - 1 ? S.tage.serie + 1 : 1) }; }
+    speichern();
+  }
+  if (ok) R.fertig++;
+  else { it.nochmal = { c:c, art:'test', erst:false, dir:it.dir }; R.q.splice(Math.min(R.i + 4, R.q.length), 0, it.nochmal); }
+  it.ok = ok;
+}
+function dochRichtig(it){
+  var k = R.q.indexOf(it.nochmal); if (k >= 0) R.q.splice(k, 1);
+  if (it.erst){
+    if (R.art === 'kasten'){ if (it.alt) S.cards[it.c.id] = it.alt; else delete S.cards[it.c.id]; }
+    var d = R.daneben.indexOf(it.c); if (d >= 0) R.daneben.splice(d, 1);
+  }
+  werten(it, true);
+}
+function fortschritt(done, total){ return '<div class="fortschritt"><div class="spur"><i style="width:' + (total ? done / total * 100 : 0) + '%"></i></div><span>' + done + ' / ' + total + '</span></div>'; }
+function wortKlasse(t){ return 'k-wort' + (t.length > 42 ? ' lang' : ''); }
+function akzente(){ return '<div class="akzente" aria-label="Sonderzeichen einfügen">' + ['é','è','ê','ë','à','â','ç','ù','û','î','ï','ô','œ','’'].map(function(a){
+  return '<button type="button" data-act="akzent" data-w="' + a + '" tabindex="-1">' + a + '</button>'; }).join('') + '</div>'; }
+function tippt(){ return R.art !== 'kasten' || S.set.modus === 'tippen'; }
+function rRunde(){
+  var it = R.q[R.i]; if (!it){ go('ende'); return; }
+  var c = it.c, p = fach(c), test = R.art === 'test', h = fortschritt(test ? R.i : R.fertig, R.gesamt), frage, zeile, zuFr = it.dir !== 'fr-de';
+  var kopfz = '<div class="k-kopf"><span class="k-sec">' + esc(secName(c.sec)) + '</span>' + (it.art === 'neu' || it.neu ? '<span class="badge neu">Neues Wort</span>' : !it.erst ? '<span class="badge warn">noch einmal</span>' : R.art === 'kasten' ? pips(p) : '') + '</div>';
+  if (it.art === 'neu'){
+    h += '<div class="karte seyes rein">' + kopfz + '<p class="k-frage">Präge dir das Wort ein. Gleich wirst du danach gefragt.</p>' +
+      '<div class="k-zeile"><p class="' + wortKlasse(c.fr) + '" lang="fr">' + esc(c.fr) + '</p>' + spk(sprechtext(c)) + '</div>' +
+      '<p class="k-neben">' + esc(c.de) + '</p>' + (c.satz && c.loes ? '<p class="k-satz" lang="fr">' + satzVoll(c, true) + '</p>' : '') + '</div>' +
+      '<div class="aktionen"><button type="button" class="btn prim" id="weiter" data-act="weiter">Eingeprägt</button></div>';
+  } else {
+    if (it.dir === 'hoer'){ frage = 'Hör zu und schreib auf, was du hörst.'; zeile = '<button type="button" class="hoer" data-act="sprich" data-t="' + esc(sprechtext(c)) + '">' + svg(P.spk, 24) + 'Nochmal anhören</button>'; }
+    else if (it.dir === 'fr-de'){ frage = 'Was heißt das auf Deutsch?'; zeile = '<div class="k-zeile"><p class="' + wortKlasse(c.fr) + '" lang="fr">' + esc(c.fr) + '</p>' + spk(sprechtext(c)) + '</div>'; }
+    else { frage = 'Wie heißt das auf Französisch?'; zeile = '<p class="' + wortKlasse(c.de) + '">' + esc(c.de) + '</p>'; }
+    h += '<div class="karte seyes rein">' + kopfz + '<p class="k-frage">' + frage + '</p>' + zeile +
+      (tippt() ? '<form class="eingabe" id="f-antwort" autocomplete="off"><input type="text" id="antwort" lang="' + (zuFr ? 'fr' : 'de') + '" inputmode="text" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" placeholder="' + (zuFr ? 'Französisch eintippen' : 'Deutsch eintippen') + '" aria-label="Deine Antwort">' + (zuFr ? akzente() : '') +
+        '<div class="aktionen"><button type="button" class="btn" data-act="weissnicht">' + (test ? 'Überspringen' : 'Weiß ich nicht') + '</button><button type="submit" class="btn prim">' + (test ? 'Weiter' : 'Prüfen') + '</button></div></form>' : '') +
+      '<div id="urteil"></div></div>' + (tippt() ? '' : '<div class="aktionen" id="akt"><button type="button" class="btn prim" id="zeigen" data-act="zeigen">Antwort zeigen</button></div>');
+  }
+  main.innerHTML = '<div class="runde">' + h + '</div>';
+  var inp = $('#antwort'); if (inp){ try { inp.focus({preventScroll:true}); } catch(e){} }
+  if (it.dir === 'hoer' || (S.set.auto && (it.art === 'neu' || it.dir === 'fr-de'))) sprich(sprechtext(c));
+}
+function wegText(it){
+  if (!it.erst || R.art !== 'kasten') return '';
+  var s = stand(it.c); if (!s) return '';
+  if (s[0] >= 6) return 'Geschafft: Das Wort sitzt und wird nicht mehr abgefragt.';
+  return (it.ok ? (it.neu ? 'Jetzt in ' : 'Weiter in ') : 'Zurück in ') + FACH[s[0]] + ' · wieder dran ' + tage(s[1] - today());
+}
+function loesungHTML(c, mitDe){
+  return '<div class="k-zeile"><p class="' + wortKlasse(c.fr) + '" lang="fr">' + esc(c.fr) + '</p>' + spk(sprechtext(c)) + '</div>' + (mitDe ? '<p class="k-neben">' + esc(c.de) + '</p>' : '') +
+    (c.satz && c.loes ? '<div class="k-zeile"><p class="k-satz" lang="fr" style="flex:1">' + satzVoll(c, true) + '</p>' + spk(satzVoll(c, false), 'Satz anhören') + '</div>' : '');
+}
+function pruefe(it, eingabe){
+  if (eingabe === null) return 'no';
+  if (it.dir === 'fr-de') return checkDe(eingabe, it.c.de) ? 'ok' : 'no';
+  return check(eingabe, it.dir === 'hoer' ? it.c.acc.concat([sprechtext(it.c)]) : it.c.acc);
+}
+function antwortGeprueft(eingabe){
+  var it = R.q[R.i], c = it.c, r = pruefe(it, eingabe), ok = r === 'ok' || r === 'acc';
+  if (R.art === 'test'){
+    R.erg.push({ c:c, dir:it.dir, eingabe:eingabe, r:r }); if (r === 'ok') R.richtig++;
+    if (S.tage.last !== today()){ S.tage = { last:today(), serie:(S.tage.last === today() - 1 ? S.tage.serie + 1 : 1) }; speichern(); }
+    R.i++; render(); window.scrollTo(0,0); return;
+  }
+  werten(it, ok);
+  var f = $('#f-antwort'); if (f) f.hidden = true;
+  var stempel = r === 'ok' ? ['ok','Très bien !'] : r === 'acc' ? ['fast','Presque !'] : ['nein','À revoir'];
+  var h = '<div class="urteil"><p class="stempel ' + stempel[0] + '" lang="fr">' + stempel[1] + '</p>';
+  if (r === 'acc') h += '<p class="erkl fast">Fast richtig. Achte auf die Akzente.</p>';
+  if (r === 'art') h += '<p class="erkl nein">Das Wort stimmt, aber der Artikel nicht.</p>';
+  if (eingabe !== null && r !== 'ok') h += '<p class="deins">Deine Antwort: <s>' + esc(eingabe) + '</s></p>';
+  h += (it.dir === 'fr-de' ? '<p class="' + wortKlasse(c.de) + '">' + esc(c.de) + '</p>' + (c.satz && c.loes ? '<p class="k-satz" lang="fr">' + satzVoll(c, true) + '</p>' : '') : loesungHTML(c, it.dir === 'hoer')) +
+    (!ok && eingabe !== null && it.dir === 'fr-de' ? '<p class="erkl leise">Hast du es sinngemäß richtig? Dann zählt es.</p>' : '') +
+    (wegText(it) ? '<p class="weg" id="weg">' + esc(wegText(it)) + '</p>' : '') +
+    '<div class="aktionen">' + (!ok && eingabe !== null ? '<button type="button" class="btn" data-act="doch">War doch richtig</button>' : '') + '<button type="button" class="btn prim" id="weiter" data-act="weiter">Weiter</button></div></div>';
+  $('#urteil').innerHTML = h; kopfFortschritt();
+  try { $('#weiter').focus({preventScroll:true}); } catch(e){}
+  if (S.set.auto && it.dir !== 'fr-de') sprich(sprechtext(c));
+}
+function kopfFortschritt(){ var e = main.querySelector('.fortschritt'); if (e) e.outerHTML = fortschritt(R.fertig, R.gesamt); }
+function antwortZeigen(){
+  var it = R.q[R.i], c = it.c, a = $('#akt');
+  $('#urteil').innerHTML = '<div class="urteil">' + (it.dir === 'fr-de' ? '<p class="' + wortKlasse(c.de) + '">' + esc(c.de) + '</p>' + (c.satz && c.loes ? '<p class="k-satz" lang="fr">' + satzVoll(c, true) + '</p>' : '') : loesungHTML(c)) + '</div>';
+  a.innerHTML = '<button type="button" class="btn schlecht" data-act="selbst" data-w="0">Nicht gewusst</button><button type="button" class="btn gut" id="gewusst" data-act="selbst" data-w="1">Gewusst</button>';
+  if (S.set.auto && it.dir !== 'fr-de') sprich(sprechtext(c));
+}
+function noteFuer(q){ return q >= .92 ? 1 : q >= .81 ? 2 : q >= .67 ? 3 : q >= .5 ? 4 : q >= .3 ? 5 : 6; }
+function rEnde(){
+  var h, knoepfe = '';
+  if (R.art === 'test'){
+    var punkte = 0; R.erg.forEach(function(e){ punkte += e.r === 'ok' ? 1 : e.r === 'acc' ? .5 : 0; });
+    var q = R.gesamt ? punkte / R.gesamt : 0, note = noteFuer(q);
+    h = '<section class="karte seyes ende"><div class="note' + (note <= 2 ? ' gut' : '') + '"><b>' + note + '</b><div><h1>' + String(punkte).replace('.', ',') + ' von ' + R.gesamt + ' Punkten</h1><p class="k-frage">' + Math.round(q * 100) + ' %. Die Note ist ein Richtwert, deine Lehrkraft kann anders bewerten.</p></div></div>' +
+      '<ul class="fehlt">' + R.erg.map(function(e){
+        var m = e.r === 'ok' ? ['ok','✓'] : e.r === 'acc' ? ['fast','½'] : ['nein','✗'], soll = e.dir === 'fr-de' ? e.c.de : e.c.fr, frage = e.dir === 'fr-de' ? e.c.fr : e.c.de;
+        return '<li><span class="m ' + m[0] + '">' + m[1] + '</span><b' + (e.dir === 'fr-de' ? '' : ' lang="fr"') + '>' + esc(soll) + '</b><span>' + esc(frage) + '</span>' +
+          (e.r !== 'ok' ? '<span>Deine Antwort: ' + (e.eingabe === null ? 'keine' : '<s>' + esc(e.eingabe) + '</s>') + (e.r === 'art' ? ' (Artikel falsch)' : e.r === 'acc' ? ' (Akzent fehlt)' : '') + '</span>' : '') + '</li>'; }).join('') + '</ul></section>';
+    if (note === 1) konfetti();
+  } else {
+    var quote = R.gesamt ? R.richtig / R.gesamt : 1, gruss = quote === 1 ? 'Parfait !' : quote >= .7 ? 'Bravo !' : 'C’est fait !';
+    h = '<section class="karte seyes ende"><p class="hand" lang="fr">' + gruss + '</p><h1>' + R.richtig + ' von ' + R.gesamt + ' auf Anhieb gewusst.</h1>' +
+      (R.daneben.length ? '<p class="k-frage">' + (R.art === 'kasten' ? 'Diese Wörter kommen morgen wieder:' : 'Diese Wörter solltest du noch einmal ansehen:') + '</p><ul class="fehlt">' + R.daneben.map(function(c){ return '<li><span class="m nein">✗</span><b lang="fr">' + esc(c.fr) + '</b><span>' + esc(c.de) + '</span></li>'; }).join('') + '</ul>' : '<p class="k-neben">Kein einziger Fehler in dieser Runde.</p>') + '</section>';
+    if (R.art === 'kasten') h += '<section class="kasten-wrap"><div class="eyebrow">Dein Karteikasten jetzt</div>' + kastenHTML(uebersicht(CARDS.filter(zaehlt))) + '</section>';
+    if (quote === 1 && R.gesamt >= 5) konfetti();
+  }
+  var falsch = R.art === 'test' ? R.erg.filter(function(e){ return e.r !== 'ok'; }).map(function(e){ return e.c; }) : R.daneben;
+  if (falsch.length) knoepfe += '<button type="button" class="btn" data-act="fehler">Nur die Fehler üben</button>';
+  knoepfe += '<button type="button" class="btn" data-act="nochmal">' + (R.art === 'kasten' ? 'Weiterlernen' : 'Noch eine Runde') + '</button>';
+  main.innerHTML = '<div class="runde">' + h + '<div class="aktionen">' + knoepfe + '</div><div class="aktionen"><button type="button" class="btn" data-act="go" data-w="art">Andere Lernart</button><button type="button" class="btn prim" data-act="go" data-w="start">Zur Startseite</button></div></div>';
+  R.falsch = falsch;
+}
+
+/* ----- Üben ohne Abfrage-Logik: Karten, Quiz, Lückensätze, Paare ----- */
+function uebenStart(modus){
+  var p = pool();
+  if (modus === 'luecke') p = p.filter(function(c){ return c.satz && c.loes; });
+  var l = modus === 'paare' ? shuffle(p.slice()) : reihe(p);
+  if (modus === 'paare' && S.set.anzahl) l = l.slice(0, S.set.anzahl);
+  if (!l.length){ toast('Dafür gibt es gerade keine Wörter.'); return; }
+  U = { modus:modus, list:l, i:0, um:false, richtig:0, fehler:0, fertig:false, wahl:null, paare:null, offen:null, treffer:0, r:null, info:'Freies Üben' };
+  U.dirs = l.map(function(c){ return richtung(c); });
+  if (modus === 'quiz') quizFrage();
+  if (modus === 'paare') paareRunde();
+  go('ueben');
+}
+function quizFrage(){
+  var c = U.list[U.i], zuFr = U.dirs[U.i] === 'de-fr', feld = zuFr ? 'fr' : 'de', nah = shuffle(pool()), alle = nah.concat(shuffle(CARDS.slice())), opts = [c], seen = {}; seen[c[feld]] = 1;
+  for (var k=0;k<alle.length && opts.length<4;k++){ var o = alle[k]; if (!seen[o[feld]]){ seen[o[feld]] = 1; opts.push(o); } }
+  U.q = { c:c, zuFr:zuFr, opts:shuffle(opts) }; U.wahl = null;
+}
+function paareRunde(){
+  var g = U.list.slice(U.i, U.i + 6);
+  U.paare = { fr:shuffle(g.slice()), de:shuffle(g.slice()), weg:{}, n:g.length }; U.offen = null;
+}
+function rUeben(){
+  var h = '', c;
+  if (U.fertig){
+    var text = U.modus === 'karten' ? 'Alle ' + U.list.length + ' Karten angesehen.' : U.modus === 'paare' ? 'Alle Paare gefunden, mit ' + wort(U.fehler, 'Fehlgriff', 'Fehlgriffen') + '.' : U.richtig + ' von ' + U.list.length + ' richtig.';
+    if (U.modus !== 'karten' && (U.modus === 'paare' ? U.fehler === 0 : U.richtig === U.list.length) && U.list.length >= 5) konfetti();
+    main.innerHTML = '<div class="runde"><section class="karte seyes ende"><p class="hand" lang="fr">C’est fini !</p><h1>' + text + '</h1></section>' +
+      '<div class="aktionen"><button type="button" class="btn" data-act="nochmal-u">Noch eine Runde</button><button type="button" class="btn" data-act="go" data-w="art">Andere Lernart</button></div>' +
+      '<div class="aktionen"><button type="button" class="btn prim" data-act="go" data-w="start">Zur Startseite</button></div></div>';
+    return;
+  }
+  if (U.modus === 'karten'){
+    c = U.list[U.i]; var vornFr = U.dirs[U.i] === 'fr-de';
+    var fr = '<p class="k-frage">Französisch</p><p class="' + wortKlasse(c.fr) + '" lang="fr">' + esc(c.fr) + '</p>' + (c.satz && c.loes ? '<p class="k-satz" lang="fr">' + satzVoll(c, true) + '</p>' : '');
+    var de = '<p class="k-frage">Deutsch</p><p class="' + wortKlasse(c.de) + '">' + esc(c.de) + '</p>';
+    h = fortschritt(U.i + 1, U.list.length) +
+      '<div class="flip" id="flip" role="button" tabindex="0" data-act="flip" aria-label="Karte umdrehen"><div class="flip-in' + (U.um ? ' um' : '') + '">' +
+      '<div class="karte seyes seite vorn">' + (vornFr ? fr : de) + '</div><div class="karte seyes seite hinten">' + (vornFr ? de : fr) + '</div></div></div>' +
+      '<p class="tipp">Tippe auf die Karte, um sie umzudrehen.</p>' +
+      '<div class="aktionen" style="align-items:center"><button type="button" class="btn" data-act="k-zurueck"' + (U.i ? '' : ' disabled') + '>Zurück</button>' + spk(sprechtext(c)) + '<button type="button" class="btn prim" id="k-weiter" data-act="k-weiter">' + (U.i + 1 < U.list.length ? 'Nächste' : 'Fertig') + '</button></div>';
+  } else if (U.modus === 'quiz'){
+    var q = U.q; c = q.c;
+    h = fortschritt(U.i + (U.wahl ? 1 : 0), U.list.length) +
+      '<div class="karte seyes"><p class="k-frage">' + (q.zuFr ? 'Wie heißt das auf Französisch?' : 'Was heißt das auf Deutsch?') + '</p>' +
+      '<div class="k-zeile"><p class="' + wortKlasse(q.zuFr ? c.de : c.fr) + '"' + (q.zuFr ? '' : ' lang="fr"') + '>' + esc(q.zuFr ? c.de : c.fr) + '</p>' + (q.zuFr ? '' : spk(sprechtext(c))) + '</div></div>' +
+      '<div class="optionen">' + q.opts.map(function(o, k){
+        var cls = U.wahl ? (o === c ? ' richtig' : o === U.wahl ? ' falsch' : '') : '';
+        return '<button type="button" class="opt' + cls + '" data-act="q-wahl" data-w="' + k + '"' + (U.wahl ? ' disabled' : '') + (q.zuFr ? ' lang="fr"' : '') + '>' + esc(q.zuFr ? o.fr : o.de) + '</button>'; }).join('') + '</div>' +
+      (U.wahl ? '<div class="aktionen"><button type="button" class="btn prim" id="weiter" data-act="q-weiter">' + (U.i + 1 < U.list.length ? 'Weiter' : 'Fertig') + '</button></div>' : '') +
+      '<p class="punkte">' + U.richtig + ' richtig</p>';
+  } else if (U.modus === 'luecke'){
+    c = U.list[U.i];
+    var satz = esc(c.satz).replace('___', U.r ? '<b>' + esc(c.loes[0]) + '</b>' : '<span class="luecke">?</span>');
+    h = fortschritt(U.i + (U.r ? 1 : 0), U.list.length) +
+      '<div class="karte seyes"><p class="k-frage">Setze das passende Wort in der richtigen Form ein.</p><p class="k-wort lang" lang="fr">' + satz + '</p><p class="k-neben">Gesucht: ' + esc(c.de) + '</p>';
+    if (!U.r) h += '<form class="eingabe" id="f-luecke" autocomplete="off"><input type="text" id="antwort" lang="fr" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" placeholder="Wort für die Lücke" aria-label="Wort für die Lücke">' + akzente() +
+      '<div class="aktionen"><button type="button" class="btn" data-act="l-zeigen">Lösung zeigen</button><button type="submit" class="btn prim">Prüfen</button></div></form>';
+    else h += '<div class="urteil"><p class="stempel ' + (U.r === 'ok' ? 'ok' : U.r === 'acc' ? 'fast' : 'nein') + '" lang="fr">' + (U.r === 'ok' ? 'Très bien !' : U.r === 'acc' ? 'Presque !' : 'À revoir') + '</p>' +
+      (U.r === 'acc' ? '<p class="erkl fast">Fast richtig. Achte auf die Akzente.</p>' : '') + (U.r !== 'ok' && U.eingabe ? '<p class="deins">Deine Antwort: <s>' + esc(U.eingabe) + '</s></p>' : '') +
+      '<div class="k-zeile"><p class="k-neben" style="flex:1">Grundform: <b lang="fr">' + esc(c.fr) + '</b></p>' + spk(satzVoll(c, false), 'Satz anhören') + '</div>' +
+      '<div class="aktionen"><button type="button" class="btn prim" id="weiter" data-act="l-weiter">' + (U.i + 1 < U.list.length ? 'Weiter' : 'Fertig') + '</button></div></div>';
+    h += '</div><p class="punkte">' + U.richtig + ' richtig</p>';
+  } else {
+    var Pa = U.paare, z = '';
+    for (var k=0;k<Pa.n;k++){
+      var a = Pa.fr[k], b = Pa.de[k];
+      z += '<button type="button" class="paar fr' + (Pa.weg[a.id] ? ' weg' : '') + '" lang="fr" data-act="paar" data-s="fr" data-w="' + k + '" aria-pressed="' + (!!U.offen && U.offen.s === 'fr' && U.offen.k === k) + '"' + (Pa.weg[a.id] ? ' disabled' : '') + '>' + esc(a.fr.replace(/\s*\([^)]*\)/g,'')) + '</button>' +
+           '<button type="button" class="paar' + (Pa.weg[b.id] ? ' weg' : '') + '" data-act="paar" data-s="de" data-w="' + k + '" aria-pressed="' + (!!U.offen && U.offen.s === 'de' && U.offen.k === k) + '"' + (Pa.weg[b.id] ? ' disabled' : '') + '>' + esc(b.de) + '</button>';
+    }
+    h = fortschritt(U.treffer, U.list.length) + '<p class="k-frage">Tippe links ein französisches Wort an und rechts die passende Übersetzung.</p><div class="paare">' + z + '</div><p class="punkte">' + wort(U.fehler, 'Fehlgriff', 'Fehlgriffe') + '</p>';
+  }
+  main.innerHTML = '<div class="runde">' + h + '</div>';
+  if (U.modus === 'luecke' && !U.r){ var inp = $('#antwort'); if (inp){ try { inp.focus({preventScroll:true}); } catch(e){} } }
+}
+
+/* ----- Liste ----- */
+function listeHTML(){
+  var s = norm(listeSuche), sa = noAcc(s), h = '';
+  SECS.forEach(function(sec){
+    var rows = sec.cards.filter(function(c){ return !s || noAcc(norm(c.fr)).indexOf(sa) >= 0 || noAcc(norm(c.de)).indexOf(sa) >= 0; });
+    if (!rows.length) return;
+    h += '<section><h3>' + esc(secName(sec.key)) + ' <span class="badge neu">' + rows.length + '</span>' + (sec.voll ? '' : ' <span class="badge warn">unvollständig</span>') + '</h3><div class="zeilen">' +
+      rows.map(function(c){ return '<div class="zeile" data-act="auf"><span class="fr" lang="fr">' + esc(c.fr) + '</span><span class="de">' + esc(c.de) + '</span><span class="rand">' + pips(fach(c)) + spk(sprechtext(c)) + '</span></div>'; }).join('') + '</div></section>';
+  });
+  return h || '<p class="hinweis">Kein Wort gefunden.</p>';
+}
+function rListe(){
+  main.innerHTML = '<div class="werkzeug"><input type="search" class="feld" id="suche" placeholder="Wort suchen" aria-label="Wort suchen" value="' + esc(listeSuche) + '">' +
+    seg('deck', listeDeck, [['alles','Alles zeigen'],['fr','Französisch abdecken'],['de','Deutsch abdecken']]) + '</div>' +
+    (listeDeck !== 'alles' ? '<p class="hinweis">Sag das verdeckte Wort im Kopf und tippe dann auf die Zeile, um nachzusehen.</p>' : '') +
+    '<div class="liste deck-' + listeDeck + '" id="liste">' + listeHTML() + '</div>';
+}
+
+/* ----- Mehr ----- */
+function codeAus(){ try { return btoa(unescape(encodeURIComponent(JSON.stringify(S)))); } catch(e){ return ''; } }
+function rMehr(){
+  var eigene = S.own.filter(function(o){ return o && !o.del; });
+  var wahl = '<select class="feld" id="own-sec"><option value="eigen">Eigene Wörter (eigene Liste)</option>' + SECS.filter(function(s){ return !s.eigen; }).map(function(s){
+    return '<option value="' + esc(s.key) + '"' + (rMehr.sec === s.key ? ' selected' : '') + '>' + esc(secName(s.key)) + '</option>'; }).join('') + '</select>';
+  var unvoll = SECS.filter(function(s){ return !s.voll; }).map(function(s){ return secName(s.key); });
+  main.innerHTML = '<div class="mehr">' +
+    '<section class="block"><h2>Einstellungen</h2><div>' +
+      '<div class="opt-zeile"><div><b>Eigennamen und Landeskunde</b><small>Zum Beispiel Denis Zakaria, la Palme d’Or oder la Fête de l’Escalade.</small></div>' + seg('set-extra', S.set.extra ? 1 : 0, [[1,'Mitlernen'],[0,'Weglassen']]) + '</div>' +
+      '<div class="opt-zeile"><div><b>Aussprache</b><small>' + (stimme ? 'Soll das französische Wort nach jeder Antwort vorgelesen werden?' : 'Dieses Gerät hat keine französische Stimme. Die Lautsprecher-Knöpfe und die Lernart „Hören“ sind deshalb ausgeblendet.') + '</small></div>' + (stimme ? seg('set-auto', S.set.auto ? 1 : 0, [[1,'Automatisch'],[0,'Nur auf Knopfdruck']]) : '') + '</div>' +
+    '</div></section>' +
+    '<section class="block"><h2>Eigene Wörter eintragen</h2><p class="hinweis">Fehlt ein Wort oder willst du zusätzliche lernen? Trag sie hier ein. Sie werden nur bei dir gespeichert.</p>' +
+      '<form class="form" id="f-eigen" autocomplete="off"><label>Französisch<input type="text" class="feld" id="own-fr" lang="fr" autocapitalize="off" spellcheck="false" placeholder="le mot"></label>' +
+      '<label>Deutsch<input type="text" class="feld" id="own-de" placeholder="das Wort"></label><label>Gehört zu' + wahl + '</label>' +
+      '<button type="submit" class="btn prim">Wort hinzufügen</button></form>' +
+      (eigene.length ? '<ul class="eigene">' + eigene.map(function(o){ return '<li><span><b lang="fr">' + esc(o.fr) + '</b> · ' + esc(o.de) + '</span><button type="button" class="btn klein" data-act="own-del" data-w="' + esc(o.id) + '">Löschen</button></li>'; }).join('') + '</ul>' : '') +
+    '</section>' +
+    '<section class="block"><h2>Lernstand</h2><p class="hinweis">' + (wolke ? 'Dein Lernstand wird mit deinem Claude-Konto abgeglichen. Handy und PC zeigen denselben Karteikasten, solange du überall angemeldet bist.' : 'Dein Lernstand wird in diesem Browser auf diesem Gerät gespeichert. Mit dem Code unten nimmst du ihn auf ein anderes Gerät mit.') + '</p>' +
+      '<label class="eyebrow" for="code-aus">Code zum Mitnehmen</label><textarea class="feld" id="code-aus" readonly>' + esc(codeAus()) + '</textarea>' +
+      '<div class="aktionen"><button type="button" class="btn klein" data-act="code-kopieren">Code kopieren</button></div>' +
+      '<label class="eyebrow" for="code-ein">Code von einem anderen Gerät einfügen</label><textarea class="feld" id="code-ein" placeholder="Code hier einfügen"></textarea>' +
+      '<div class="aktionen"><button type="button" class="btn klein" data-act="code-laden">Lernstand übernehmen</button></div>' +
+      '<div class="opt-zeile"><div><b>Von vorn anfangen</b><small>Setzt alle Wörter zurück auf „Neu“. Eigene Wörter bleiben.</small></div>' +
+        (resetFrage ? '<div class="aktionen"><button type="button" class="btn klein" data-act="reset-nein">Abbrechen</button><button type="button" class="btn klein schlecht" data-act="reset-ja">Wirklich zurücksetzen</button></div>' : '<div class="aktionen"><button type="button" class="btn klein" data-act="reset">Lernstand zurücksetzen</button></div>') + '</div>' +
+    '</section>' +
+    '<section class="block"><h2>Welche Wörter sind drin?</h2><p class="hinweis">' + wort(CARDS.filter(function(c){ return !c.own; }).length, 'Wort', 'Wörter') + ' aus der Wortliste von À plus! 4 – Nouvelle édition, Gymnasium Bayern, von den Buchseiten abgetippt (S. 126–137 und 146).' +
+      (unvoll.length ? ' Noch unvollständig: ' + esc(unvoll.join(', ')) + '. Dafür fehlen die Seiten 138 bis 145.' : '') + ' Findest du einen Tippfehler, sag deiner Lehrkraft Bescheid.</p></section>' +
+  '</div>';
+}
+
+/* ---------- Bedienung ---------- */
+function setzen(k, v){ S.set[k] = v; speichern(); render(); }
+function starten(){ var a = art(S.art); if (a.id === 'kasten' || a.id === 'schreiben' || a.id === 'hoeren' || a.id === 'test') rundeStart(a.id); else uebenStart(a.id); }
+document.addEventListener('click', function(ev){
+  var b = ev.target.closest('[data-act]'); if (!b || b.disabled) return;
+  var act = b.getAttribute('data-act'), w = b.getAttribute('data-w'), it, c;
+  switch (act){
+    case 'sprich': ev.stopPropagation(); sprich(b.getAttribute('data-t')); if (b.classList.contains('hoer')){ var ip = $('#antwort'); if (ip) ip.focus(); } break;
+    case 'go': go(w); break;
+    case 'alle': S.sel = SECS.map(function(s){ return s.key; }); speichern(); render(); break;
+    case 'keine': S.sel = []; speichern(); render(); break;
+    case 'gruppe':
+      var keys = SECS.filter(function(s){ return s.gruppe === w; }).map(function(s){ return s.key; });
+      var alle = keys.every(function(k){ return S.sel.indexOf(k) >= 0; });
+      S.sel = S.sel.filter(function(k){ return keys.indexOf(k) < 0; }); if (!alle) S.sel = S.sel.concat(keys);
+      speichern(); render(); break;
+    case 'art': S.art = w; speichern(); go('opt'); break;
+    case 'start': starten(); break;
+    case 'faellig': rundeStart('kasten', { nurFaellig:true }); break;
+    case 'nochmal': if (R.art === 'kasten'){ var u = uebersicht(pool()); if (u.faellig || u.neu) rundeStart('kasten'); else { toast('Heute ist nichts mehr fällig.'); go('start'); } } else rundeStart(R.art); break;
+    case 'nochmal-u': uebenStart(U.modus); break;
+    case 'fehler': rundeStart('schreiben', { karten:R.falsch.slice() }); break;
+    case 'weiter': R.i++; render(); window.scrollTo(0,0); break;
+    case 'weissnicht': antwortGeprueft(null); break;
+    case 'doch': it = R.q[R.i]; dochRichtig(it); kopfFortschritt();
+      b.remove(); var st = main.querySelector('.stempel'); if (st){ st.className = 'stempel ok'; st.textContent = 'D’accord !'; }
+      main.querySelectorAll('.erkl').forEach(function(e){ e.remove(); }); var wg = $('#weg'); if (wg) wg.textContent = wegText(it); break;
+    case 'zeigen': antwortZeigen(); try { $('#gewusst').focus({preventScroll:true}); } catch(e){} break;
+    case 'selbst': it = R.q[R.i]; werten(it, w === '1'); R.i++; render(); window.scrollTo(0,0); break;
+    case 'akzent':
+      var inp = $('#antwort'); if (!inp) break;
+      var a = inp.selectionStart == null ? inp.value.length : inp.selectionStart, z = inp.selectionEnd == null ? a : inp.selectionEnd;
+      inp.value = inp.value.slice(0, a) + (w === '’' ? "'" : w) + inp.value.slice(z); inp.focus(); try { inp.setSelectionRange(a + 1, a + 1); } catch(e){} break;
+    case 'flip': U.um = !U.um; b.querySelector('.flip-in').classList.toggle('um', U.um); if (S.set.auto && U.um === (U.dirs[U.i] === 'de-fr')) sprich(sprechtext(U.list[U.i])); break;
+    case 'k-weiter': if (U.i + 1 < U.list.length){ U.i++; U.um = false; } else U.fertig = true; render(); break;
+    case 'k-zurueck': if (U.i){ U.i--; U.um = false; render(); } break;
+    case 'q-wahl': c = U.q.opts[+w]; U.wahl = c; if (c === U.q.c) U.richtig++; render(); try { $('#weiter').focus({preventScroll:true}); } catch(e){} if (S.set.auto) sprich(sprechtext(U.q.c)); break;
+    case 'q-weiter': if (U.i + 1 < U.list.length){ U.i++; quizFrage(); } else U.fertig = true; render(); window.scrollTo(0,0); break;
+    case 'l-zeigen': U.r = 'no'; U.eingabe = ''; render(); try { $('#weiter').focus({preventScroll:true}); } catch(e){} break;
+    case 'l-weiter': U.r = null; if (U.i + 1 < U.list.length) U.i++; else U.fertig = true; render(); window.scrollTo(0,0); break;
+    case 'paar':
+      var s = b.getAttribute('data-s'), k = +w, Pa = U.paare;
+      if (!U.offen || U.offen.s === s){ U.offen = { s:s, k:k }; render(); break; }
+      var f = s === 'fr' ? Pa.fr[k] : Pa.fr[U.offen.k], d = s === 'de' ? Pa.de[k] : Pa.de[U.offen.k];
+      if (f.id === d.id || norm(f.de) === norm(d.de)){
+        Pa.weg[f.id] = 1; Pa.weg[d.id] = 1; U.treffer++; U.offen = null; if (S.set.auto) sprich(sprechtext(f));
+        if (Object.keys(Pa.weg).length >= Pa.n){ U.i += Pa.n; if (U.i < U.list.length) paareRunde(); else U.fertig = true; }
+        render();
+      } else { U.fehler++; U.offen = null; render(); var el = main.querySelector('.paar[data-s="' + s + '"][data-w="' + k + '"]'); if (el) el.classList.add('zitter'); }
+      break;
+    case 'deck': listeDeck = w; render(); break;
+    case 'auf': if (listeDeck !== 'alles') b.classList.toggle('auf'); break;
+    case 'set-neu': setzen('neu', +w); break;
+    case 'set-anzahl': setzen('anzahl', +w); break;
+    case 'set-richtung': setzen('richtung', w); break;
+    case 'set-folge': setzen('folge', w); break;
+    case 'set-modus': setzen('modus', w); break;
+    case 'set-extra': setzen('extra', w === '1'); break;
+    case 'set-auto': setzen('auto', w === '1'); break;
+    case 'own-del': S.own.forEach(function(o){ if (o.id === w){ o.del = true; o.t = Date.now(); } }); delete S.cards[w]; speichern(); karten(); render(); break;
+    case 'code-kopieren':
+      var ta = $('#code-aus');
+      var fertig = function(){ toast('Code kopiert.'); }, selbst = function(){ ta.focus(); ta.select(); toast('Code ist markiert. Jetzt kopieren.'); };
+      try { navigator.clipboard.writeText(ta.value).then(fertig, selbst); } catch(e){ selbst(); } break;
+    case 'code-laden':
+      var roh = ($('#code-ein').value || '').replace(/\s+/g,'');
+      if (!roh){ toast('Füge zuerst den Code ein.'); break; }
+      try { var o = JSON.parse(decodeURIComponent(escape(atob(roh)))); if (!o || typeof o.cards !== 'object') throw 0; mischen(o); speichern(); karten(); render(); toast('Lernstand übernommen.'); }
+      catch(e){ toast('Der Code ist unvollständig. Kopiere ihn noch einmal ganz.'); } break;
+    case 'reset': resetFrage = true; render(); break;
+    case 'reset-nein': resetFrage = false; render(); break;
+    case 'reset-ja': S.cards = {}; S.tage = { last:0, serie:0 }; S.reset = Date.now(); resetFrage = false; speichern(); render(); toast('Lernstand zurückgesetzt.'); break;
+  }
+});
+document.addEventListener('mousedown', function(ev){ if (ev.target.closest('[data-act="akzent"]')) ev.preventDefault(); });
+document.addEventListener('change', function(ev){
+  var t = ev.target;
+  if (t.matches('[data-sec]')){
+    var k = t.getAttribute('data-sec'); S.sel = S.sel.filter(function(x){ return x !== k; }); if (t.checked) S.sel.push(k);
+    speichern(); render();
+  }
+});
+document.addEventListener('input', function(ev){ if (ev.target.id === 'suche'){ listeSuche = ev.target.value; $('#liste').innerHTML = listeHTML(); } });
+document.addEventListener('submit', function(ev){
+  ev.preventDefault();
+  var id = ev.target.id, inp;
+  if (id === 'f-antwort'){ inp = $('#antwort'); if (!inp.value.trim()){ inp.focus(); return; } antwortGeprueft(inp.value.trim()); }
+  else if (id === 'f-luecke'){
+    inp = $('#antwort'); if (!inp.value.trim()){ inp.focus(); return; }
+    var c = U.list[U.i]; U.eingabe = inp.value.trim(); U.r = check(U.eingabe, c.loes); if (U.r === 'art') U.r = 'no';
+    if (U.r === 'ok' || U.r === 'acc') U.richtig++;
+    render(); try { $('#weiter').focus({preventScroll:true}); } catch(e){}
+  }
+  else if (id === 'f-eigen'){
+    var fr = $('#own-fr').value.trim(), de = $('#own-de').value.trim(), sec = $('#own-sec').value;
+    if (!fr || !de){ toast('Bitte Französisch und Deutsch ausfüllen.'); return; }
+    rMehr.sec = sec;
+    S.own.push({ id:sec + ':e-' + slug(fr) + '-' + Date.now().toString(36), sec:sec, fr:fr, de:de, t:Date.now() });
+    if (S.sel.indexOf(sec) < 0) S.sel.push(sec);
+    speichern(); karten(); render(); toast('„' + fr + '“ hinzugefügt.');
+    var f = $('#own-fr'); if (f) f.focus();
+  }
+});
+document.addEventListener('keydown', function(ev){
+  if ((ev.key === 'Enter' || ev.key === ' ') && ev.target.id === 'flip'){ ev.preventDefault(); ev.target.click(); }
+});
+
+/* ---------- Start ---------- */
+laden(); karten(); stimmen(); render(); wolkeStart();
+})();
+</script>
+
+</body>
+</html>
