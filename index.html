@@ -673,7 +673,7 @@ function satzVoll(c, html){
 }
 
 /* ---------- Zustand ---------- */
-function leer(){ return { v:2, cards:{}, sel:[], art:'kasten', set:{neu:10, modus:'tippen', richtung:'de-fr', folge:'buch', anzahl:20, extra:true, auto:false, kiModell:'', kiGeladen:'', kiVorbereiten:true, kiDenken:null, kiVorlesen:false}, own:[], texte:{}, tage:{last:0, serie:0}, tut:0, reset:0, t:0 }; }
+function leer(){ return { v:2, cards:{}, sel:[], art:'kasten', set:{neu:10, modus:'tippen', richtung:'de-fr', folge:'buch', anzahl:20, extra:true, auto:false, kiModell:'', kiGeladen:'', kiVorbereiten:true, kiDenken:null, kiVorlesen:false, kiQuelle:''}, own:[], texte:{}, tage:{last:0, serie:0}, tut:0, reset:0, t:0 }; }
 var S = leer();
 function uebernehmen(o){
   var n = leer(); if (!o || typeof o !== 'object') return n;
@@ -929,7 +929,7 @@ function kopf(){
       '<button type="button" class="nav" data-act="tut-zu" aria-label="Anleitung schließen">' + svg(P.x, 18) + 'Schließen</button>';
   else if (view === 'ki'){
     topEl.innerHTML = '<button type="button" class="nav" data-act="ki-zurueck">' + svg(P.back, 18) + (KI.zurueck ? 'Weiterlernen' : 'Start') + '</button>' +
-      '<div class="titel" style="text-align:right"><b>KI-Lernhelfer<span class="beta">Beta</span></b><span>' + (KI.quelle === 'claude' ? 'mit Claude' : KI.engine ? '„' + kiName(KI.modellAktiv) + '“ auf deinem Gerät' : '') + '</span></div>';
+      '<div class="titel" style="text-align:right"><b>KI-Lernhelfer<span class="beta">Beta</span></b><span>' + (KI.quelle === 'claude' ? 'mit Claude' : KI.online && !KI.engine ? 'Online-KI der Klasse' : KI.engine ? '„' + kiName(KI.modellAktiv) + '“ auf deinem Gerät' : '') + '</span></div>';
   }
   else if (view === 'tq' || view === 'ord'){
     var ta = txArt(view === 'ord' ? 'ord' : TQ.act);
@@ -981,7 +981,7 @@ function rStart(){
     '<div class="cover-knopf"><button type="button" class="btn cta" id="los" data-act="go" data-w="wahl">Lernen starten</button>' +
       (u.faellig ? '<button type="button" class="btn zweit" data-act="faellig">Nur die ' + wort(u.faellig, 'fällige Wiederholung', 'fälligen Wiederholungen') + '</button>' : '') +
       (texte().length ? '<button type="button" class="btn zweit" data-act="go" data-w="texte">' + svg(P.buch, 20) + 'Texte aus dem Buch verstehen</button>' : '') +
-      '<button type="button" class="btn zweit" data-act="ki-oeffnen">' + svg(P.ki, 20) + 'KI-Lernhelfer<span class="beta">Beta</span><span class="beta" id="ki-knopf-status"' + (KI.engine || KI.laedt ? '' : ' hidden') + '>' + (KI.engine ? 'bereit' : Math.round(KI.fortschritt * 100) + ' %') + '</span></button></div>' +
+      '<button type="button" class="btn zweit" data-act="ki-oeffnen">' + svg(P.ki, 20) + 'KI-Lernhelfer<span class="beta">Beta</span><span class="beta" id="ki-knopf-status"' + (KI.engine || KI.online || KI.laedt ? '' : ' hidden') + '>' + (KI.engine || KI.online ? 'bereit' : KI.laedt ? Math.round(KI.fortschritt * 100) + ' %' : '') + '</span></button></div>' +
     (S.tut ? '' : '<button type="button" class="anleitung-karte" data-act="tut" data-w="0"><span class="bild">' + svg(P.hilfe, 26) + '</span><span><b>Neu hier?</b><span>Schau dir die Anleitung an. Sie dauert nur eine Minute.</span></span></button>') +
     mot +
     '<div class="zahlen"><div class="zahl"><b>' + u.fach[6] + '</b><span>Wörter sitzen</span></div><div class="zahl"><b>' + u.faellig + '</b><span>heute fällig</span></div><div class="zahl"><b>' + serie + '</b><span>' + (serie === 1 ? 'Tag' : 'Tage') + ' in Folge</span></div></div>' +
@@ -1571,6 +1571,7 @@ function txKlick(act, w, b){
 
 /* ----- KI-Lernhelfer ----- */
 var KIURL = 'https://cdn.jsdelivr.net/npm/@mlc-ai/web-llm@0.2.86/+esm';
+var KISERVER = '';
 var KIMODELLE = [
   { id:'Qwen3-0.6B-q4f16_1-MLC', f32:'Qwen3-0.6B-q4f32_1-MLC', name:'Klein', info:'Startet am schnellsten. Einmaliger Download von etwa 0,4 GB. Einfache Antworten.' },
   { id:'Qwen3-1.7B-q4f16_1-MLC', f32:'Qwen3-1.7B-q4f32_1-MLC', name:'Mittel', info:'Für Handys und Laptops. Einmaliger Download von etwa 1 GB.' },
@@ -1584,8 +1585,8 @@ function kiName(id){ for (var i=0;i<KIMODELLE.length;i++) if (KIMODELLE[i].id ==
 function kiDenken(){ if (KI.quelle !== 'lokal' || KI.modus !== 'tutor') return false; return S.set.kiDenken == null ? kiStufe() >= 2 : !!S.set.kiDenken; }
 var KI = { quelle:null, engine:null, sample:null, lib:null, laedt:false, fortschritt:0, status:'', fehler:'', modus:'tutor', verlauf:{ tutor:[], emma:[] }, antwortet:false, abbruch:null, zurueck:null, vorlage:'', geprueft:false };
 function imClaude(){ return !!(window.claude && typeof window.claude.use === 'function'); }
-function kiMoeglich(){ return imClaude() || !!navigator.gpu; }
-function kiBereit(){ return !!(KI.engine || KI.sample); }
+function kiMoeglich(){ return imClaude() || !!KISERVER || !!navigator.gpu; }
+function kiBereit(){ return !!(KI.engine || KI.sample || KI.online); }
 function kiModellId(){ var id = S.set.kiModell; if (!KIMODELLE.some(function(m){ return m.id === id; })){ var handy = window.matchMedia && window.matchMedia('(pointer:coarse)').matches; id = KIMODELLE[handy ? 1 : 2].id; } return id; }
 function kiWorte(n){
   var basis = pool().filter(function(c){ return !c.extra; }); if (!basis.length) basis = CARDS.filter(function(c){ return !c.extra; });
@@ -1698,7 +1699,8 @@ function blaseHTML(m, i){
 }
 function rKi(){
   if (!KI.geprueft){ kiPruefen(); }
-  if (!imClaude() && !kiBereit() && !KI.laedt && !KI.fehler && S.set.kiGeladen && !KI.autoStart){ KI.autoStart = true; setTimeout(function(){ kiLaden(); }, 0); }
+  if (kiOnlineAn() && !kiBereit() && !KI.verbindet && !KI.onlineFehler){ setTimeout(kiOnlineVerbinden, 0); }
+  else if (!kiOnlineAn() && !imClaude() && !kiBereit() && !KI.laedt && !KI.fehler && S.set.kiGeladen && !KI.autoStart){ KI.autoStart = true; setTimeout(function(){ kiLaden(); }, 0); }
   if (!kiBereit()){ main.innerHTML = '<div class="ki">' + kiStartHTML() + '</div>'; return; }
   var v = KI.verlauf[KI.modus];
   if (KI.modus === 'emma' && !v.length) v.push({ role:'assistant', content:'Salut ! Moi, c\'est Emma, j\'habite à Genève. Et toi, comment tu t\'appelles ?' });
@@ -1712,7 +1714,7 @@ function rKi(){
     '<div class="fuss"><form class="ki-eingabe" id="f-ki" autocomplete="off">' +
       (kiKannSprechen() && !KI.antwortet ? '<button type="button" class="btn mik' + (MIK.an ? ' an' : '') + '" id="ki-mik" data-act="ki-mik" aria-pressed="' + MIK.an + '" aria-label="' + (MIK.an ? 'Aufnahme beenden und senden' : 'Sprachnachricht aufnehmen') + '">' + svg(P.mik, 22) + '</button>' : '') + '<textarea id="ki-text" rows="1" placeholder="' + (KI.modus === 'emma' ? 'Écris en français …' : 'Deine Frage …') + '" aria-label="Nachricht an die KI"' + (KI.modus === 'emma' ? ' lang="fr"' : '') + '>' + esc(KI.vorlage) + '</textarea>' +
       (KI.antwortet ? '<button type="button" class="btn" data-act="ki-stopp" aria-label="Antwort anhalten">' + svg(P.stopp, 20) + '</button>' : '<button type="submit" class="btn prim" aria-label="Senden">' + svg(P.senden, 20) + '</button>') + '</form>' +
-      '<p class="ki-hinweis">Die KI kann sich irren. Im Zweifel gilt dein Buch.' + (KI.quelle === 'lokal' ? ' Getippte Nachrichten bleiben auf deinem Gerät.' + (SR ? ' Sprachnachrichten wandelt dein Browser in Text um, bei Chrome über Google, bei Safari über Apple.' : '') : '') + '</p></div></div>';
+      '<p class="ki-hinweis">Die KI kann sich irren. Im Zweifel gilt dein Buch.' + (KI.online && !KI.engine ? ' Läuft auf dem gemeinsamen KI-Server der Lernseite, Gespräche werden dort nicht gespeichert. Antworten brauchen ein paar Sekunden.' : '') + (KI.quelle === 'lokal' ? ' Getippte Nachrichten bleiben auf deinem Gerät.' + (SR ? ' Sprachnachrichten wandelt dein Browser in Text um, bei Chrome über Google, bei Safari über Apple.' : '') : '') + '</p></div></div>';
   KI.vorlage = '';
   kiRunter();
 }
@@ -1720,6 +1722,13 @@ function kiStartHTML(){
   var id = kiModellId(), h = '<div class="ki-start"><div class="ki-hero"><span class="bild">' + svg(P.ki, 28) + '</span><div><h1 style="font-size:1.6rem">Dein KI-Lernhelfer</h1><p class="hinweis">Fragen stellen, Fehler verstehen, mit Emma auf Französisch chatten.</p></div></div>';
   if (imClaude()){
     return h + (KI.fehler ? '<div class="ki-warn"><b>Geht gerade nicht.</b><span>' + esc(KI.fehler) + '</span></div>' : '<p class="ki-status">Verbinde mit Claude …</p>') + '</div>';
+  }
+  if (kiOnlineAn() || (KISERVER && !imClaude() && KI.onlineFehler)){
+    var o = h;
+    if (KI.onlineFehler) o += '<div class="ki-warn"><b>Die Online-KI ist gerade nicht erreichbar.</b><span>' + esc(KI.onlineFehler) + '</span></div><div class="aktionen"><button type="button" class="btn prim" data-act="ki-online">Noch einmal versuchen</button></div>';
+    else o += '<div class="block"><div class="eyebrow">Online-KI</div><div class="ki-balken"><i style="width:100%;opacity:.35"></i></div><p class="ki-status" id="ki-online-status">' + esc(KI.onlineStatus || 'Verbinde mit dem KI-Server …') + '</p><p class="hinweis">Alle aus der Klasse nutzen dieselbe KI auf einem gemeinsamen Server. Du musst nichts herunterladen.</p></div>';
+    if (navigator.gpu) o += '<details class="block"><summary class="hinweis">Lieber die KI auf deinem Gerät? Sie funktioniert auch ohne Internet, braucht aber einen großen Download.</summary><div class="aktionen" style="margin-top:10px"><button type="button" class="btn" data-act="ki-quelle-lokal">KI auf dem Gerät nutzen</button></div></details>';
+    return o + '</div>';
   }
   if (!navigator.gpu || KI.fehler === 'gpu'){
     return h + '<div class="ki-warn"><b>Dein Browser kann die KI leider nicht starten.</b><span>Sie braucht WebGPU. Das haben aktuelles Chrome oder Edge am PC und an Android-Handys sowie Safari auf iPhone und iPad mit aktuellem iOS. Die restliche Lernseite funktioniert ganz normal.</span></div></div>';
@@ -1732,6 +1741,7 @@ function kiStartHTML(){
   if (KI.laedt){
     return h + '<div class="block"><div class="eyebrow">KI wird geladen</div><div class="ki-balken"><i id="ki-balken" style="width:' + Math.round(KI.fortschritt * 100) + '%"></i></div><p class="ki-status" id="ki-status">' + esc(KI.status || 'Startet …') + '</p><p class="hinweis">' + (KI.phase === 'gpu' ? 'Fast geschafft. Dieser Schritt passiert bei jedem Start und dauert am Handy etwas länger.' : 'Du musst nicht warten: Geh einfach zurück und lern weiter, die KI lädt im Hintergrund. Am KI-Knopf auf der Startseite siehst du, wie weit sie ist.') + '</p></div></div>';
   }
+  if (KISERVER) h += '<div class="aktionen"><button type="button" class="btn" data-act="ki-online">Lieber die Online-KI nutzen (ohne Download)</button></div>';
   h += '<div class="block"><div class="eyebrow">Welche KI?</div><div class="ki-modelle">' + KIMODELLE.map(function(m){
     return '<button type="button" class="ki-modell" data-act="ki-modell" data-w="' + m.id + '" aria-pressed="' + (m.id === id) + '"><b>' + m.name + '</b><span>' + m.info + '</span></button>'; }).join('') + '</div></div>';
   if (KI.fehler) h += '<div class="ki-warn"><b>Das hat nicht geklappt.</b><span>' + esc(KI.fehler) + '</span>' + (KI.fehlerDetail ? '<details><summary>Technische Details</summary><code style="font-size:.78rem;overflow-wrap:anywhere">' + esc(KI.fehlerDetail) + '</code></details>' : '') + '</div>';
@@ -1749,8 +1759,8 @@ function kiPruefen(){
 }
 function kiKnopfStatus(){
   var el = document.getElementById('ki-knopf-status'); if (!el) return;
-  el.textContent = KI.engine ? 'bereit' : KI.laedt ? Math.round(KI.fortschritt * 100) + ' %' : '';
-  el.hidden = !(KI.engine || KI.laedt);
+  el.textContent = KI.engine || KI.online ? 'bereit' : KI.laedt ? Math.round(KI.fortschritt * 100) + ' %' : '';
+  el.hidden = !(KI.engine || KI.online || KI.laedt);
 }
 function kiFortschritt(r){
   var p = r.progress || 0, t = String(r.text || ''), jetzt = Date.now();
@@ -1837,7 +1847,7 @@ function kiLaden(leise){
   });
 }
 function kiVorbereiten(){
-  if (imClaude() || !navigator.gpu || !S.set.kiGeladen || S.set.kiVorbereiten === false || KI.laedt || KI.engine) return;
+  if (kiOnlineAn() || imClaude() || !navigator.gpu || !S.set.kiGeladen || S.set.kiVorbereiten === false || KI.laedt || KI.engine) return;
   import(KIURL).then(function(l){ return l.hasModelInCache(S.set.kiGeladen); }).then(function(da){
     if (!da) return;
     var m = KIMODELLE.filter(function(x){ return x.id === S.set.kiGeladen || x.f32 === S.set.kiGeladen; })[0];
@@ -1861,6 +1871,7 @@ function kiAntwort(nachrichten, live, modus){
   if (wissen) sys += '\n\n' + wissen;
   var zuletzt = letzte[letzte.length - 1];
   if (zuletzt && zuletzt.role === 'user') zuletzt.content += emma ? '\n\n(Réponds en français simple. Corrige ma phrase entre crochets s\'il y a une faute.)' : '\n\n(Antworte auf Deutsch.)';
+  if (KI.online && !KI.engine) return kiOnlineAntwort([{ role:'system', content:sys }].concat(beispiele, letzte), live, emma);
   if (KI.engine){
     var msgs = [{ role:'system', content:sys }].concat(beispiele, letzte);
     return KI.engine.chat.completions.create({ messages:msgs, stream:true, temperature:emma ? .7 : (denken ? .6 : .3), top_p:denken ? .95 : .9, frequency_penalty:.3, presence_penalty:.1, max_tokens:denken ? 1600 : 450, extra_body:{ enable_thinking:denken } }).then(function(stream){
@@ -1881,7 +1892,7 @@ function kiAntwort(nachrichten, live, modus){
 }
 function kiSenden(text, gesprochen, anzeige){
   text = String(text || '').trim(); if (!text || KI.antwortet) return;
-  if (!kiBereit()){ KI.wartet = text; if (!imClaude()) kiLaden(); return; }
+  if (!kiBereit()){ KI.wartet = text; if (kiOnlineAn()) kiOnlineVerbinden(); else if (!imClaude()) kiLaden(); return; }
   var v = KI.verlauf[KI.modus], modus = KI.modus;
   v.push({ role:'user', content:text, stimme:!!gesprochen, anzeige:anzeige || '' }); KI.antwortet = true; render();
   kiAntwort(v.filter(function(m){ return m.role === 'user' || m.role === 'assistant'; }).map(function(m){ return { role:m.role, content:m.content }; }), kiLive).then(function(antwort){
@@ -1889,7 +1900,7 @@ function kiSenden(text, gesprochen, anzeige){
     KI.verlauf[modus].push({ role:'assistant', content:fertig });
     if (S.set.kiVorlesen) kiVorlesen(fertig, modus);
   }, function(e){
-    if (!(e && (e.name === 'AbortError' || e.code === 'aborted'))) KI.verlauf[modus].push({ role:'assistant', content:'Da ist etwas schiefgelaufen. Versuch es bitte noch einmal.' });
+    if (!(e && (e.name === 'AbortError' || e.code === 'aborted'))) KI.verlauf[modus].push({ role:'assistant', content:e && e.name === 'OnlineFehler' ? e.message : 'Da ist etwas schiefgelaufen. Versuch es bitte noch einmal.' });
   }).then(function(){ KI.antwortet = false; KI.abbruch = null; if (view === 'ki') render(); try { $('#ki-text').focus({ preventScroll:true }); } catch(e){} });
 }
 function kiUebersetzen(i){
@@ -1947,11 +1958,70 @@ function mikStopp(){
   if (imClaude() && MIK.diktat){ MIK.diktat.stop().catch(function(){}); return; }
   if (MIK.rec) try { MIK.rec.stop(); } catch(e){ mikFertig(); }
 }
+/* ----- Online-KI: ein gemeinsamer Server (Hugging Face Space mit llama.cpp) für alle ----- */
+function kiOnlineAn(){ return !!KISERVER && !imClaude() && S.set.kiQuelle !== 'lokal'; }
+function kiOnlineVerbinden(){
+  if (!KISERVER || KI.verbindet || KI.online) return;
+  KI.verbindet = true; KI.onlineFehler = ''; KI.quelle = 'online'; KI.onlineStatus = 'Verbinde mit dem KI-Server …'; KI.onlineStart = Date.now();
+  if (view === 'ki') render();
+  function zeig(t){ KI.onlineStatus = t; var el = document.getElementById('ki-online-status'); if (el) el.textContent = t; }
+  function versuch(){
+    var ab = new AbortController(), tm = setTimeout(function(){ ab.abort(); }, 8000);
+    fetch(KISERVER.replace(/\/$/, '') + '/health', { signal:ab.signal, cache:'no-store' }).then(function(r){
+      clearTimeout(tm);
+      if (r.ok) return r.json().then(function(j){ return j && j.status === 'ok' ? 'ok' : 'laedt'; }, function(){ return 'wach'; });
+      return r.status === 503 ? 'laedt' : 'wach';
+    }, function(){ clearTimeout(tm); return 'wach'; }).then(function(z){
+      if (z === 'ok'){
+        KI.verbindet = false; KI.online = true; KI.quelle = 'online';
+        if (view === 'ki'){ render(); if (KI.wartet){ var t = KI.wartet; KI.wartet = null; kiSenden(t); } }
+        kiKnopfStatus(); return;
+      }
+      var sek = Math.round((Date.now() - KI.onlineStart) / 1000);
+      if (sek > 240){
+        KI.verbindet = false; KI.onlineFehler = 'Der KI-Server antwortet gerade nicht. Versuch es später noch einmal oder nimm die KI auf deinem Gerät.';
+        if (view === 'ki') render(); return;
+      }
+      zeig(z === 'laedt' ? 'Der Server lädt die KI … (' + sek + ' Sek.)' : 'Der Server wacht auf. Das dauert 1 bis 2 Minuten … (' + sek + ' Sek.)');
+      setTimeout(versuch, 4000);
+    });
+  }
+  versuch();
+}
+function kiOnlineAntwort(msgs, live, emma){
+  var ab = new AbortController(); KI.abbruch = ab;
+  return fetch(KISERVER.replace(/\/$/, '') + '/v1/chat/completions', {
+    method:'POST', headers:{ 'Content-Type':'application/json' }, signal:ab.signal,
+    body:JSON.stringify({ messages:msgs, stream:true, temperature:emma ? .7 : .3, top_p:.9, frequency_penalty:.3, presence_penalty:.1, max_tokens:450, chat_template_kwargs:{ enable_thinking:false } })
+  }).then(function(r){
+    if (!r.ok){ var e = new Error('HTTP ' + r.status); e.status = r.status; throw e; }
+    var leser = r.body.getReader(), dec = new TextDecoder(), puffer = '', text = '';
+    function weiter(){
+      return leser.read().then(function(x){
+        if (x.done) return kiSauber(text);
+        puffer += dec.decode(x.value, { stream:true });
+        var zeilen = puffer.split('\n'); puffer = zeilen.pop();
+        zeilen.forEach(function(z){
+          z = z.trim(); if (z.indexOf('data:') !== 0) return;
+          var d = z.slice(5).trim(); if (!d || d === '[DONE]') return;
+          try { var j = JSON.parse(d), c = j.choices && j.choices[0] && j.choices[0].delta && j.choices[0].delta.content; if (c){ text += c; if (live) live(kiSauber(text)); } } catch(e){}
+        });
+        return weiter();
+      });
+    }
+    return weiter();
+  }).catch(function(e){
+    if (e && e.name === 'AbortError') throw e;
+    KI.online = false;
+    throw { name:'OnlineFehler', message:'Der KI-Server ist gerade nicht erreichbar. Tippe gleich noch einmal auf Senden, dann verbindet sich die Seite neu.' };
+  });
+}
+
 function kiOeffnen(vorlage, zurueck){
   KI.zurueck = zurueck || null;
   if (vorlage){ KI.modus = 'tutor'; }
   go('ki');
-  if (vorlage){ if (kiBereit()) kiSenden(vorlage); else { KI.wartet = vorlage; if (!imClaude()) render(); } }
+  if (vorlage){ if (kiBereit()) kiSenden(vorlage); else { KI.wartet = vorlage; if (kiOnlineAn()) kiOnlineVerbinden(); else if (!imClaude()) render(); } }
 }
 function kiKlick(act, w, b){
   switch (act){
@@ -1969,12 +2039,15 @@ function kiKlick(act, w, b){
       return true;
     case 'ki-modell': S.set.kiModell = w; speichern(); render(); return true;
     case 'ki-laden': KI.autoStart = true; kiLaden(); return true;
+    case 'ki-online': KI.onlineFehler = ''; S.set.kiQuelle = ''; speichern(); KI.quelle = 'online'; kiOnlineVerbinden(); render(); return true;
+    case 'ki-quelle-lokal': S.set.kiQuelle = 'lokal'; speichern(); KI.verbindet = false; KI.quelle = null; render(); return true;
     case 'ki-modus': if (KI.antwortet || MIK.an) return true; KI.modus = w; render(); return true;
     case 'ki-chip': kiSenden(b.getAttribute('data-t'), false, b.getAttribute('data-a')); return true;
     case 'ki-mik': if (MIK.an) mikStopp(); else mikStart(); return true;
     case 'ki-denken': S.set.kiDenken = !kiDenken(); speichern(); render(); return true;
     case 'ki-vorlesen': S.set.kiVorlesen = !S.set.kiVorlesen; speichern(); if (!S.set.kiVorlesen) try { window.speechSynthesis.cancel(); } catch(e){} render(); return true;
-    case 'ki-stopp': if (KI.engine) try { KI.engine.interruptGenerate(); } catch(e){} if (KI.abbruch) KI.abbruch.abort(); return true;
+    case 'ki-stopp': if (KI.abbruch && KI.online) try { KI.abbruch.abort(); } catch(e){}
+      if (KI.engine) try { KI.engine.interruptGenerate(); } catch(e){} if (KI.abbruch) KI.abbruch.abort(); return true;
     case 'ki-uebersetzen': kiUebersetzen(w); return true;
     case 'ki-loeschen':
       b.disabled = true;
