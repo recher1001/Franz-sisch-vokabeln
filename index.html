@@ -233,6 +233,51 @@ main.blatt{animation:blatt .26s ease-out}
 .ord small{display:block;font-weight:650;color:var(--bad);font-size:.82rem}
 .ord:disabled{cursor:default;color:var(--ink)}
 
+/* ---------- KI-Lernhelfer ---------- */
+.ki{display:flex;flex-direction:column;gap:14px;min-height:calc(100vh - 140px)}
+.ki-start{display:flex;flex-direction:column;gap:14px}
+.ki-hero{display:flex;gap:14px;align-items:center}
+.ki-hero .bild{width:56px;height:56px;border-radius:18px;display:flex;align-items:center;justify-content:center;flex:none;background:var(--accent-soft);color:var(--accent);box-shadow:inset 0 0 0 1px rgba(242,199,92,.3)}
+.ki-punkte{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+.ki-punkte li{display:flex;gap:10px;align-items:flex-start;font-size:.95rem}
+.ki-punkte li svg{flex:none;color:var(--accent);margin-top:2px}
+.ki-modelle{display:grid;gap:10px}
+.ki-modell{display:flex;flex-direction:column;gap:2px;text-align:left;padding:14px 16px;border-radius:16px;border:1px solid var(--rule);background:var(--paper);color:var(--ink)}
+.ki-modell b{font-family:var(--f-display);font-size:1.02rem}
+.ki-modell span{font-size:.84rem;color:var(--ink2)}
+.ki-modell[aria-pressed="true"]{box-shadow:inset 0 0 0 1.5px var(--accent);background:linear-gradient(180deg,rgba(242,199,92,.10),rgba(242,199,92,.04))}
+.ki-balken{height:8px;border-radius:6px;background:rgba(255,255,255,.1);overflow:hidden}
+.ki-balken i{display:block;height:100%;background:var(--gold);border-radius:6px;transition:width .3s;box-shadow:0 0 12px rgba(242,199,92,.6)}
+.ki-status{font-size:.82rem;color:var(--ink2);font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.ki-warn{padding:14px 16px;border-radius:16px;background:var(--warn-soft);color:var(--ink);font-size:.92rem;display:flex;flex-direction:column;gap:6px}
+.ki-warn b{color:var(--warn)}
+.ki-chips{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;margin-inline:-2px;scrollbar-width:none}
+.ki-chips::-webkit-scrollbar{display:none}
+.ki-chip{flex:none;min-height:40px;padding:0 14px;border-radius:999px;border:1px solid var(--rule);background:var(--paper);color:var(--ink);font-size:.86rem;font-weight:600;white-space:nowrap}
+.ki-chip:hover{border-color:rgba(242,199,92,.5)}
+.ki-verlauf{display:flex;flex-direction:column;gap:12px;flex:1}
+.blase{max-width:88%;padding:12px 15px;border-radius:20px;font-size:.98rem;line-height:1.5;overflow-wrap:anywhere;white-space:normal}
+.blase.ich{align-self:flex-end;background:var(--gold);color:var(--on-accent);border-bottom-right-radius:6px;font-weight:550}
+.blase.ki-b{align-self:flex-start;background:var(--paper);border:1px solid var(--rule);border-bottom-left-radius:6px;box-shadow:var(--edge)}
+.blase.ki-b b{color:var(--accent)}
+.blase .fr{font-family:var(--f-serif);font-style:italic}
+.blase-wer{font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--ink2);margin-bottom:4px;font-weight:700}
+.korrektur{display:block;margin:-2px 0 8px;padding:8px 10px;border-radius:12px;background:var(--good-soft);color:var(--good);font-size:.88rem}
+.blase-aktion{display:flex;gap:6px;margin-top:8px}
+.blase-aktion button{min-height:34px;padding:0 12px;border-radius:999px;border:1px solid var(--rule);background:rgba(0,0,0,.2);color:var(--ink2);font-size:.8rem;font-weight:600}
+.uebersetzung{display:block;margin-top:8px;padding-top:8px;border-top:1px dashed var(--rule);color:var(--ink2);font-size:.9rem}
+.tippt{display:inline-flex;gap:4px;padding:4px 0}
+.tippt i{width:7px;height:7px;border-radius:50%;background:var(--ink2);animation:tippt 1s infinite}
+.tippt i:nth-child(2){animation-delay:.15s} .tippt i:nth-child(3){animation-delay:.3s}
+@keyframes tippt{0%,60%,100%{opacity:.25;transform:translateY(0)}30%{opacity:1;transform:translateY(-3px)}}
+.ki-eingabe{display:flex;gap:8px;align-items:flex-end}
+.ki-eingabe textarea{flex:1;min-width:0;min-height:52px;max-height:140px;resize:none;padding:14px 16px;border-radius:18px;border:1px solid var(--rule);background:var(--paper);color:var(--ink);font-size:1rem;line-height:1.4}
+.ki-eingabe textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.ki-eingabe .btn{min-height:52px;width:52px;padding:0;border-radius:50%;flex:none}
+.ki-hinweis{font-size:.76rem;color:var(--ink2);text-align:center}
+.beta{display:inline-flex;align-items:center;padding:1px 7px;border-radius:999px;background:var(--accent-soft);color:var(--accent);font-size:.66rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;margin-left:6px;vertical-align:middle}
+.btn.ki-frag{border-color:rgba(242,199,92,.35);color:var(--accent)}
+
 /* ---------- Anleitung ---------- */
 .tut{display:flex;flex-direction:column;gap:18px}
 .tut-punkte{display:flex;gap:6px;justify-content:center}
@@ -775,6 +820,10 @@ P.hoeren = P.spk;
 P.buch = '<path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 21V5"/><path d="M8 7h7"/>';
 P.hilfe = '<circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6v.6"/><path d="M12 17.2v.1"/>';
 P.weiter = '<path d="m9 6 6 6-6 6"/>';
+P.ki = '<path d="M12 3l1.8 4.6L18.5 9l-4.7 1.6L12 15l-1.8-4.4L5.5 9l4.7-1.4z"/><path d="M19 15l.8 2 2 .8-2 .7-.8 2.1-.8-2.1-2-.7 2-.8z"/><path d="M5 16l.6 1.4 1.4.6-1.4.5L5 20l-.6-1.5L3 18l1.4-.6z"/>';
+P.senden = '<path d="M5 12h13"/><path d="m12 5 7 7-7 7"/>';
+P.stopp = '<rect x="7" y="7" width="10" height="10" rx="2"/>';
+P.haken = '<path d="m5 12.5 4.5 4.5L19 7.5"/>';
 P.tx_mix = '<path d="M3 7h4l10 10h4"/><path d="M3 17h4l3-3"/><path d="M14 10l3-3h4"/><path d="m18 4 3 3-3 3"/><path d="m18 14 3 3-3 3"/>';
 P.tx_mc = P.quiz; P.tx_luecke = P.luecke; P.tx_tw = P.karten;
 P.tx_vf = '<path d="m3 12 3.5 3.5L13 9"/><path d="m15 14 6 6M21 14l-6 6"/>';
@@ -859,14 +908,18 @@ function render(){
   var f = document.activeElement && document.activeElement.id;
   document.body.classList.toggle('deckel', view === 'start');
   kopf();
-  ({ start:rStart, wahl:rWahl, art:rArt, opt:rOpt, runde:rRunde, ende:rEnde, ueben:rUeben, liste:rListe, mehr:rMehr, tut:rTut, texte:rTexte, text:rText, tq:rTq, ord:rOrd, tw:rTw })[view]();
+  ({ start:rStart, wahl:rWahl, art:rArt, opt:rOpt, runde:rRunde, ende:rEnde, ueben:rUeben, liste:rListe, mehr:rMehr, tut:rTut, texte:rTexte, text:rText, tq:rTq, ord:rOrd, tw:rTw, ki:rKi })[view]();
   if (f){ var e = document.getElementById(f); if (e && e !== document.activeElement){ try { e.focus({preventScroll:true}); } catch(_){} } }
 }
 function kopf(){
-  var zurueck = { wahl:'start', art:'wahl', opt:'art', liste:'start', mehr:'start', ende:'start', texte:'start', text:'texte', tw:'text' }[view];
+  var zurueck = { ki:'start', wahl:'start', art:'wahl', opt:'art', liste:'start', mehr:'start', ende:'start', texte:'start', text:'texte', tw:'text' }[view];
   if (view === 'start') topEl.innerHTML = '';
   else if (view === 'tut') topEl.innerHTML = '<div class="titel"><b>Anleitung</b><span>Schritt ' + (tutI + 1) + ' von ' + TUT.length + '</span></div>' +
       '<button type="button" class="nav" data-act="tut-zu" aria-label="Anleitung schließen">' + svg(P.x, 18) + 'Schließen</button>';
+  else if (view === 'ki'){
+    topEl.innerHTML = '<button type="button" class="nav" data-act="ki-zurueck">' + svg(P.back, 18) + (KI.zurueck ? 'Weiterlernen' : 'Start') + '</button>' +
+      '<div class="titel" style="text-align:right"><b>KI-Lernhelfer<span class="beta">Beta</span></b><span>' + (KI.quelle === 'claude' ? 'mit Claude' : KI.engine ? 'läuft auf deinem Gerät' : '') + '</span></div>';
+  }
   else if (view === 'tq' || view === 'ord'){
     var ta = txArt(view === 'ord' ? 'ord' : TQ.act);
     topEl.innerHTML = '<div class="titel"><b>' + ta.name + '</b><span lang="fr">' + esc(TX.titel) + '</span></div>' +
@@ -916,7 +969,8 @@ function rStart(){
       '<div class="gruss"><p class="hand" lang="fr">' + salut + '</p><h1>' + satz + '</h1></div></div>' +
     '<div class="cover-knopf"><button type="button" class="btn cta" id="los" data-act="go" data-w="wahl">Lernen starten</button>' +
       (u.faellig ? '<button type="button" class="btn zweit" data-act="faellig">Nur die ' + wort(u.faellig, 'fällige Wiederholung', 'fälligen Wiederholungen') + '</button>' : '') +
-      (texte().length ? '<button type="button" class="btn zweit" data-act="go" data-w="texte">' + svg(P.buch, 20) + 'Texte aus dem Buch verstehen</button>' : '') + '</div>' +
+      (texte().length ? '<button type="button" class="btn zweit" data-act="go" data-w="texte">' + svg(P.buch, 20) + 'Texte aus dem Buch verstehen</button>' : '') +
+      '<button type="button" class="btn zweit" data-act="ki-oeffnen">' + svg(P.ki, 20) + 'KI-Lernhelfer<span class="beta">Beta</span></button></div>' +
     (S.tut ? '' : '<button type="button" class="anleitung-karte" data-act="tut" data-w="0"><span class="bild">' + svg(P.hilfe, 26) + '</span><span><b>Neu hier?</b><span>Schau dir die Anleitung an. Sie dauert nur eine Minute.</span></span></button>') +
     mot +
     '<div class="zahlen"><div class="zahl"><b>' + u.fach[6] + '</b><span>Wörter sitzen</span></div><div class="zahl"><b>' + u.faellig + '</b><span>heute fällig</span></div><div class="zahl"><b>' + serie + '</b><span>' + (serie === 1 ? 'Tag' : 'Tage') + ' in Folge</span></div></div>' +
@@ -955,8 +1009,8 @@ var TUT = [
   { hand:'Le secret', titel:'So funktioniert der Karteikasten',
     text:'<p>Jedes Wort wandert durch fünf Fächer. Weißt du es, rutscht es ein Fach weiter und kommt erst später wieder: nach 1, 3, 9, 29 und 90 Tagen. Weißt du es nicht, fängt es wieder in Fach 1 an.</p><p>Darum gilt: <b>lieber jeden Tag zehn Minuten als einmal pro Woche eine Stunde.</b></p>',
     demo:function(){ return kastenHTML({ fach:[40,8,6,4,3,1,2], due:[0,3,1,0,0,0,0] }); } },
-  { hand:'Astuces', titel:'Noch drei Tipps',
-    text:'<ul><li><b>Anhören:</b> Mit dem Lautsprecher-Knopf liest das Handy das Wort auf Französisch vor, falls es eine französische Stimme hat.</li><li><b>Wie eine App:</b> Öffne die Seite im Browser und wähle im Menü „Zum Home-Bildschirm“.</li><li><b>Handy und PC:</b> Dein Lernstand liegt auf deinem Gerät. Unter „Mehr“ kannst du ihn per Code auf ein anderes Gerät mitnehmen.</li></ul>',
+  { hand:'Astuces', titel:'Noch ein paar Tipps',
+    text:'<ul><li><b>KI-Lernhelfer:</b> Er beantwortet Fragen, erklärt Fehler, erfindet Eselsbrücken und chattet mit dir auf Französisch. Er läuft direkt auf deinem Gerät und kann sich auch mal irren.</li><li><b>Anhören:</b> Mit dem Lautsprecher-Knopf liest das Handy das Wort auf Französisch vor, falls es eine französische Stimme hat.</li><li><b>Wie eine App:</b> Öffne die Seite im Browser und wähle im Menü „Zum Home-Bildschirm“.</li><li><b>Handy und PC:</b> Dein Lernstand liegt auf deinem Gerät. Unter „Mehr“ kannst du ihn per Code auf ein anderes Gerät mitnehmen.</li></ul>',
     demo:function(){ return '<div class="k-zeile"><p class="k-wort" lang="fr">le sourire</p><span class="spk" style="display:inline-flex">' + svg(P.spk) + '</span></div><p class="k-neben">das Lächeln</p>'; } }
 ];
 function rTut(){
@@ -1158,7 +1212,11 @@ function antwortGeprueft(eingabe){
   h += (it.dir === 'fr-de' ? '<p class="' + wortKlasse(c.de) + '">' + esc(c.de) + '</p>' + (c.satz && c.loes ? '<p class="k-satz" lang="fr">' + satzVoll(c, true) + '</p>' : '') : loesungHTML(c, it.dir === 'hoer')) +
     (!ok && eingabe !== null && it.dir === 'fr-de' ? '<p class="erkl leise">Hast du es sinngemäß richtig? Dann zählt es.</p>' : '') +
     (wegText(it) ? '<p class="weg" id="weg">' + esc(wegText(it)) + '</p>' : '') +
-    '<div class="aktionen">' + (!ok && eingabe !== null ? '<button type="button" class="btn" data-act="doch">War doch richtig</button>' : '') + '<button type="button" class="btn prim" id="weiter" data-act="weiter">Weiter</button></div></div>';
+    '<div class="aktionen">' + (!ok && eingabe !== null ? '<button type="button" class="btn" data-act="doch">War doch richtig</button>' : '') + '<button type="button" class="btn prim" id="weiter" data-act="weiter">Weiter</button></div>' +
+    (!ok && kiMoeglich() ? '<div class="aktionen"><button type="button" class="btn ki-frag" data-act="ki-warum">' + svg(P.ki, 18) + 'KI fragen: Warum?</button></div>' : '') + '</div>';
+  R.kiFrage = it.dir === 'fr-de'
+    ? 'Ich sollte „' + c.fr + '“ ins Deutsche übersetzen. Richtig ist: „' + c.de + '“. ' + (eingabe === null ? 'Ich wusste es nicht.' : 'Ich habe „' + eingabe + '“ geschrieben.') + ' Hilf mir, mir das Wort zu merken.'
+    : 'Ich sollte „' + c.de + '“ auf Französisch schreiben. Richtig ist: „' + c.fr + '“. ' + (eingabe === null ? 'Ich wusste es nicht.' : 'Ich habe „' + eingabe + '“ geschrieben.') + ' Erkläre mir kurz, was falsch war, und gib mir eine Eselsbrücke.';
   $('#urteil').innerHTML = h; kopfFortschritt();
   try { $('#weiter').focus({preventScroll:true}); } catch(e){}
   if (S.set.auto && it.dir !== 'fr-de') sprich(sprechtext(c));
@@ -1415,7 +1473,8 @@ function rTq(){
       if (A.eingabe && !A.ok) erkl = '<p class="deins">Deine Antwort: <s>' + esc(A.eingabe) + '</s></p>';
     }
     h += '<section class="karte seyes rein"><div class="urteil"><p class="stempel ' + st[0] + '" lang="fr">' + st[1] + '</p>' + erkl + hilftHTML(itemKarten(it), A.ok) +
-      '<div class="aktionen"><button type="button" class="btn prim" id="weiter" data-act="tq-weiter">' + (TQ.i + 1 < TQ.items.length ? 'Weiter' : 'Auswertung') + '</button></div></div></section>';
+      '<div class="aktionen"><button type="button" class="btn prim" id="weiter" data-act="tq-weiter">' + (TQ.i + 1 < TQ.items.length ? 'Weiter' : 'Auswertung') + '</button></div>' +
+      (!A.ok && kiMoeglich() && it.typ !== 'vok' ? '<div class="aktionen"><button type="button" class="btn ki-frag" data-act="ki-warum-text">' + svg(P.ki, 18) + 'KI fragen: Warum?</button></div>' : '') + '</div></section>';
   }
   main.innerHTML = '<div class="runde">' + h + '</div>';
   var inp = $('#antwort'); if (inp){ try { inp.focus({preventScroll:true}); } catch(e){} }
@@ -1499,6 +1558,207 @@ function txKlick(act, w, b){
   return false;
 }
 
+/* ----- KI-Lernhelfer ----- */
+var KIURL = 'https://cdn.jsdelivr.net/npm/@mlc-ai/web-llm@0.2.86/+esm';
+var KIMODELLE = [
+  { id:'Qwen2.5-0.5B-Instruct-q4f16_1-MLC', name:'Klein und schnell', info:'Für Handys. Einmaliger Download von etwa 0,3 GB. Antworten sind einfacher.' },
+  { id:'Qwen2.5-1.5B-Instruct-q4f16_1-MLC', name:'Groß und klüger', info:'Für PC, Laptop und neue Handys. Einmaliger Download von etwa 1 GB.' }
+];
+var KI = { quelle:null, engine:null, sample:null, lib:null, laedt:false, fortschritt:0, status:'', fehler:'', modus:'tutor', verlauf:{ tutor:[], emma:[] }, antwortet:false, abbruch:null, zurueck:null, vorlage:'', geprueft:false };
+function imClaude(){ return !!(window.claude && typeof window.claude.use === 'function'); }
+function kiMoeglich(){ return imClaude() || !!navigator.gpu; }
+function kiBereit(){ return !!(KI.engine || KI.sample); }
+function kiModellId(){ var id = S.set.kiModell; if (!id){ var handy = window.matchMedia && window.matchMedia('(pointer:coarse)').matches; id = KIMODELLE[handy ? 0 : 1].id; } return id; }
+function kiWorte(n){
+  var basis = pool().filter(function(c){ return !c.extra; }); if (!basis.length) basis = CARDS.filter(function(c){ return !c.extra; });
+  var schwach = basis.filter(function(c){ var st = stand(c); return st && (st[0] <= 2 || st[4] > 0); }), rest = basis.filter(function(c){ return schwach.indexOf(c) < 0; });
+  return shuffle(schwach).concat(shuffle(rest)).slice(0, n);
+}
+function kurzDe(de){ return de.replace(/\([^)]*\)/g, '').replace(/\s+/g, ' ').trim(); }
+function kiSystem(){
+  var w = kiWorte(30).map(function(c){ return c.fr.replace(/\s*\([^)]*\)/g, '') + ' = ' + kurzDe(c.de); }).join('; ');
+  if (KI.modus === 'emma') return 'Tu es Emma, une fille de 14 ans qui habite à Genève, en Suisse. Tu adores le ski à Nendaz, la natation, le foot (tu es fan de la Nati), la fondue et la raclette. Tu as un petit frère, Gabriel, qui a 9 ans. En décembre, il y a la fête de l\'Escalade à Genève. ' +
+    'Tu discutes avec un ou une élève allemand(e) qui apprend le français au collège. Réponds TOUJOURS en français simple, en 1 à 3 phrases courtes, puis pose une question. ' +
+    'Si l\'élève fait une faute, commence ta réponse par la phrase corrigée entre crochets, par exemple [Je suis allé au cinéma.], puis continue normalement. ' +
+    'Utilise si possible ces mots: ' + w + '. Reste gentille et adaptée à des ados. Ne parle pas de sujets dangereux ou pour adultes.';
+  return 'Du bist ein freundlicher Französisch-Nachhilfelehrer für deutsche Schülerinnen und Schüler (etwa 14 Jahre, Gymnasium, Schulbuch „À plus!“). ' +
+    'Antworte immer auf Deutsch, kurz (höchstens 6 Sätze), einfach und ermutigend. Schreibe französische Wörter und Beispielsätze in «Guillemets». Nutze **fett** sparsam für das Wichtigste. ' +
+    'Wenn du dir bei Grammatik oder Bedeutung nicht sicher bist, sag das ehrlich. Hilf nur beim Französischlernen; bei anderen Themen lenke freundlich zurück. ' +
+    'Wörter, die der Schüler gerade lernt (Französisch = Deutsch): ' + w + '.';
+}
+function kiChips(){
+  var w = kiWorte(3), a = w[0], b = w[1] || w[0], c = w[2] || w[0], g = function(x){ return x.fr.replace(/\s*\([^)]*\)/g, ''); };
+  if (!a) return [];
+  if (KI.modus === 'emma') return ['Salut Emma ! Ça va ?', 'Parle-moi de la fête de l\'Escalade !', 'Qu\'est-ce que tu aimes manger ?', 'Tu fais quoi le week-end ?'];
+  return ['Gib mir eine Eselsbrücke für «' + g(a) + '»', 'Bilde 3 einfache Sätze mit «' + g(b) + '» und «' + g(c) + '»', 'Frag mich 5 meiner Wörter ab', 'Wann sagt man «y» und wann «en»?', 'Wie bildet man das futur simple?'];
+}
+function kiFormat(t, emma){
+  var h = esc(t).replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>').replace(/«([^»]+)»/g, '<span class="fr" lang="fr">«$1»</span>').replace(/\n/g, '<br>');
+  if (emma){ h = h.replace(/^\s*\[([^\]]+)\]\s*(<br>)?/, function(_, k){ return '<span class="korrektur">' + svg(P.haken, 14) + ' Besser: <span lang="fr">' + k + '</span></span>'; }); }
+  return h;
+}
+function blaseHTML(m, i){
+  var emma = KI.modus === 'emma';
+  if (m.role === 'user') return '<div class="blase ich"' + (emma ? ' lang="fr"' : '') + '>' + esc(m.content).replace(/\n/g, '<br>') + '</div>';
+  return '<div class="blase ki-b"' + (emma ? ' lang="fr"' : '') + '><div class="blase-wer" lang="de">' + (emma ? 'Emma' : 'KI-Helfer') + '</div>' + kiFormat(m.content, emma) +
+    (m.de ? '<span class="uebersetzung" lang="de">' + esc(m.de) + '</span>' : '') +
+    (emma && i != null && !m.de && !KI.antwortet ? '<div class="blase-aktion" lang="de"><button type="button" data-act="ki-uebersetzen" data-w="' + i + '">Auf Deutsch?</button>' + (stimme ? '<button type="button" data-act="sprich" data-t="' + esc(m.content.replace(/^\s*\[[^\]]*\]\s*/, '')) + '">Vorlesen</button>' : '') + '</div>' : '') + '</div>';
+}
+function rKi(){
+  if (!KI.geprueft){ kiPruefen(); }
+  if (!kiBereit()){ main.innerHTML = '<div class="ki">' + kiStartHTML() + '</div>'; return; }
+  var v = KI.verlauf[KI.modus];
+  if (KI.modus === 'emma' && !v.length) v.push({ role:'assistant', content:'Salut ! Moi, c\'est Emma, j\'habite à Genève. Et toi, comment tu t\'appelles ?' });
+  main.innerHTML = '<div class="ki">' + seg('ki-modus', KI.modus, [['tutor','Frag den Tutor'],['emma','Chatte mit Emma']]) +
+    '<p class="hinweis">' + (KI.modus === 'emma' ? 'Emma aus Genf schreibt dir auf Französisch. Antworte auch auf Französisch. Machst du einen Fehler, zeigt sie dir die bessere Version.' : 'Frag alles zu deinen Vokabeln und zur Grammatik. Der Tutor kennt die Wörter, die du gerade lernst.') + '</p>' +
+    '<div class="ki-chips">' + kiChips().map(function(c){ return '<button type="button" class="ki-chip" data-act="ki-chip" data-t="' + esc(c) + '"' + (KI.antwortet ? ' disabled' : '') + (KI.modus === 'emma' ? ' lang="fr"' : '') + '>' + esc(c) + '</button>'; }).join('') + '</div>' +
+    '<div class="ki-verlauf" id="ki-verlauf">' + v.map(function(m, i){ return blaseHTML(m, i); }).join('') + (KI.antwortet ? '<div class="blase ki-b" id="ki-live"><div class="tippt"><i></i><i></i><i></i></div></div>' : '') + '</div>' +
+    '<div class="fuss"><form class="ki-eingabe" id="f-ki" autocomplete="off"><textarea id="ki-text" rows="1" placeholder="' + (KI.modus === 'emma' ? 'Écris en français …' : 'Deine Frage …') + '" aria-label="Nachricht an die KI"' + (KI.modus === 'emma' ? ' lang="fr"' : '') + '>' + esc(KI.vorlage) + '</textarea>' +
+      (KI.antwortet ? '<button type="button" class="btn" data-act="ki-stopp" aria-label="Antwort anhalten">' + svg(P.stopp, 20) + '</button>' : '<button type="submit" class="btn prim" aria-label="Senden">' + svg(P.senden, 20) + '</button>') + '</form>' +
+      '<p class="ki-hinweis">Die KI kann sich irren. Im Zweifel gilt dein Buch.' + (KI.quelle === 'lokal' ? ' Deine Nachrichten bleiben auf deinem Gerät.' : '') + '</p></div></div>';
+  KI.vorlage = '';
+  kiRunter();
+}
+function kiStartHTML(){
+  var id = kiModellId(), h = '<div class="ki-start"><div class="ki-hero"><span class="bild">' + svg(P.ki, 28) + '</span><div><h1 style="font-size:1.6rem">Dein KI-Lernhelfer</h1><p class="hinweis">Fragen stellen, Fehler verstehen, mit Emma auf Französisch chatten.</p></div></div>';
+  if (imClaude()){
+    return h + (KI.fehler ? '<div class="ki-warn"><b>Geht gerade nicht.</b><span>' + esc(KI.fehler) + '</span></div>' : '<p class="ki-status">Verbinde mit Claude …</p>') + '</div>';
+  }
+  if (!navigator.gpu || KI.fehler === 'gpu'){
+    return h + '<div class="ki-warn"><b>Dein Browser kann die KI leider nicht starten.</b><span>Sie braucht WebGPU. Das haben aktuelles Chrome oder Edge am PC und an Android-Handys sowie Safari auf iPhone und iPad mit aktuellem iOS. Die restliche Lernseite funktioniert ganz normal.</span></div></div>';
+  }
+  h += '<ul class="ki-punkte">' + [
+    'Läuft direkt auf deinem Gerät. Deine Nachrichten gehen nirgendwohin, und es kostet nichts.',
+    'Beim ersten Mal wird die KI einmal heruntergeladen. Am besten im WLAN. Danach startet sie schneller.',
+    'Sie ist klein und kann sich irren. Im Zweifel gilt immer dein Buch.'
+  ].map(function(t){ return '<li>' + svg(P.haken, 18) + '<span>' + t + '</span></li>'; }).join('') + '</ul>';
+  if (KI.laedt){
+    return h + '<div class="block"><div class="eyebrow">KI wird geladen</div><div class="ki-balken"><i id="ki-balken" style="width:' + Math.round(KI.fortschritt * 100) + '%"></i></div><p class="ki-status" id="ki-status">' + esc(KI.status || 'Startet …') + '</p><p class="hinweis">Lass die Seite offen. Beim ersten Mal kann das ein paar Minuten dauern.</p></div></div>';
+  }
+  h += '<div class="block"><div class="eyebrow">Welche KI?</div><div class="ki-modelle">' + KIMODELLE.map(function(m){
+    return '<button type="button" class="ki-modell" data-act="ki-modell" data-w="' + m.id + '" aria-pressed="' + (m.id === id) + '"><b>' + m.name + '</b><span>' + m.info + '</span></button>'; }).join('') + '</div></div>';
+  if (KI.fehler) h += '<div class="ki-warn"><b>Das hat nicht geklappt.</b><span>' + esc(KI.fehler) + '</span></div>';
+  return h + '<div class="fuss"><button type="button" class="btn prim gross" id="ki-laden" data-act="ki-laden">KI starten</button></div></div>';
+}
+function kiPruefen(){
+  KI.geprueft = true;
+  if (!imClaude()) return;
+  KI.quelle = 'claude';
+  window.claude.use('sample').then(function(sm){
+    if (sm){ KI.sample = sm; } else KI.fehler = 'Der KI-Helfer ist in dieser Ansicht nicht freigegeben. Auf der Klassen-Seite läuft er im Browser.';
+    if (view === 'ki') render();
+  }, function(){ KI.fehler = 'Claude ist gerade nicht erreichbar.'; if (view === 'ki') render(); });
+}
+function kiLaden(){
+  if (KI.laedt) return;
+  KI.laedt = true; KI.fehler = ''; KI.fortschritt = 0; KI.status = ''; KI.quelle = 'lokal'; render();
+  var id = kiModellId();
+  Promise.resolve().then(function(){
+    if (!navigator.gpu) throw { code:'gpu' };
+    return navigator.gpu.requestAdapter();
+  }).then(function(ad){
+    if (!ad) throw { code:'gpu' };
+    return import(KIURL);
+  }).then(function(lib){
+    KI.lib = lib;
+    return lib.CreateMLCEngine(id, { initProgressCallback:function(r){
+      KI.fortschritt = r.progress || 0; KI.status = kiStatusText(r);
+      var b = document.getElementById('ki-balken'), t = document.getElementById('ki-status');
+      if (b) b.style.width = Math.round(KI.fortschritt * 100) + '%'; if (t) t.textContent = KI.status;
+    } });
+  }).then(function(engine){
+    KI.engine = engine; KI.laedt = false; S.set.kiModell = id; speichern();
+    if (view === 'ki'){ render(); if (KI.wartet){ var t = KI.wartet; KI.wartet = null; kiSenden(t); } }
+  }).catch(function(e){
+    KI.laedt = false;
+    if (e && e.code === 'gpu') KI.fehler = 'gpu';
+    else if (!navigator.onLine) KI.fehler = 'Du bist offline. Zum ersten Laden braucht die KI Internet.';
+    else KI.fehler = id === KIMODELLE[1].id ? 'Vermutlich hat dein Gerät nicht genug Speicher für die große KI. Probier die kleine.' : 'Die KI konnte nicht geladen werden. Schließ andere Tabs und versuch es noch einmal.';
+    if (view === 'ki') render();
+  });
+}
+function kiStatusText(r){
+  var t = String(r.text || ''), m = /(\d+)MB/i.exec(t), p = Math.round((r.progress || 0) * 100);
+  if (/Fetching|Loading model from cache/i.test(t)) return (/cache/i.test(t) ? 'Aus dem Speicher laden' : 'Herunterladen') + ' … ' + p + ' %' + (m ? ' (' + m[1] + ' MB)' : '');
+  if (/shader|GPU|Loading GPU/i.test(t)) return 'KI wird vorbereitet … ' + p + ' %';
+  return p ? 'Lädt … ' + p + ' %' : 'Startet …';
+}
+function kiRunter(){ var v = document.getElementById('ki-verlauf'); if (v) requestAnimationFrame(function(){ window.scrollTo(0, document.body.scrollHeight); }); }
+function kiLive(text){
+  var el = document.getElementById('ki-live'); if (!el) return;
+  el.innerHTML = '<div class="blase-wer" lang="de">' + (KI.modus === 'emma' ? 'Emma' : 'KI-Helfer') + '</div>' + kiFormat(text, KI.modus === 'emma');
+  kiRunter();
+}
+function kiAntwort(nachrichten, live){
+  var sys = kiSystem(), letzte = nachrichten.slice(-12);
+  if (KI.engine){
+    var msgs = [{ role:'system', content:sys }].concat(letzte);
+    return KI.engine.chat.completions.create({ messages:msgs, stream:true, temperature:.6, max_tokens:380 }).then(function(stream){
+      var text = '', it = stream[Symbol.asyncIterator]();
+      function weiter(){ return it.next().then(function(x){ if (x.done) return text; var d = x.value.choices && x.value.choices[0] && x.value.choices[0].delta; if (d && d.content){ text += d.content; if (live) live(text); } return weiter(); }); }
+      return weiter();
+    });
+  }
+  var ab = new AbortController(); KI.abbruch = ab;
+  var verlauf = letzte.slice(); while (verlauf.length && verlauf[0].role !== 'user') verlauf.shift();
+  if (!verlauf.length) verlauf = [{ role:'user', content:'Hallo!' }];
+  verlauf[0] = { role:'user', content:'Anweisungen für dich:\n' + sys + '\n\n---\n' + verlauf[0].content };
+  return KI.sample(verlauf, { signal:ab.signal, cache:false, modelTier:'quick', onText:function(u){ if (live) live(u.text); } }).then(function(r){ return r.text; });
+}
+function kiSenden(text){
+  text = String(text || '').trim(); if (!text || KI.antwortet) return;
+  if (!kiBereit()){ KI.wartet = text; if (!imClaude()) kiLaden(); return; }
+  var v = KI.verlauf[KI.modus], modus = KI.modus;
+  v.push({ role:'user', content:text }); KI.antwortet = true; render();
+  kiAntwort(v.filter(function(m){ return m.role === 'user' || m.role === 'assistant'; }).map(function(m){ return { role:m.role, content:m.content }; }), kiLive).then(function(antwort){
+    KI.verlauf[modus].push({ role:'assistant', content:String(antwort || '').trim() || '…' });
+  }, function(e){
+    if (!(e && (e.name === 'AbortError' || e.code === 'aborted'))) KI.verlauf[modus].push({ role:'assistant', content:'Da ist etwas schiefgelaufen. Versuch es bitte noch einmal.' });
+  }).then(function(){ KI.antwortet = false; KI.abbruch = null; if (view === 'ki') render(); try { $('#ki-text').focus({ preventScroll:true }); } catch(e){} });
+}
+function kiUebersetzen(i){
+  var m = KI.verlauf.emma[+i]; if (!m || KI.antwortet) return;
+  var alt = KI.modus; KI.antwortet = true; render();
+  var auftrag = [{ role:'user', content:'Übersetze diesen französischen Text kurz und natürlich ins Deutsche. Antworte nur mit der Übersetzung:\n\n' + m.content.replace(/^\s*\[[^\]]*\]\s*/, '') }];
+  KI.modus = 'tutor';
+  var p = kiAntwort(auftrag, null); KI.modus = alt;
+  p.then(function(t){ m.de = String(t || '').trim(); }, function(){}).then(function(){ KI.antwortet = false; if (view === 'ki') render(); });
+}
+function kiOeffnen(vorlage, zurueck){
+  KI.zurueck = zurueck || null;
+  if (vorlage){ KI.modus = 'tutor'; }
+  go('ki');
+  if (vorlage){ if (kiBereit()) kiSenden(vorlage); else { KI.wartet = vorlage; if (!imClaude()) render(); } }
+}
+function kiKlick(act, w, b){
+  switch (act){
+    case 'ki-oeffnen': kiOeffnen(null, null); return true;
+    case 'ki-warum': kiOeffnen(R.kiFrage, 'runde'); return true;
+    case 'ki-warum-text':
+      var it = TQ.items[TQ.i], a = it.a, frage;
+      if (it.typ === 'vf') frage = 'Im Text aus dem Buch: Stimmt der Satz «' + a.f + '»? Die Lösung ist „' + (a.r ? 'stimmt' : 'stimmt nicht') + '“, weil: ' + a.warum + ' Erkläre mir das kurz.';
+      else if (it.typ === 'mc') frage = 'Frage zum Text: «' + a.f + '» Richtig ist «' + a.a[0] + '». Erkläre mir kurz die wichtigen Wörter darin.';
+      else frage = 'Lückensatz zum Text: «' + a.f.replace('___', '…') + '» In die Lücke gehört «' + a.l[0] + '». Erkläre mir kurz, warum diese Form.';
+      kiOeffnen(frage, 'text'); return true;
+    case 'ki-zurueck':
+      var z = KI.zurueck; KI.zurueck = null;
+      if (z === 'runde' && R){ R.i++; go('runde'); } else if (z === 'text' && TQ){ go('tq'); } else go('start');
+      return true;
+    case 'ki-modell': S.set.kiModell = w; speichern(); render(); return true;
+    case 'ki-laden': kiLaden(); return true;
+    case 'ki-modus': if (KI.antwortet) return true; KI.modus = w; render(); return true;
+    case 'ki-chip': kiSenden(b.getAttribute('data-t')); return true;
+    case 'ki-stopp': if (KI.engine) try { KI.engine.interruptGenerate(); } catch(e){} if (KI.abbruch) KI.abbruch.abort(); return true;
+    case 'ki-uebersetzen': kiUebersetzen(w); return true;
+    case 'ki-loeschen':
+      b.disabled = true;
+      import(KIURL).then(function(lib){ return Promise.all(KIMODELLE.map(function(m){ return lib.deleteModelAllInfoInCache(m.id).catch(function(){}); })); })
+        .then(function(){ KI.engine = null; toast('Die KI wurde von diesem Gerät gelöscht.'); }, function(){ toast('Löschen hat nicht geklappt.'); b.disabled = false; });
+      return true;
+  }
+  return false;
+}
+
 /* ----- Liste ----- */
 function listeHTML(){
   var s = norm(listeSuche), sa = noAcc(s), h = '';
@@ -1529,6 +1789,7 @@ function rMehr(){
       '<div class="opt-zeile"><div><b>Eigennamen und Landeskunde</b><small>Zum Beispiel Denis Zakaria, la Palme d’Or oder la Fête de l’Escalade.</small></div>' + seg('set-extra', S.set.extra ? 1 : 0, [[1,'Mitlernen'],[0,'Weglassen']]) + '</div>' +
       '<div class="opt-zeile"><div><b>Aussprache</b><small>' + (stimme ? 'Soll das französische Wort nach jeder Antwort vorgelesen werden?' : 'Dieses Gerät hat keine französische Stimme. Die Lautsprecher-Knöpfe und die Lernart „Hören“ sind deshalb ausgeblendet.') + '</small></div>' + (stimme ? seg('set-auto', S.set.auto ? 1 : 0, [[1,'Automatisch'],[0,'Nur auf Knopfdruck']]) : '') + '</div>' +
     '</div></section>' +
+    (!imClaude() && navigator.gpu ? '<section class="block"><h2>KI-Lernhelfer</h2><p class="hinweis">Die KI ist nach dem ersten Start auf diesem Gerät gespeichert. Brauchst du den Platz, kannst du sie hier löschen. Beim nächsten Start wird sie neu heruntergeladen.</p><div class="aktionen"><button type="button" class="btn klein" data-act="ki-loeschen">KI vom Gerät löschen</button></div></section>' : '') +
     '<section class="block"><h2>Eigene Wörter eintragen</h2><p class="hinweis">Fehlt ein Wort oder willst du zusätzliche lernen? Trag sie hier ein. Sie werden nur bei dir gespeichert.</p>' +
       '<form class="form" id="f-eigen" autocomplete="off"><label>Französisch<input type="text" class="feld" id="own-fr" lang="fr" autocapitalize="off" spellcheck="false" placeholder="le mot"></label>' +
       '<label>Deutsch<input type="text" class="feld" id="own-de" placeholder="das Wort"></label><label>Gehört zu' + wahl + '</label>' +
@@ -1557,6 +1818,7 @@ document.addEventListener('click', function(ev){
   var b = ev.target.closest('[data-act]'); if (!b || b.disabled) return;
   var act = b.getAttribute('data-act'), w = b.getAttribute('data-w'), it, c;
   if (txKlick(act, w, b)) return;
+  if (kiKlick(act, w, b)) return;
   switch (act){
     case 'sprich': ev.stopPropagation(); sprich(b.getAttribute('data-t')); if (b.classList.contains('hoer')){ var ip = $('#antwort'); if (ip) ip.focus(); } break;
     case 'go': go(w); break;
@@ -1637,10 +1899,11 @@ document.addEventListener('change', function(ev){
     speichern(); render();
   }
 });
-document.addEventListener('input', function(ev){ if (ev.target.id === 'suche'){ listeSuche = ev.target.value; $('#liste').innerHTML = listeHTML(); } });
+document.addEventListener('input', function(ev){ if (ev.target.id === 'ki-text'){ ev.target.style.height = 'auto'; ev.target.style.height = Math.min(140, ev.target.scrollHeight) + 'px'; } if (ev.target.id === 'suche'){ listeSuche = ev.target.value; $('#liste').innerHTML = listeHTML(); } });
 document.addEventListener('submit', function(ev){
   ev.preventDefault();
   var id = ev.target.id, inp;
+  if (id === 'f-ki'){ var kt = $('#ki-text'); if (kt && kt.value.trim()) kiSenden(kt.value); return; }
   if (id === 'f-tq'){
     inp = $('#antwort'); if (!inp.value.trim()){ inp.focus(); return; }
     var r = check(inp.value.trim(), TQ.items[TQ.i].a.l); tqAntwort({ r:r, eingabe:inp.value.trim(), ok:r === 'ok' || r === 'acc' }); return;
@@ -1663,6 +1926,7 @@ document.addEventListener('submit', function(ev){
   }
 });
 document.addEventListener('keydown', function(ev){
+  if (ev.target.id === 'ki-text' && ev.key === 'Enter' && !ev.shiftKey && !ev.isComposing){ ev.preventDefault(); var f = $('#f-ki'); if (f) f.requestSubmit ? f.requestSubmit() : kiSenden(ev.target.value); return; }
   if ((ev.key === 'Enter' || ev.key === ' ') && (ev.target.id === 'flip' || ev.target.id === 'motjour' || ev.target.id === 'worum')){ ev.preventDefault(); ev.target.click(); }
   if (view === 'tut' && (ev.key === 'ArrowRight' || ev.key === 'ArrowLeft') && !/input|textarea/i.test(ev.target.tagName)){
     var n = tutI + (ev.key === 'ArrowRight' ? 1 : -1); if (n >= 0 && n < TUT.length){ tutI = n; render(); }
