@@ -1571,7 +1571,7 @@ function txKlick(act, w, b){
 
 /* ----- KI-Lernhelfer ----- */
 var KIURL = 'https://cdn.jsdelivr.net/npm/@mlc-ai/web-llm@0.2.86/+esm';
-var KISERVER = '';
+var KISERVER = 'https://vokabel-ki.hallosuperbs.workers.dev';
 var KIMODELLE = [
   { id:'Qwen3-0.6B-q4f16_1-MLC', f32:'Qwen3-0.6B-q4f32_1-MLC', name:'Klein', info:'Für Handy und Tablet. Startet am schnellsten, einmaliger Download von etwa 0,4 GB. Einfache Antworten.' },
   { id:'Qwen3-1.7B-q4f16_1-MLC', f32:'Qwen3-1.7B-q4f32_1-MLC', name:'Mittel', info:'Für PC, Laptop und neue Handys. Einmaliger Download von etwa 1 GB.' },
@@ -1786,6 +1786,17 @@ function kiWorker(){
   var code = 'import { WebWorkerMLCEngineHandler } from "' + KIURL + '";\nconst h = new WebWorkerMLCEngineHandler();\nself.onmessage = (m) => { h.onmessage(m); };';
   return new Worker(URL.createObjectURL(new Blob([code], { type:'text/javascript' })), { type:'module' });
 }
+function kiSchritt(t){
+  KI.status = t; KI.letzterSchritt = Date.now();
+  var el = document.getElementById('ki-status'); if (el) el.textContent = t;
+  var hg = document.getElementById('ki-haengt'); if (hg) hg.hidden = true;
+}
+function kiImport(){
+  return new Promise(function(resolve, reject){
+    var uhr = setTimeout(function(){ reject(new Error('Das KI-Programm (etwa 6 MB) kam nach 90 Sekunden nicht an.')); }, 90000);
+    import(KIURL).then(function(l){ clearTimeout(uhr); resolve(l); }, function(e){ clearTimeout(uhr); reject(e); });
+  });
+}
 function kiMitWorker(lib, id, cfg){
   return new Promise(function(resolve, reject){
     var w, fertig = false, lebt = false, uhr;
@@ -1820,12 +1831,14 @@ function kiLaden(leise){
   }, 5000);
   return Promise.resolve().then(function(){
     if (!navigator.gpu) throw { code:'gpu' };
+    kiSchritt('Prüfe die Grafikkarte …');
     return navigator.gpu.requestAdapter();
   }).then(function(ad){
     if (!ad) throw { code:'gpu' };
     f16 = !!(ad.features && ad.features.has && ad.features.has('shader-f16'));
-    try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); } catch(e){}
-    return import(KIURL);
+    try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(function(){}); } catch(e){}
+    kiSchritt('Lade das KI-Programm (etwa 6 MB) …');
+    return kiImport();
   }).then(function(l){
     lib = KI.lib = l;
     var da = {};
@@ -1835,11 +1848,11 @@ function kiLaden(leise){
     for (var i = start; i >= 0; i--){ var id = f16 ? KIMODELLE[i].id : KIMODELLE[i].f32; if (da[id]) liste.push(id); }
     if (f16 && da[KINOTNAGEL]) liste.push(KINOTNAGEL);
     if (!liste.length) throw new Error('Kein passendes Modell in der Liste gefunden.');
-    return kiAufraeumen(l, liste.concat([S.set.kiGeladen || '']));
+    kiSchritt('Starte den Download …');
   }).then(function(){
     function versuch(k, ohneWorker){
       if (k >= liste.length) throw versuche[versuche.length - 1] || new Error('Kein Modell passt zu diesem Gerät.');
-      var id = liste[k], cfg = { initProgressCallback:kiFortschritt }, mitW = !ohneWorker && !S.set.kiOhneWorker && typeof Worker !== 'undefined';
+      var id = liste[k], cfg = { initProgressCallback:kiFortschritt }, mitW = false;
       KI.tDl = 0; KI.versuchId = id; KI.letzterSchritt = Date.now();
       var p = mitW ? kiMitWorker(lib, id, cfg) : lib.CreateMLCEngine(id, cfg);
       return p.then(function(engine){
@@ -1865,6 +1878,7 @@ function kiLaden(leise){
     KI.fehlerDetail = String(e && (e.message || e.code || e) || '').slice(0, 400);
     if (e && e.code === 'gpu') KI.fehler = 'gpu';
     else if (kiNetzFehler(e)) KI.fehler = 'Der Download wurde unterbrochen. Prüfe dein Internet und tippe noch einmal auf „KI starten“. Was schon geladen ist, bleibt gespeichert.';
+    else if (/KI-Programm/.test(KI.fehlerDetail)) KI.fehler = 'Das KI-Programm ließ sich nicht laden. Prüfe dein Internet und versuch es noch einmal.';
     else KI.fehler = 'Die KI konnte nicht geladen werden. Schließ andere Apps und Tabs und versuch es noch einmal, am besten mit „Klein“.';
     if (view === 'ki') render();
   });
