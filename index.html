@@ -283,6 +283,12 @@ main.blatt{animation:blatt .26s ease-out}
 .ki-eingabe .btn.mik.an{background:var(--bad);color:#fff;border-color:transparent;animation:puls 1.2s ease-in-out infinite}
 @keyframes puls{0%,100%{box-shadow:0 0 0 0 rgba(255,143,155,.55)}50%{box-shadow:0 0 0 10px rgba(255,143,155,0)}}
 .stimm-icon{display:inline-flex;vertical-align:-2px;margin-right:6px;opacity:.75}
+.ueberlage{position:fixed;inset:0;z-index:40;background:rgba(0,0,0,.65);display:flex;align-items:flex-end;justify-content:center;padding:16px max(16px,env(safe-area-inset-left,0px)) calc(16px + env(safe-area-inset-bottom,0px))}
+.ueberlage-in{width:min(560px,100%);max-height:85vh;overflow:auto;background:var(--paper);border:1px solid var(--rule);border-radius:22px;padding:20px;display:flex;flex-direction:column;gap:12px;box-shadow:var(--shadow)}
+.ueberlage-in h2{font-size:1.25rem;display:flex;align-items:center;gap:10px}
+.ueberlage-in h2 svg{color:var(--accent)}
+.ueberlage-in ol{margin:0;padding-left:1.3rem;display:flex;flex-direction:column;gap:8px}
+.ueberlage-in .aktionen .btn{flex:1 1 160px}
 .ki-hinweis{font-size:.76rem;color:var(--ink2);text-align:center}
 .beta{display:inline-flex;align-items:center;padding:1px 7px;border-radius:999px;background:var(--accent-soft);color:var(--accent);font-size:.66rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;margin-left:6px;vertical-align:middle}
 .btn.ki-frag{border-color:rgba(242,199,92,.35);color:var(--accent)}
@@ -1954,7 +1960,51 @@ function kiVorlesen(text, modus){
   try { window.speechSynthesis.cancel(); var u = new SpeechSynthesisUtterance(t); u.lang = emma ? 'fr-FR' : 'de-DE'; u.voice = v; u.rate = emma ? .92 : 1; window.speechSynthesis.speak(u); } catch(e){}
 }
 function kiKannVorlesen(){ return KI.modus === 'emma' ? !!stimme : !!stimmeDe; }
-var SR = window.SpeechRecognition || window.webkitSpeechRecognition || null, MIK = { an:false, rec:null, text:'', diktat:null };
+var SR = window.SpeechRecognition || window.webkitSpeechRecognition || null, MIK = { an:false, rec:null, text:'', diktat:null, erlaubnis:'unbekannt' };
+function geraet(){
+  var ua = navigator.userAgent || '';
+  if (/iPad|iPhone|iPod/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1)) return 'ios';
+  if (/Android/.test(ua)) return 'android';
+  if (/Safari/.test(ua) && !/Chrome|Chromium|Edg/.test(ua)) return 'mac-safari';
+  return 'pc';
+}
+(function(){
+  try {
+    if (navigator.permissions && navigator.permissions.query) navigator.permissions.query({ name:'microphone' }).then(function(st){
+      MIK.erlaubnis = st.state; st.onchange = function(){ MIK.erlaubnis = st.state; };
+    }, function(){});
+  } catch(e){}
+})();
+function mikHilfe(art){
+  var g = geraet(), schritte;
+  if (art === 'dienst') schritte = g === 'ios'
+    ? ['Öffne die App <b>Einstellungen</b>.', 'Tippe auf <b>Allgemein</b> → <b>Tastatur</b>.', 'Schalte <b>Diktierfunktion</b> ein.', 'Komm zurück und tippe auf „Seite neu laden“.']
+    : ['Die Spracherkennung deines Browsers ist ausgeschaltet oder gesperrt.', 'Probier es in einem aktuellen Chrome, Edge oder Safari.'];
+  else if (g === 'ios') schritte = ['Tippe zuerst auf „Seite neu laden“ unten. Safari fragt dann meistens noch einmal. Tippe dort auf <b>Erlauben</b>.', 'Klappt das nicht: Tippe in der Adressleiste links auf <b>aA</b> (oder das Symbol mit den Reglern) → <b>Website-Einstellungen</b> → <b>Mikrofon</b> → <b>Erlauben</b>.', 'Oder in der App <b>Einstellungen</b> → <b>Apps</b> → <b>Safari</b> → <b>Mikrofon</b> → <b>Fragen</b> oder <b>Erlauben</b>.'];
+  else if (g === 'mac-safari') schritte = ['Klicke oben im Menü auf <b>Safari</b> → <b>Einstellungen für diese Website</b>.', 'Stelle <b>Mikrofon</b> auf <b>Erlauben</b>.', 'Lade die Seite neu.'];
+  else if (g === 'android') schritte = ['Tippe links neben der Adresse auf das <b>Symbol mit den Reglern</b> (oder das Schloss).', 'Tippe auf <b>Berechtigungen</b> → <b>Mikrofon</b> → <b>Zulassen</b>.', 'Lade die Seite neu.'];
+  else schritte = ['Klicke links neben der Adresse auf das <b>Symbol mit den Reglern</b> (oder das Schloss).', 'Stelle <b>Mikrofon</b> auf <b>Zulassen</b>.', 'Lade die Seite neu.'];
+  var alt = document.querySelector('.ueberlage'); if (alt) alt.remove();
+  var o = document.createElement('div'); o.className = 'ueberlage'; o.setAttribute('role', 'dialog'); o.setAttribute('aria-modal', 'true'); o.setAttribute('aria-label', 'Mikrofon erlauben');
+  o.innerHTML = '<div class="ueberlage-in"><h2>' + svg(P.mik, 22) + (art === 'dienst' ? 'Spracherkennung einschalten' : 'Mikrofon erlauben') + '</h2>' +
+    '<p class="hinweis">' + (art === 'dienst' ? 'Damit Sprachnachrichten funktionieren, muss die Spracherkennung deines Geräts an sein.' : 'Dein Browser hat den Zugriff aufs Mikrofon gesperrt. Wurde einmal „Nicht erlauben“ getippt, fragt der Browser aus Sicherheitsgründen nicht von selbst noch einmal. So schaltest du es frei:') + '</p>' +
+    '<ol>' + schritte.map(function(x){ return '<li>' + x + '</li>'; }).join('') + '</ol>' +
+    '<div class="aktionen"><button type="button" class="btn" data-act="ueberlage-zu">Schließen</button><button type="button" class="btn prim" data-act="neu-laden">Seite neu laden</button></div></div>';
+  o.addEventListener('click', function(e){ if (e.target === o) o.remove(); });
+  document.body.appendChild(o);
+  var k = o.querySelector('.btn.prim'); if (k) try { k.focus(); } catch(e){}
+}
+function mikErlaubnisHolen(){
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) return Promise.resolve('ok');
+  return navigator.mediaDevices.getUserMedia({ audio:true }).then(function(strom){
+    strom.getTracks().forEach(function(t){ t.stop(); }); return 'ok';
+  }, function(e){
+    var n = e && e.name;
+    if (n === 'NotAllowedError' || n === 'SecurityError' || n === 'PermissionDeniedError') return 'gesperrt';
+    if (n === 'NotFoundError' || n === 'DevicesNotFoundError') return 'kein';
+    return 'ok';
+  });
+}
 function kiKannSprechen(){ return imClaude() ? !!MIK.diktat : !!SR; }
 function mikZeigen(){
   var t = $('#ki-text'), b = $('#ki-mik');
@@ -1980,11 +2030,25 @@ function mikStart(){
     return;
   }
   if (!SR) return;
+  if (MIK.erlaubnis === 'denied'){ mikHilfe('gesperrt'); return; }
+  if (MIK.erlaubnis !== 'granted' && !MIK.geprueft){
+    MIK.an = true; MIK.text = basis; mikZeigen();
+    var t0 = $('#ki-text'); if (t0) t0.placeholder = 'Bitte das Mikrofon erlauben …';
+    mikErlaubnisHolen().then(function(z){
+      MIK.an = false; mikZeigen();
+      if (z === 'gesperrt'){ MIK.erlaubnis = 'denied'; mikHilfe('gesperrt'); return; }
+      if (z === 'kein'){ toast('Es wurde kein Mikrofon gefunden.'); return; }
+      MIK.geprueft = true; MIK.erlaubnis = 'granted'; mikStart();
+    });
+    return;
+  }
   var rec = new SR(); MIK.rec = rec;
   rec.lang = KI.modus === 'emma' ? 'fr-FR' : 'de-DE'; rec.interimResults = true; rec.continuous = false; rec.maxAlternatives = 1;
   rec.onresult = function(e){ var t = ''; for (var i=0;i<e.results.length;i++) t += e.results[i][0].transcript; MIK.text = basis + t; mikZeigen(); };
   rec.onerror = function(e){
-    var m = { 'not-allowed':'Das Mikrofon ist nicht erlaubt. Erlaube es in den Einstellungen deines Browsers.', 'service-not-allowed':'Das Mikrofon ist nicht erlaubt. Erlaube es in den Einstellungen deines Browsers.', 'no-speech':'Ich habe nichts gehört. Tippe aufs Mikrofon und sprich gleich los.', 'audio-capture':'Es wurde kein Mikrofon gefunden.', 'network':'Für die Spracherkennung braucht dein Browser Internet.' }[e.error];
+    if (e.error === 'not-allowed'){ MIK.text = ''; if (MIK.geprueft && geraet() === 'ios') mikHilfe('dienst'); else { MIK.erlaubnis = 'denied'; mikHilfe('gesperrt'); } return; }
+    if (e.error === 'service-not-allowed'){ MIK.text = ''; mikHilfe('dienst'); return; }
+    var m = { 'no-speech':'Ich habe nichts gehört. Tippe aufs Mikrofon und sprich gleich los.', 'audio-capture':'Es wurde kein Mikrofon gefunden.', 'network':'Für die Spracherkennung braucht dein Browser Internet.' }[e.error];
     if (m) toast(m);
   };
   rec.onend = function(){ if (MIK.rec === rec) mikFertig(); };
@@ -2155,6 +2219,7 @@ function starten(){ var a = art(S.art); if (a.id === 'kasten' || a.id === 'schre
 document.addEventListener('click', function(ev){
   var b = ev.target.closest('[data-act]'); if (!b || b.disabled) return;
   var act = b.getAttribute('data-act'), w = b.getAttribute('data-w'), it, c;
+  if (act === 'ueberlage-zu'){ var ue = b.closest('.ueberlage'); if (ue) ue.remove(); return; }
   if (txKlick(act, w, b)) return;
   if (kiKlick(act, w, b)) return;
   switch (act){
@@ -2265,6 +2330,7 @@ document.addEventListener('submit', function(ev){
   }
 });
 document.addEventListener('keydown', function(ev){
+  if (ev.key === 'Escape'){ var ue = document.querySelector('.ueberlage'); if (ue){ ue.remove(); return; } }
   if (ev.target.id === 'ki-text' && ev.key === 'Enter' && !ev.shiftKey && !ev.isComposing){ ev.preventDefault(); var f = $('#f-ki'); if (f) f.requestSubmit ? f.requestSubmit() : kiSenden(ev.target.value); return; }
   if ((ev.key === 'Enter' || ev.key === ' ') && (ev.target.id === 'flip' || ev.target.id === 'motjour' || ev.target.id === 'worum')){ ev.preventDefault(); ev.target.click(); }
   if (view === 'tut' && (ev.key === 'ArrowRight' || ev.key === 'ArrowLeft') && !/input|textarea/i.test(ev.target.tagName)){
