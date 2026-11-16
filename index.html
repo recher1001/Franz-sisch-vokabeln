@@ -20,7 +20,8 @@ img{max-width:100%}
 <body>
 <title>Vokabeltrainer À plus!</title>
 <meta name="claude:viewport-fit-sides" content="cover">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400..800&family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Figtree:wght@400..800&family=Playwrite+FR+Moderne:wght@100..400&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&text=%E5%AD%A6&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@500;700&family=Plus+Jakarta+Sans:wght@400..800&family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Figtree:wght@400..800&family=Playwrite+FR+Moderne:wght@100..400&display=swap">
 <style>
 /* Layout: ein französisches Schulheft. Die Startseite ist der Heftdeckel (königsblau, mit Etikett),
    dahinter kommen Seite für Seite: Vokabeln wählen, Lernart wählen, Einstellungen, Lernen.
@@ -30,9 +31,11 @@ img{max-width:100%}
   /* Eine einzige, bewusst dunkle Welt: Schultafel in Tiefgrün, Kreide und Gold. */
   color-scheme:dark;
   --bg:#050907; --paper:#173329; --paper2:#1f4135; --ink:#f3f6f0; --ink2:#a9bdb3; --rule:rgba(255,255,255,.14); --rule2:rgba(255,255,255,.07); --marge:rgba(224,112,126,.7);
-  --accent:#f2c75c; --on-accent:#17200f; --accent-soft:rgba(242,199,92,.12);
-  --gold:linear-gradient(180deg,#f8d77f 0%,#ecbd4c 100%);
-  --glow:radial-gradient(900px 520px at 50% -160px,rgba(242,199,92,.13),transparent 70%);
+  --bg-rgb:5 9 7; --card-a:#1b3a2f; --card-b:#163028; --etikett-a:#24493c; --glow-farbe:242 199 92;
+  --accent:#f2c75c; --accent-rgb:242 199 92; --gold-a:#f8d77f; --gold-b:#ecbd4c; --on-accent:#17200f;
+  --accent-soft:rgb(var(--accent-rgb) / .12);
+  --gold:linear-gradient(180deg,var(--gold-a) 0%,var(--gold-b) 100%);
+  --glow:radial-gradient(900px 520px at 50% -160px,rgb(var(--glow-farbe) / .13),transparent 70%);
   --cover:#050907; --cover2:#173329; --on-cover:#eef3ea; --on-cover2:#9fb2a8; --cta:#f2c75c; --on-cta:#17200f;
   --good:#7fdcab; --good-soft:rgba(127,220,171,.12); --bad:#ff8f9b; --bad-soft:rgba(255,143,155,.12); --warn:#f4c06a; --warn-soft:rgba(244,192,106,.13);
   --buch2:#f2a170; --buch2-soft:rgba(242,161,112,.13);
@@ -237,7 +240,7 @@ main.blatt{animation:blatt .26s ease-out}
 .ki{display:flex;flex-direction:column;gap:14px;min-height:calc(100vh - 140px)}
 .ki-start{display:flex;flex-direction:column;gap:14px}
 .ki-hero{display:flex;gap:14px;align-items:center}
-.ki-hero .bild{width:56px;height:56px;border-radius:18px;display:flex;align-items:center;justify-content:center;flex:none;background:var(--accent-soft);color:var(--accent);box-shadow:inset 0 0 0 1px rgba(242,199,92,.3)}
+.ki-hero .bild{width:56px;height:56px;border-radius:18px;display:flex;align-items:center;justify-content:center;flex:none;background:var(--accent-soft);color:var(--accent);box-shadow:inset 0 0 0 1px rgb(var(--accent-rgb) / .3)}
 .ki-punkte{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
 .ki-punkte li{display:flex;gap:10px;align-items:flex-start;font-size:.95rem}
 .ki-punkte li svg{flex:none;color:var(--accent);margin-top:2px}
@@ -245,16 +248,16 @@ main.blatt{animation:blatt .26s ease-out}
 .ki-modell{display:flex;flex-direction:column;gap:2px;text-align:left;padding:14px 16px;border-radius:16px;border:1px solid var(--rule);background:var(--paper);color:var(--ink)}
 .ki-modell b{font-family:var(--f-display);font-size:1.02rem}
 .ki-modell span{font-size:.84rem;color:var(--ink2)}
-.ki-modell[aria-pressed="true"]{box-shadow:inset 0 0 0 1.5px var(--accent);background:linear-gradient(180deg,rgba(242,199,92,.10),rgba(242,199,92,.04))}
+.ki-modell[aria-pressed="true"]{box-shadow:inset 0 0 0 1.5px var(--accent);background:linear-gradient(180deg,rgb(var(--accent-rgb) / .10),rgb(var(--accent-rgb) / .04))}
 .ki-balken{height:8px;border-radius:6px;background:rgba(255,255,255,.1);overflow:hidden}
-.ki-balken i{display:block;height:100%;background:var(--gold);border-radius:6px;transition:width .3s;box-shadow:0 0 12px rgba(242,199,92,.6)}
+.ki-balken i{display:block;height:100%;background:var(--gold);border-radius:6px;transition:width .3s;box-shadow:0 0 12px rgb(var(--accent-rgb) / .6)}
 .ki-status{font-size:.82rem;color:var(--ink2);font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
 .ki-warn{padding:14px 16px;border-radius:16px;background:var(--warn-soft);color:var(--ink);font-size:.92rem;display:flex;flex-direction:column;gap:6px}
 .ki-warn b{color:var(--warn)}
 .ki-chips{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;margin-inline:-2px;scrollbar-width:none}
 .ki-chips::-webkit-scrollbar{display:none}
 .ki-chip{flex:none;min-height:40px;padding:0 14px;border-radius:999px;border:1px solid var(--rule);background:var(--paper);color:var(--ink);font-size:.86rem;font-weight:600;white-space:nowrap}
-.ki-chip:hover{border-color:rgba(242,199,92,.5)}
+.ki-chip:hover{border-color:rgb(var(--accent-rgb) / .5)}
 .ki-verlauf{display:flex;flex-direction:column;gap:12px;flex:1}
 .blase{max-width:88%;padding:12px 15px;border-radius:20px;font-size:.98rem;line-height:1.5;overflow-wrap:anywhere;white-space:normal}
 .blase.ich{align-self:flex-end;background:var(--gold);color:var(--on-accent);border-bottom-right-radius:6px;font-weight:550}
@@ -278,7 +281,7 @@ main.blatt{animation:blatt .26s ease-out}
 .ki-chip.vorlesen{display:inline-flex;align-items:center;gap:6px}
 .ki-schalter{display:flex;gap:8px;flex-wrap:wrap}
 .denkt{display:inline-flex;align-items:center;gap:8px;color:var(--ink2);font-size:.92rem}
-.ki-chip.vorlesen[aria-pressed="true"]{background:var(--accent-soft);border-color:rgba(242,199,92,.5);color:var(--accent)}
+.ki-chip.vorlesen[aria-pressed="true"]{background:var(--accent-soft);border-color:rgb(var(--accent-rgb) / .5);color:var(--accent)}
 .ki-eingabe .btn.mik,.ki-eingabe .btn.mik:hover,.ki-eingabe .btn.mik:focus{background:var(--paper2);color:var(--accent);border-color:var(--rule);animation:none;box-shadow:var(--edge)}
 .ki-eingabe .btn.mik.an,.ki-eingabe .btn.mik.an:hover,.ki-eingabe .btn.mik.an:focus{background:var(--bad);color:#fff;border-color:transparent;animation:puls 1.2s ease-in-out infinite}
 @keyframes puls{0%,100%{box-shadow:0 0 0 0 rgba(255,143,155,.55)}50%{box-shadow:0 0 0 10px rgba(255,143,155,0)}}
@@ -291,7 +294,7 @@ main.blatt{animation:blatt .26s ease-out}
 .ueberlage-in .aktionen .btn{flex:1 1 160px}
 .ki-hinweis{font-size:.76rem;color:var(--ink2);text-align:center}
 .beta{display:inline-flex;align-items:center;padding:1px 7px;border-radius:999px;background:var(--accent-soft);color:var(--accent);font-size:.66rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;margin-left:6px;vertical-align:middle}
-.btn.ki-frag{border-color:rgba(242,199,92,.35);color:var(--accent)}
+.btn.ki-frag{border-color:rgb(var(--accent-rgb) / .35);color:var(--accent)}
 
 /* ---------- Anleitung ---------- */
 .tut{display:flex;flex-direction:column;gap:18px}
@@ -481,20 +484,20 @@ body::after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opa
 .karte,.art,.volet,.opt,.tx-karte,.kasten,.zeilen,.ord,.motjour,.tut-blatt,.wie{box-shadow:var(--edge),var(--shadow)}
 .art,.volet,.opt,.ord,.tx-karte,.zeilen,.kasten{background:var(--paper);border-color:var(--rule)}
 .btn{background:var(--paper2);border-color:var(--rule);box-shadow:var(--edge)}
-.btn.prim,.cover .btn.cta{background:var(--gold);border-color:transparent;color:var(--on-accent);box-shadow:inset 0 1px 0 rgba(255,255,255,.45),0 12px 26px -14px rgba(242,199,92,.7)}
+.btn.prim,.cover .btn.cta{background:var(--gold);border-color:transparent;color:var(--on-accent);box-shadow:inset 0 1px 0 rgba(255,255,255,.45),0 12px 26px -14px rgb(var(--accent-rgb) / .7)}
 .btn.prim:not(:disabled):hover,.cover .btn.cta:hover{filter:brightness(1.05)}
 .btn.prim:disabled{background:var(--paper2);color:var(--ink2);box-shadow:none;opacity:1}
 .btn.schlecht{background:var(--bad-soft)}
 .nav,.cover-nav .nav{background:var(--paper);border-color:var(--rule);color:var(--ink)}
-.nav:hover{border-color:rgba(242,199,92,.5)}
+.nav:hover{border-color:rgb(var(--accent-rgb) / .5)}
 .seg{background:rgba(0,0,0,.28);border:1px solid var(--rule)}
-.seg button[aria-pressed="true"]{background:var(--gold);color:var(--on-accent);box-shadow:0 6px 14px -8px rgba(242,199,92,.7)}
+.seg button[aria-pressed="true"]{background:var(--gold);color:var(--on-accent);box-shadow:0 6px 14px -8px rgb(var(--accent-rgb) / .7)}
 .volet input:checked ~ .haken{background:var(--gold);border-color:transparent;color:var(--on-accent)}
-.volet:has(input:checked){background:linear-gradient(180deg,rgba(242,199,92,.10),rgba(242,199,92,.05));box-shadow:inset 0 0 0 1px rgba(242,199,92,.7),var(--shadow)}
+.volet:has(input:checked){background:linear-gradient(180deg,rgb(var(--accent-rgb) / .10),rgb(var(--accent-rgb) / .05));box-shadow:inset 0 0 0 1px rgb(var(--accent-rgb) / .7),var(--shadow)}
 .buch.fremd .volet input:checked ~ .haken{background:var(--buch2)}
 .buch.fremd .volet:has(input:checked){background:var(--buch2-soft);box-shadow:inset 0 0 0 1px var(--buch2),var(--shadow)}
-.etikett{background:linear-gradient(160deg,#24493c,#173329);border:1px solid rgba(242,199,92,.28);box-shadow:0 24px 50px -24px rgba(0,0,0,.9)}
-.etikett-in{border:1px solid rgba(242,199,92,.45);background-image:repeating-linear-gradient(0deg,transparent 0,transparent calc(2.25rem - 1px),rgba(255,255,255,.07) calc(2.25rem - 1px),rgba(255,255,255,.07) 2.25rem)}
+.etikett{background:linear-gradient(160deg,var(--etikett-a),var(--paper));border:1px solid rgb(var(--accent-rgb) / .28);box-shadow:0 24px 50px -24px rgba(0,0,0,.9)}
+.etikett-in{border:1px solid rgb(var(--accent-rgb) / .45);background-image:repeating-linear-gradient(0deg,transparent 0,transparent calc(2.25rem - 1px),rgba(255,255,255,.07) calc(2.25rem - 1px),rgba(255,255,255,.07) 2.25rem)}
 .etikett .eyebrow{color:var(--on-cover2)}
 .zahl,.buchzeile,.anleitung-karte{background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02));border:1px solid var(--rule)}
 .cover .btn.zweit{background:var(--paper);border:1px solid var(--rule)}
@@ -509,9 +512,9 @@ body::after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opa
 .stempel.nein{text-shadow:0 0 22px rgba(255,143,155,.3)}
 .tx-banner{border-color:var(--paper2)}
 .art .bild{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--k) 22%,transparent)}
-.opt:not(:disabled):hover,.art:not(:disabled):hover,.tx-karte:hover,.volet:hover{border-color:rgba(242,199,92,.45)}
+.opt:not(:disabled):hover,.art:not(:disabled):hover,.tx-karte:hover,.volet:hover{border-color:rgb(var(--accent-rgb) / .45)}
 .tut-punkte button[aria-current="step"] i{background:var(--gold)}
-.toast{background:#eef3ea;color:#0c1613}
+.toast{background:var(--ink);color:var(--bg)}
 
 /* ---------- Schrift und Feinheiten ---------- */
 h1,h2,h3{font-family:var(--f-display);font-weight:600;letter-spacing:-.015em;font-variation-settings:"opsz" 72}
@@ -552,18 +555,18 @@ h1[lang="fr"]{font-weight:600;letter-spacing:-.02em}
 .btn{border-radius:16px}
 .btn.klein,.chip{border-radius:999px}
 .art,.volet,.opt,.tx-karte,.kasten,.zeilen,.ord,.zahl,.buchzeile,.anleitung-karte{border:1px solid transparent;
-  background:linear-gradient(180deg,#1b3a2f,#163028) padding-box,linear-gradient(180deg,rgba(255,255,255,.22),rgba(255,255,255,.06)) border-box}
-.zahl,.buchzeile,.anleitung-karte{background:linear-gradient(180deg,#1b3a2f,#163028) padding-box,linear-gradient(180deg,rgba(255,255,255,.2),rgba(255,255,255,.05)) border-box}
+  background:linear-gradient(180deg,var(--card-a),var(--card-b)) padding-box,linear-gradient(180deg,rgba(255,255,255,.22),rgba(255,255,255,.06)) border-box}
+.zahl,.buchzeile,.anleitung-karte{background:linear-gradient(180deg,var(--card-a),var(--card-b)) padding-box,linear-gradient(180deg,rgba(255,255,255,.2),rgba(255,255,255,.05)) border-box}
 .art,.tx-karte{border-radius:22px}
 .art .bild{border-radius:14px}
 .fortschritt .spur{height:6px;background:rgba(255,255,255,.12)}
-.fortschritt .spur i{box-shadow:0 0 12px rgba(242,199,92,.55)}
+.fortschritt .spur i{box-shadow:0 0 12px rgb(var(--accent-rgb) / .55)}
 body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
 body.deckel::before{background:var(--cover)}
 .top{position:sticky;top:env(safe-area-inset-top,0px);z-index:8;padding-block:10px;
   margin-inline:calc(-1 * max(16px,env(safe-area-inset-left,0px))) calc(-1 * max(16px,env(safe-area-inset-right,0px)));
   padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
-  background:rgba(5,9,7,.78);-webkit-backdrop-filter:blur(16px) saturate(140%);backdrop-filter:blur(16px) saturate(140%);border-bottom:1px solid var(--rule)}
+  background:rgb(var(--bg-rgb) / .78);-webkit-backdrop-filter:blur(16px) saturate(140%);backdrop-filter:blur(16px) saturate(140%);border-bottom:1px solid var(--rule)}
 .app{padding-block:0 28px}
 main{padding-top:4px}
 body.deckel main{padding-top:14px}
@@ -571,6 +574,96 @@ body.deckel main{padding-top:14px}
 
 .von{align-self:flex-end;font-size:.72rem;letter-spacing:.04em;color:var(--ink2);opacity:.75;padding-top:4px}
 .von .hand{font-size:.9rem;color:var(--accent);letter-spacing:0}
+
+
+/* ---------- Designs (data-design auf <html>) ---------- */
+/* Chinesisch: schwarzer Lack, Zinnoberrot, Gold, Wolken-Ornamente und ein rotes Siegel */
+:root[data-design="china"]{
+  --bg:#090504; --bg-rgb:9 5 4; --paper:#3a1310; --paper2:#4a1a15; --card-a:#3f1612; --card-b:#2c0d0b;
+  --ink:#f7ecd8; --ink2:#cdb59a; --rule:rgba(232,185,96,.22); --rule2:rgba(232,185,96,.1); --marge:rgba(214,64,48,.8);
+  --accent:#e8b960; --accent-rgb:232 185 96; --gold-a:#f6d589; --gold-b:#d49a3a; --on-accent:#2a0d08; --cta:#e8b960; --on-cta:#2a0d08;
+  --cover:#090504; --cover2:#3a1310; --on-cover:#f7ecd8; --on-cover2:#cdb59a; --etikett-a:#5a1d17;
+  --good:#9fdcae; --good-soft:rgba(159,220,174,.13); --bad:#ff8c78; --bad-soft:rgba(255,140,120,.14); --warn:#f3c56f; --warn-soft:rgba(243,197,111,.14);
+  --buch2:#f0a06a; --buch2-soft:rgba(240,160,106,.14);
+  --k1:#e8b960; --k2:#ff8c78; --k3:#9fdcae; --k4:#f3c56f; --k5:#d9a6e0; --k6:#8fd0d8; --k7:#f0a06a; --k8:#f2a0b6;
+  --glow-farbe:214 64 48;
+  --f-display:"Noto Serif SC","Songti SC","STSong","Fraunces",Georgia,serif;
+  --muster:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='64' viewBox='0 0 120 64'%3E%3Cg fill='none' stroke='%23e8b960' stroke-opacity='.12' stroke-width='1.2' stroke-linecap='round'%3E%3Cpath d='M10 40c0-8 8-12 14-8 2-8 14-10 18-2 6-4 14 0 12 8'/%3E%3Cpath d='M22 40c0-4 4-6 7-4'/%3E%3Cpath d='M70 18c0-8 8-12 14-8 2-8 14-10 18-2 6-4 14 0 12 8'/%3E%3Cpath d='M82 18c0-4 4-6 7-4'/%3E%3C/g%3E%3C/svg%3E");
+}
+:root[data-design="china"] body::after{opacity:.05}
+:root[data-design="china"] body,:root[data-design="china"] body.deckel{background-image:var(--glow),var(--muster);background-size:auto,180px 96px;background-repeat:no-repeat,repeat;background-attachment:scroll,fixed}
+:root[data-design="china"] .muster-aus{background-image:none}
+:root[data-design="china"] h1,:root[data-design="china"] h2,:root[data-design="china"] h3,
+:root[data-design="china"] .art b,:root[data-design="china"] .buchkopf h2,:root[data-design="china"] .titel b{font-family:var(--f-display);font-weight:700;letter-spacing:0}
+:root[data-design="china"] .gruss h1 em{font-family:var(--f-display);font-style:normal;font-weight:700;color:var(--accent)}
+:root[data-design="china"] .seyes{background-image:linear-gradient(90deg,transparent 1.75rem,var(--marge) 1.75rem,var(--marge) calc(1.75rem + 1.5px),transparent calc(1.75rem + 1.5px)),
+  linear-gradient(180deg,rgba(232,185,96,.07),transparent 40%)}
+:root[data-design="china"] .karte,:root[data-design="china"] .tut-blatt,:root[data-design="china"] .wie,:root[data-design="china"] .motjour{border:1px solid var(--rule);border-radius:6px 22px 6px 22px}
+:root[data-design="china"] .art,:root[data-design="china"] .tx-karte,:root[data-design="china"] .volet,:root[data-design="china"] .opt{border-radius:4px 18px 4px 18px}
+:root[data-design="china"] .btn,:root[data-design="china"] .nav{border-radius:4px 14px 4px 14px}
+:root[data-design="china"] .stempel{border:2px solid currentColor;border-radius:6px;padding:0 12px;line-height:1.5;font-size:1.35rem}
+:root[data-design="china"] .eyebrow::before{width:6px!important;height:6px!important;transform:rotate(45deg);background:var(--marge)!important;opacity:1!important}
+:root[data-design="china"] .etikett{border-radius:6px;background:linear-gradient(160deg,#6a2119,#3a1310);border:1px solid rgba(232,185,96,.45)}
+:root[data-design="china"] .etikett-in{border:1px solid rgba(232,185,96,.6);border-radius:3px;position:relative}
+:root[data-design="china"] .etikett .hand{color:var(--accent)}
+.siegel{display:none}
+:root[data-design="china"] .siegel{display:flex;position:absolute;right:12px;bottom:12px;width:54px;height:54px;align-items:center;justify-content:center;border-radius:6px;
+  background:#c8322a;color:#fbe9d2;font-family:"Ma Shan Zheng","Noto Serif SC",serif;font-size:2.1rem;line-height:1;transform:rotate(-6deg);box-shadow:inset 0 0 0 3px #c8322a,inset 0 0 0 5px rgba(251,233,210,.75);opacity:.92}
+:root[data-design="china"] .ring-text b{font-family:var(--f-display)}
+
+/* Paris: Bordeaux, Aubergine und Roségold */
+:root[data-design="paris"]{
+  --bg:#0a0508; --bg-rgb:10 5 8; --paper:#2c1322; --paper2:#3a1a2d; --card-a:#33172a; --card-b:#25101e;
+  --ink:#f8eef2; --ink2:#c9aebb; --rule:rgba(255,220,235,.15); --rule2:rgba(255,220,235,.07); --marge:rgba(255,128,150,.7);
+  --accent:#efb2a4; --accent-rgb:239 178 164; --gold-a:#f6c9bd; --gold-b:#d8907f; --on-accent:#2a0f18; --cta:#efb2a4; --on-cta:#2a0f18;
+  --cover:#0a0508; --cover2:#2c1322; --on-cover:#f8eef2; --on-cover2:#c9aebb; --etikett-a:#4a1f37;
+  --k1:#efb2a4; --k2:#ff96a8; --k3:#9fdcc4; --k4:#f3cf7a; --k5:#c9b2f2; --k6:#9cc8f0; --k7:#f4ad84; --k8:#f0a6d2;
+  --glow-farbe:239 140 160;
+}
+/* Mitternacht: Tiefblau und Eisblau */
+:root[data-design="nacht"]{
+  --bg:#03060c; --bg-rgb:3 6 12; --paper:#111f36; --paper2:#172a48; --card-a:#13233d; --card-b:#0e1a2e;
+  --ink:#eef3fb; --ink2:#a3b3cc; --rule:rgba(200,220,255,.15); --rule2:rgba(200,220,255,.07); --marge:rgba(255,128,150,.65);
+  --accent:#9cc9ff; --accent-rgb:156 201 255; --gold-a:#c4e0ff; --gold-b:#78aef0; --on-accent:#06142a; --cta:#9cc9ff; --on-cta:#06142a;
+  --cover:#03060c; --cover2:#111f36; --on-cover:#eef3fb; --on-cover2:#a3b3cc; --etikett-a:#1d3358;
+  --k1:#9cc9ff; --k2:#ff9aa8; --k3:#8fe0c2; --k4:#f3d27a; --k5:#c3b2f6; --k6:#7fd8ea; --k7:#f4ad84; --k8:#eaa6d6;
+  --glow-farbe:120 170 255;
+}
+/* Matcha: helles Grün auf Anthrazit */
+:root[data-design="matcha"]{
+  --bg:#0a0b08; --bg-rgb:10 11 8; --paper:#1f2618; --paper2:#28311f; --card-a:#232b1b; --card-b:#1a2114;
+  --ink:#f2f5ea; --ink2:#b0b99f; --rule:rgba(220,240,190,.15); --rule2:rgba(220,240,190,.07); --marge:rgba(240,140,120,.65);
+  --accent:#c5e17a; --accent-rgb:197 225 122; --gold-a:#dbef9f; --gold-b:#a5c85a; --on-accent:#18200a; --cta:#c5e17a; --on-cta:#18200a;
+  --cover:#0a0b08; --cover2:#1f2618; --on-cover:#f2f5ea; --on-cover2:#b0b99f; --etikett-a:#33402a;
+  --k1:#c5e17a; --k2:#f4a090; --k3:#8fdcc0; --k4:#f0d27a; --k5:#c9b4ef; --k6:#93c8e6; --k7:#f0aa7e; --k8:#e6a8cf;
+  --glow-farbe:197 225 122;
+}
+
+/* ---------- Akzentfarben (data-akzent auf <html>, überschreibt die des Designs) ---------- */
+:root[data-akzent="gold"]{ --accent:#f2c75c; --accent-rgb:242 199 92; --gold-a:#f8d77f; --gold-b:#ecbd4c; --on-accent:#1f1a08; --cta:#f2c75c; --on-cta:#1f1a08; }
+:root[data-akzent="rose"]{ --accent:#f4a9b8; --accent-rgb:244 169 184; --gold-a:#f9c6d0; --gold-b:#e3889c; --on-accent:#2a0d15; --cta:#f4a9b8; --on-cta:#2a0d15; }
+:root[data-akzent="jade"]{ --accent:#6fdcb8; --accent-rgb:111 220 184; --gold-a:#9ce9cf; --gold-b:#45c19b; --on-accent:#04231a; --cta:#6fdcb8; --on-cta:#04231a; }
+:root[data-akzent="lavendel"]{ --accent:#c3b0ff; --accent-rgb:195 176 255; --gold-a:#d9ccff; --gold-b:#a58ef0; --on-accent:#170d33; --cta:#c3b0ff; --on-cta:#170d33; }
+:root[data-akzent="kupfer"]{ --accent:#f0a067; --accent-rgb:240 160 103; --gold-a:#f6bf8f; --gold-b:#d97c3f; --on-accent:#2a1405; --cta:#f0a067; --on-cta:#2a1405; }
+:root[data-akzent="eis"]{ --accent:#a8d8ff; --accent-rgb:168 216 255; --gold-a:#cbe8ff; --gold-b:#7cbcf2; --on-accent:#05182b; --cta:#a8d8ff; --on-cta:#05182b; }
+
+/* ---------- Design-Auswahl ---------- */
+.designs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+@media (min-width:620px){ .designs{grid-template-columns:repeat(3,minmax(0,1fr))} }
+.design{display:flex;flex-direction:column;gap:0;padding:0;border-radius:18px;overflow:hidden;border:1px solid var(--rule);background:var(--paper);text-align:left;color:var(--ink);min-width:0}
+.design[aria-pressed="true"]{box-shadow:inset 0 0 0 2px var(--accent),var(--shadow);border-color:transparent}
+.design-vorschau{position:relative;height:96px;display:flex;align-items:flex-end;gap:8px;padding:12px}
+.design-vorschau i{display:block;border-radius:8px}
+.design-vorschau .k{flex:1;height:44px}
+.design-vorschau .p{width:44px;height:18px;border-radius:999px;position:absolute;right:12px;top:12px}
+.design-name{display:flex;flex-direction:column;gap:2px;padding:10px 12px 12px}
+.design-name b{font-family:var(--f-ui);font-weight:750}
+.design-name span{font-size:.8rem;color:var(--ink2)}
+.akzente-wahl{display:flex;flex-wrap:wrap;gap:10px}
+.farbe{display:flex;align-items:center;gap:8px;min-height:44px;padding:0 14px 0 8px;border-radius:999px;border:1px solid var(--rule);background:var(--paper);color:var(--ink);font-weight:650;font-size:.9rem}
+.farbe i{width:26px;height:26px;border-radius:50%;box-shadow:inset 0 0 0 2px rgba(255,255,255,.2)}
+.farbe[aria-pressed="true"]{box-shadow:inset 0 0 0 2px var(--accent)}
+.nav.rund{width:44px;padding:0;justify-content:center}
 
 @media (prefers-reduced-motion: reduce){ *,*::before,*::after{animation:none!important;transition:none!important} }
 </style>
@@ -683,7 +776,7 @@ function satzVoll(c, html){
 }
 
 /* ---------- Zustand ---------- */
-function leer(){ return { v:2, cards:{}, sel:[], art:'kasten', set:{neu:10, modus:'tippen', richtung:'de-fr', folge:'buch', anzahl:20, extra:true, auto:false, kiModell:'', kiGeladen:'', kiVorbereiten:true, kiDenken:null, kiVorlesen:false, kiQuelle:'', kiOhneWorker:false}, own:[], texte:{}, tage:{last:0, serie:0}, tut:0, reset:0, t:0 }; }
+function leer(){ return { v:2, cards:{}, sel:[], art:'kasten', set:{neu:10, modus:'tippen', richtung:'de-fr', folge:'buch', anzahl:20, extra:true, auto:false, kiModell:'', kiGeladen:'', kiVorbereiten:true, kiDenken:null, kiVorlesen:false, kiQuelle:'', kiOhneWorker:false, design:'tafel', akzent:''}, own:[], texte:{}, tage:{last:0, serie:0}, tut:0, reset:0, t:0 }; }
 var S = leer();
 function uebernehmen(o){
   var n = leer(); if (!o || typeof o !== 'object') return n;
@@ -749,7 +842,7 @@ function wolkeStart(){
         var d = snap && snap.exists ? snap.data() : null, anders = false;
         if (d && typeof d.json === 'string'){ wolkeStand = d.json; try { anders = mischen(JSON.parse(d.json)); } catch(e){} }
         wolke = doc;
-        if (anders){ try { localStorage.setItem(KEY, JSON.stringify(S)); } catch(e){} karten(); if (view === 'start' || view === 'wahl' || view === 'mehr' || view === 'liste') render(); }
+        if (anders){ try { localStorage.setItem(KEY, JSON.stringify(S)); } catch(e){} designAnwenden(); karten(); if (view === 'start' || view === 'wahl' || view === 'mehr' || view === 'liste') render(); }
         wolkeSpaeter();
       });
     });
@@ -842,6 +935,7 @@ P.hilfe = '<circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.
 P.weiter = '<path d="m9 6 6 6-6 6"/>';
 P.ki = '<path d="M12 3l1.8 4.6L18.5 9l-4.7 1.6L12 15l-1.8-4.4L5.5 9l4.7-1.4z"/><path d="M19 15l.8 2 2 .8-2 .7-.8 2.1-.8-2.1-2-.7 2-.8z"/><path d="M5 16l.6 1.4 1.4.6-1.4.5L5 20l-.6-1.5L3 18l1.4-.6z"/>';
 P.mik = '<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0"/><path d="M12 17.5V21"/>';
+P.palette = '<path d="M12 3a9 9 0 1 0 0 18c1.1 0 1.8-.8 1.8-1.7 0-.5-.2-.9-.5-1.2-.3-.3-.5-.7-.5-1.2 0-.9.8-1.7 1.7-1.7H16a5 5 0 0 0 5-5c0-4-4-7.2-9-7.2z"/><circle cx="7.5" cy="11" r="1.2"/><circle cx="10" cy="7" r="1.2"/><circle cx="14.5" cy="7" r="1.2"/>';
 P.senden = '<path d="M5 12h13"/><path d="m12 5 7 7-7 7"/>';
 P.stopp = '<rect x="7" y="7" width="10" height="10" rx="2"/>';
 P.haken = '<path d="m5 12.5 4.5 4.5L19 7.5"/>';
@@ -929,11 +1023,11 @@ function render(){
   var f = document.activeElement && document.activeElement.id;
   document.body.classList.toggle('deckel', view === 'start');
   kopf();
-  ({ start:rStart, wahl:rWahl, art:rArt, opt:rOpt, runde:rRunde, ende:rEnde, ueben:rUeben, liste:rListe, mehr:rMehr, tut:rTut, texte:rTexte, text:rText, tq:rTq, ord:rOrd, tw:rTw, ki:rKi })[view]();
+  ({ start:rStart, wahl:rWahl, art:rArt, opt:rOpt, runde:rRunde, ende:rEnde, ueben:rUeben, liste:rListe, mehr:rMehr, tut:rTut, texte:rTexte, text:rText, tq:rTq, ord:rOrd, tw:rTw, ki:rKi, design:rDesign })[view]();
   if (f){ var e = document.getElementById(f); if (e && e !== document.activeElement){ try { e.focus({preventScroll:true}); } catch(_){} } }
 }
 function kopf(){
-  var zurueck = { ki:'start', wahl:'start', art:'wahl', opt:'art', liste:'start', mehr:'start', ende:'start', texte:'start', text:'texte', tw:'text' }[view];
+  var zurueck = { design:'start', ki:'start', wahl:'start', art:'wahl', opt:'art', liste:'start', mehr:'start', ende:'start', texte:'start', text:'texte', tw:'text' }[view];
   if (view === 'start') topEl.innerHTML = '';
   else if (view === 'tut') topEl.innerHTML = '<div class="titel"><b>Anleitung</b><span>Schritt ' + (tutI + 1) + ' von ' + TUT.length + '</span></div>' +
       '<button type="button" class="nav" data-act="tut-zu" aria-label="Anleitung schließen">' + svg(P.x, 18) + 'Schließen</button>';
@@ -952,7 +1046,7 @@ function kopf(){
       '<button type="button" class="nav" data-act="go" data-w="start" aria-label="Beenden und zur Startseite">' + svg(P.x, 18) + 'Beenden</button>';
   } else {
     topEl.innerHTML = '<button type="button" class="nav" data-act="go" data-w="' + zurueck + '">' + svg(P.back, 18) + (zurueck === 'start' ? 'Start' : 'Zurück') + '</button>' +
-      '<div class="titel" style="text-align:right"><b>' + ({ wahl:'Lernen', art:'Lernen', opt:'Lernen', liste:'Alle Wörter', mehr:'Mehr', ende:'Geschafft', texte:'Texte', text:'Text', tw:'Wörter zum Text' })[view] + '</b></div>';
+      '<div class="titel" style="text-align:right"><b>' + ({ wahl:'Lernen', art:'Lernen', opt:'Lernen', liste:'Alle Wörter', mehr:'Mehr', ende:'Geschafft', texte:'Texte', text:'Text', tw:'Wörter zum Text', design:'Design' })[view] + '</b></div>';
   }
 }
 
@@ -982,9 +1076,9 @@ function rStart(){
       '<div class="bz-balken" aria-hidden="true"><i class="s" style="width:' + (o.n ? o.fach[6] / o.n * 100 : 0) + '%"></i><i class="k" style="width:' + (o.n ? kasten / o.n * 100 : 0) + '%"></i></div></div>';
   }).join('');
   main.innerHTML = '<div class="cover">' +
-    '<div class="cover-nav"><button type="button" class="nav hilfe" data-act="tut" data-w="0">' + svg(P.hilfe, 18) + 'Anleitung</button><button type="button" class="nav" data-act="go" data-w="liste">Alle Wörter</button><button type="button" class="nav" data-act="go" data-w="mehr">Mehr</button></div>' +
-    '<div class="etikett"><div class="etikett-in"><span class="eyebrow">Cahier de</span><span class="hand" lang="fr">vocabulaire</span><span class="zeile">À plus! · Französisch</span></div></div>' +
-    '<div class="held"><div class="ring" role="img" aria-label="' + prozent + ' Prozent deines Lernwegs geschafft"><svg viewBox="0 0 104 104" aria-hidden="true"><defs><linearGradient id="goldverlauf" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f8d77f"/><stop offset="1" stop-color="#d9a434"/></linearGradient></defs>' +
+    '<div class="cover-nav"><button type="button" class="nav hilfe" data-act="tut" data-w="0">' + svg(P.hilfe, 18) + 'Anleitung</button><button type="button" class="nav rund" data-act="go" data-w="design" aria-label="Design und Farben" title="Design und Farben">' + svg(P.palette, 18) + '</button><button type="button" class="nav" data-act="go" data-w="liste">Alle Wörter</button><button type="button" class="nav" data-act="go" data-w="mehr">Mehr</button></div>' +
+    '<div class="etikett"><div class="etikett-in"><span class="eyebrow">Cahier de</span><span class="hand" lang="fr">vocabulaire</span><span class="zeile">À plus! · Französisch</span><span class="siegel" aria-hidden="true">学</span></div></div>' +
+    '<div class="held"><div class="ring" role="img" aria-label="' + prozent + ' Prozent deines Lernwegs geschafft"><svg viewBox="0 0 104 104" aria-hidden="true"><defs><linearGradient id="goldverlauf" x1="0" y1="0" x2="1" y2="1"><stop offset="0" style="stop-color:var(--gold-a)"/><stop offset="1" style="stop-color:var(--gold-b)"/></linearGradient></defs>' +
       '<circle class="spur" cx="52" cy="52" r="45" fill="none" stroke-width="7"/><circle class="wert" cx="52" cy="52" r="45" fill="none" stroke-width="7" stroke-dasharray="282.7" stroke-dashoffset="' + (282.7 * (1 - prozent / 100)).toFixed(1) + '"/></svg>' +
       '<div class="ring-text"><b>' + prozent + '<small style="font-size:.55em">%</small></b><span>geschafft</span></div></div>' +
       '<div class="gruss"><p class="hand" lang="fr">' + salut + '</p><h1>' + satz + '</h1></div></div>' +
@@ -1582,7 +1676,7 @@ function txKlick(act, w, b){
 /* ----- KI-Lernhelfer ----- */
 var KIURL = 'https://cdn.jsdelivr.net/npm/@mlc-ai/web-llm@0.2.86/+esm';
 var KISERVER = 'https://vokabel-ki.hallosuperbs.workers.dev';
-var STAND = 'd47c365e2f';
+var STAND = '5bc2ec408c';
 /* Neue Version da? Safari und GitHub Pages halten alte Seiten sonst eine Weile im Zwischenspeicher. */
 function standPruefen(){
   if (!STAND || imClaude() || !/^https?:$/.test(location.protocol)) return;
@@ -2195,6 +2289,38 @@ function kiKlick(act, w, b){
   return false;
 }
 
+/* ----- Design und Farben ----- */
+var DESIGNS = [
+  { id:'tafel', name:'Tafel', info:'Tiefgrün und Gold', c:['#050907','#1b3a2f','#f2c75c'] },
+  { id:'china', name:'Chinesisch', info:'Schwarzer Lack, Zinnober und Gold', c:['#090504','#3f1612','#e8b960'], siegel:true },
+  { id:'paris', name:'Paris', info:'Bordeaux und Roségold', c:['#0a0508','#33172a','#efb2a4'] },
+  { id:'nacht', name:'Mitternacht', info:'Tiefblau und Eisblau', c:['#03060c','#13233d','#9cc9ff'] },
+  { id:'matcha', name:'Matcha', info:'Grüntee und Anthrazit', c:['#0a0b08','#232b1b','#c5e17a'] }
+];
+var AKZENTE = [['', 'Passend zum Design', null], ['gold', 'Gold', '#f2c75c'], ['rose', 'Rosé', '#f4a9b8'], ['jade', 'Jade', '#6fdcb8'], ['lavendel', 'Lavendel', '#c3b0ff'], ['kupfer', 'Kupfer', '#f0a067'], ['eis', 'Eisblau', '#a8d8ff']];
+function designAnwenden(){
+  var h = document.documentElement, d = S.set.design || 'tafel';
+  if (d === 'tafel') h.removeAttribute('data-design'); else h.setAttribute('data-design', d);
+  if (S.set.akzent) h.setAttribute('data-akzent', S.set.akzent); else h.removeAttribute('data-akzent');
+  var m = document.querySelector('meta[name="theme-color"]'), dd = DESIGNS.filter(function(x){ return x.id === d; })[0];
+  if (m && dd) m.setAttribute('content', dd.c[0]);
+}
+function rDesign(){
+  var d = S.set.design || 'tafel';
+  main.innerHTML = '<div class="kopf"><h1>Design und Farben</h1><p>Such dir aus, wie dein Vokabelheft aussehen soll. Die Auswahl gilt nur auf diesem Gerät.</p></div>' +
+    '<section class="block"><div class="eyebrow">Design</div><div class="designs">' + DESIGNS.map(function(x){
+      return '<button type="button" class="design" data-act="design" data-w="' + x.id + '" aria-pressed="' + (x.id === d) + '">' +
+        '<span class="design-vorschau" style="background:' + x.c[0] + '"><i class="k" style="background:' + x.c[1] + '"></i><i class="k" style="background:' + x.c[1] + ';opacity:.7"></i><i class="p" style="background:' + x.c[2] + '"></i>' +
+        (x.siegel ? '<i style="position:absolute;left:12px;top:12px;width:22px;height:22px;border-radius:4px;background:#c8322a;transform:rotate(-6deg)"></i>' : '') + '</span>' +
+        '<span class="design-name"><b>' + x.name + '</b><span>' + x.info + '</span></span></button>';
+    }).join('') + '</div></section>' +
+    '<section class="block"><div class="eyebrow">Akzentfarbe</div><p class="hinweis">Die Farbe für Knöpfe, Häkchen und Fortschritt.</p><div class="akzente-wahl">' + AKZENTE.map(function(a){
+      var farbe = a[2] || (DESIGNS.filter(function(x){ return x.id === d; })[0] || DESIGNS[0]).c[2];
+      return '<button type="button" class="farbe" data-act="akzent-wahl" data-w="' + a[0] + '" aria-pressed="' + ((S.set.akzent || '') === a[0]) + '"><i style="background:' + farbe + '"></i>' + a[1] + '</button>';
+    }).join('') + '</div></section>' +
+    '<div class="aktionen"><button type="button" class="btn prim" data-act="go" data-w="start">Fertig</button></div>';
+}
+
 /* ----- Liste ----- */
 function listeHTML(){
   var s = norm(listeSuche), sa = noAcc(s), h = '';
@@ -2221,6 +2347,7 @@ function rMehr(){
     return '<option value="' + esc(s.key) + '"' + (rMehr.sec === s.key ? ' selected' : '') + '>' + esc(secName(s.key)) + '</option>'; }).join('') + '</select>';
   var unvoll = SECS.filter(function(s){ return !s.voll; }).map(function(s){ return secName(s.key); });
   main.innerHTML = '<div class="mehr">' +
+    '<section class="block"><h2>Design</h2><p class="hinweis">Tafel, Chinesisch, Paris, Mitternacht oder Matcha, dazu eine Akzentfarbe nach Wahl.</p><div class="aktionen"><button type="button" class="btn klein" data-act="go" data-w="design">' + svg(P.palette, 18) + 'Design und Farben ändern</button></div></section>' +
     '<section class="block"><h2>Einstellungen</h2><div>' +
       '<div class="opt-zeile"><div><b>Eigennamen und Landeskunde</b><small>Zum Beispiel Denis Zakaria, la Palme d’Or oder la Fête de l’Escalade.</small></div>' + seg('set-extra', S.set.extra ? 1 : 0, [[1,'Mitlernen'],[0,'Weglassen']]) + '</div>' +
       '<div class="opt-zeile"><div><b>Aussprache</b><small>' + (stimme ? 'Soll das französische Wort nach jeder Antwort vorgelesen werden?' : 'Dieses Gerät hat keine französische Stimme. Die Lautsprecher-Knöpfe und die Lernart „Hören“ sind deshalb ausgeblendet.') + '</small></div>' + (stimme ? seg('set-auto', S.set.auto ? 1 : 0, [[1,'Automatisch'],[0,'Nur auf Knopfdruck']]) : '') + '</div>' +
@@ -2259,6 +2386,8 @@ document.addEventListener('click', function(ev){
   switch (act){
     case 'sprich': ev.stopPropagation(); sprich(b.getAttribute('data-t')); if (b.classList.contains('hoer')){ var ip = $('#antwort'); if (ip) ip.focus(); } break;
     case 'go': go(w); break;
+    case 'design': S.set.design = w; speichern(); designAnwenden(); render(); break;
+    case 'akzent-wahl': S.set.akzent = w; speichern(); designAnwenden(); render(); break;
     case 'tut': tutI = Math.max(0, Math.min(TUT.length - 1, +w || 0)); if (view === 'tut'){ render(); window.scrollTo(0,0); } else go('tut'); break;
     case 'tut-zu': S.tut = 1; speichern(); go('start'); break;
     case 'tut-los': S.tut = 1; speichern(); go('wahl'); break;
@@ -2322,7 +2451,7 @@ document.addEventListener('click', function(ev){
     case 'code-laden':
       var roh = ($('#code-ein').value || '').replace(/\s+/g,'');
       if (!roh){ toast('Füge zuerst den Code ein.'); break; }
-      try { var o = JSON.parse(decodeURIComponent(escape(atob(roh)))); if (!o || typeof o.cards !== 'object') throw 0; mischen(o); speichern(); karten(); render(); toast('Lernstand übernommen.'); }
+      try { var o = JSON.parse(decodeURIComponent(escape(atob(roh)))); if (!o || typeof o.cards !== 'object') throw 0; mischen(o); speichern(); designAnwenden(); karten(); render(); toast('Lernstand übernommen.'); }
       catch(e){ toast('Der Code ist unvollständig. Kopiere ihn noch einmal ganz.'); } break;
     case 'reset': resetFrage = true; render(); break;
     case 'reset-nein': resetFrage = false; render(); break;
@@ -2373,7 +2502,7 @@ document.addEventListener('keydown', function(ev){
 });
 
 /* ---------- Start ---------- */
-laden(); karten(); stimmen(); render(); wolkeStart();
+laden(); designAnwenden(); karten(); stimmen(); render(); wolkeStart();
 setTimeout(kiVorbereiten, 2500);
 setTimeout(standPruefen, 1200);
 document.addEventListener('visibilitychange', function(){ if (document.visibilityState === 'visible') standPruefen(); });
