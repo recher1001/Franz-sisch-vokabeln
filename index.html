@@ -569,12 +569,16 @@ main{padding-top:4px}
 body.deckel main{padding-top:14px}
 .schritte i{font-family:var(--f-display)}
 
+.von{align-self:flex-end;font-size:.72rem;letter-spacing:.04em;color:var(--ink2);opacity:.75;padding-top:4px}
+.von .hand{font-size:.9rem;color:var(--accent);letter-spacing:0}
+
 @media (prefers-reduced-motion: reduce){ *,*::before,*::after{animation:none!important;transition:none!important} }
 </style>
 
 <div class="app" id="app">
   <header class="top" id="top"></header>
   <main id="main"></main>
+  <footer class="von">von <span class="hand">Julian</span></footer>
 </div>
 <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 
@@ -1578,7 +1582,7 @@ function txKlick(act, w, b){
 /* ----- KI-Lernhelfer ----- */
 var KIURL = 'https://cdn.jsdelivr.net/npm/@mlc-ai/web-llm@0.2.86/+esm';
 var KISERVER = 'https://vokabel-ki.hallosuperbs.workers.dev';
-var STAND = 'c2c7fda125';
+var STAND = 'd47c365e2f';
 /* Neue Version da? Safari und GitHub Pages halten alte Seiten sonst eine Weile im Zwischenspeicher. */
 function standPruefen(){
   if (!STAND || imClaude() || !/^https?:$/.test(location.protocol)) return;
