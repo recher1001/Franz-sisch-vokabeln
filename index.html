@@ -607,6 +607,14 @@ body.deckel main{padding-top:14px}
 :root[data-design="china"] .etikett-in{border:1px solid rgba(232,185,96,.6);border-radius:3px;position:relative}
 :root[data-design="china"] .etikett .hand{color:var(--accent)}
 .siegel{display:none}
+.flaggen,.etikett-flagge{display:none}
+:root[data-design="china"] .flaggen{display:flex;justify-content:space-between;align-items:flex-start;position:relative;height:40px;margin:-6px 4px -12px;padding-top:6px}
+:root[data-design="china"] .flaggen::before{content:"";position:absolute;left:-4px;right:-4px;top:4px;height:14px;border-top:1.5px solid rgba(232,185,96,.7);border-radius:50%/0 0 100% 100%;border-radius:0 0 50% 50%/0 0 100% 100%;border-top:none;border-bottom:1.5px solid rgba(232,185,96,.7)}
+:root[data-design="china"] .wimpel{position:relative;width:30px;height:20px;display:block;border-radius:2px;overflow:hidden;box-shadow:0 3px 8px rgba(0,0,0,.5);transform-origin:top center;
+  margin-top:calc(14px * (1 - (((var(--i) - 4) * (var(--i) - 4)) / 16)));animation:wehen 4s ease-in-out infinite;animation-delay:calc(var(--i) * -.45s)}
+:root[data-design="china"] .wimpel svg,.etikett-flagge svg{display:block;width:100%;height:100%}
+@keyframes wehen{0%,100%{transform:rotate(-4deg)}50%{transform:rotate(4deg)}}
+:root[data-design="china"] .etikett-flagge{display:block;position:absolute;right:14px;top:12px;width:36px;height:24px;border-radius:2px;overflow:hidden;box-shadow:0 2px 6px rgba(0,0,0,.45);transform:rotate(3deg)}
 :root[data-design="china"] .siegel{display:flex;position:absolute;right:12px;bottom:12px;width:54px;height:54px;align-items:center;justify-content:center;border-radius:6px;
   background:#c8322a;color:#fbe9d2;font-family:"Ma Shan Zheng","Noto Serif SC",serif;font-size:2.1rem;line-height:1;transform:rotate(-6deg);box-shadow:inset 0 0 0 3px #c8322a,inset 0 0 0 5px rgba(251,233,210,.75);opacity:.92}
 :root[data-design="china"] .ring-text b{font-family:var(--f-display)}
@@ -1077,7 +1085,7 @@ function rStart(){
   }).join('');
   main.innerHTML = '<div class="cover">' +
     '<div class="cover-nav"><button type="button" class="nav hilfe" data-act="tut" data-w="0">' + svg(P.hilfe, 18) + 'Anleitung</button><button type="button" class="nav rund" data-act="go" data-w="design" aria-label="Design und Farben" title="Design und Farben">' + svg(P.palette, 18) + '</button><button type="button" class="nav" data-act="go" data-w="liste">Alle Wörter</button><button type="button" class="nav" data-act="go" data-w="mehr">Mehr</button></div>' +
-    '<div class="etikett"><div class="etikett-in"><span class="eyebrow">Cahier de</span><span class="hand" lang="fr">vocabulaire</span><span class="zeile">À plus! · Französisch</span><span class="siegel" aria-hidden="true">学</span></div></div>' +
+    wimpelkette() + '<div class="etikett"><div class="etikett-in"><span class="eyebrow">Cahier de</span><span class="hand" lang="fr">vocabulaire</span><span class="zeile">À plus! · Französisch</span><span class="siegel" aria-hidden="true">学</span><span class="etikett-flagge" aria-hidden="true">' + FLAGGE_CN + '</span></div></div>' +
     '<div class="held"><div class="ring" role="img" aria-label="' + prozent + ' Prozent deines Lernwegs geschafft"><svg viewBox="0 0 104 104" aria-hidden="true"><defs><linearGradient id="goldverlauf" x1="0" y1="0" x2="1" y2="1"><stop offset="0" style="stop-color:var(--gold-a)"/><stop offset="1" style="stop-color:var(--gold-b)"/></linearGradient></defs>' +
       '<circle class="spur" cx="52" cy="52" r="45" fill="none" stroke-width="7"/><circle class="wert" cx="52" cy="52" r="45" fill="none" stroke-width="7" stroke-dasharray="282.7" stroke-dashoffset="' + (282.7 * (1 - prozent / 100)).toFixed(1) + '"/></svg>' +
       '<div class="ring-text"><b>' + prozent + '<small style="font-size:.55em">%</small></b><span>geschafft</span></div></div>' +
@@ -1676,7 +1684,7 @@ function txKlick(act, w, b){
 /* ----- KI-Lernhelfer ----- */
 var KIURL = 'https://cdn.jsdelivr.net/npm/@mlc-ai/web-llm@0.2.86/+esm';
 var KISERVER = 'https://vokabel-ki.hallosuperbs.workers.dev';
-var STAND = '5bc2ec408c';
+var STAND = '8b699d271f';
 /* Neue Version da? Safari und GitHub Pages halten alte Seiten sonst eine Weile im Zwischenspeicher. */
 function standPruefen(){
   if (!STAND || imClaude() || !/^https?:$/.test(location.protocol)) return;
@@ -2290,9 +2298,15 @@ function kiKlick(act, w, b){
 }
 
 /* ----- Design und Farben ----- */
+var FLAGGE_CN = '<svg viewBox="0 0 30 20" aria-hidden="true" focusable="false"><rect width="30" height="20" fill="#de2910"/><path fill="#ffde00" d="M5.00 2.00L5.67 4.07L7.85 4.07L6.09 5.35L6.76 7.43L5.00 6.15L3.24 7.43L3.91 5.35L2.15 4.07L4.33 4.07ZM9.14 2.51L9.62 1.97L9.25 1.34L9.91 1.63L10.39 1.08L10.33 1.80L11.00 2.09L10.29 2.25L10.22 2.97L9.85 2.35ZM11.01 4.14L11.66 3.82L11.56 3.10L12.07 3.62L12.72 3.30L12.38 3.95L12.88 4.47L12.17 4.34L11.83 4.99L11.73 4.27ZM11.04 6.73L11.76 6.70L11.96 6.00L12.21 6.68L12.94 6.66L12.37 7.10L12.62 7.79L12.01 7.38L11.44 7.83L11.64 7.13ZM9.22 8.38L9.90 8.63L10.35 8.06L10.32 8.79L11.00 9.05L10.30 9.24L10.26 9.96L9.87 9.36L9.16 9.55L9.62 8.98Z"/></svg>';
+function wimpelkette(){
+  var h = '<div class="flaggen" aria-hidden="true">';
+  for (var i = 0; i < 9; i++) h += '<span class="wimpel" style="--i:' + i + '">' + FLAGGE_CN + '</span>';
+  return h + '</div>';
+}
 var DESIGNS = [
   { id:'tafel', name:'Tafel', info:'Tiefgrün und Gold', c:['#050907','#1b3a2f','#f2c75c'] },
-  { id:'china', name:'Chinesisch', info:'Schwarzer Lack, Zinnober und Gold', c:['#090504','#3f1612','#e8b960'], siegel:true },
+  { id:'china', name:'Chinesisch', info:'Lack, Zinnober, Gold und Flaggen', c:['#090504','#3f1612','#e8b960'], siegel:true },
   { id:'paris', name:'Paris', info:'Bordeaux und Roségold', c:['#0a0508','#33172a','#efb2a4'] },
   { id:'nacht', name:'Mitternacht', info:'Tiefblau und Eisblau', c:['#03060c','#13233d','#9cc9ff'] },
   { id:'matcha', name:'Matcha', info:'Grüntee und Anthrazit', c:['#0a0b08','#232b1b','#c5e17a'] }
@@ -2311,7 +2325,7 @@ function rDesign(){
     '<section class="block"><div class="eyebrow">Design</div><div class="designs">' + DESIGNS.map(function(x){
       return '<button type="button" class="design" data-act="design" data-w="' + x.id + '" aria-pressed="' + (x.id === d) + '">' +
         '<span class="design-vorschau" style="background:' + x.c[0] + '"><i class="k" style="background:' + x.c[1] + '"></i><i class="k" style="background:' + x.c[1] + ';opacity:.7"></i><i class="p" style="background:' + x.c[2] + '"></i>' +
-        (x.siegel ? '<i style="position:absolute;left:12px;top:12px;width:22px;height:22px;border-radius:4px;background:#c8322a;transform:rotate(-6deg)"></i>' : '') + '</span>' +
+        (x.siegel ? '<span style="position:absolute;left:12px;top:12px;width:30px;height:20px;display:block;border-radius:2px;overflow:hidden;box-shadow:0 2px 6px rgba(0,0,0,.5)">' + FLAGGE_CN + '</span>' : '') + '</span>' +
         '<span class="design-name"><b>' + x.name + '</b><span>' + x.info + '</span></span></button>';
     }).join('') + '</div></section>' +
     '<section class="block"><div class="eyebrow">Akzentfarbe</div><p class="hinweis">Die Farbe für Knöpfe, Häkchen und Fortschritt.</p><div class="akzente-wahl">' + AKZENTE.map(function(a){
